@@ -1,0 +1,873 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+
+    <title></title>
+    <link rel="stylesheet" href="dist/reveal.css" />
+    <link rel="stylesheet" href="dist/theme/iph.css" id="theme" />
+    <link rel="stylesheet" href="plugin/highlight/spyder.css" />
+	<link rel="stylesheet" href="css/layout.css" />
+	<link rel="stylesheet" href="plugin/customcontrols/style.css">
+
+
+
+    <script defer src="dist/fontawesome/all.min.js"></script>
+
+	<script type="text/javascript">
+		var forgetPop = true;
+		function onPopState(event) {
+			if(forgetPop){
+				forgetPop = false;
+			} else {
+				parent.postMessage(event.target.location.href, "app://obsidian.md");
+			}
+        }
+		window.onpopstate = onPopState;
+		window.onmessage = event => {
+			if(event.data == "reload"){
+				window.document.location.reload();
+			}
+			forgetPop = true;
+		}
+
+		function fitElements(){
+			const itemsToFit = document.getElementsByClassName('fitText');
+			for (const item in itemsToFit) {
+				if (Object.hasOwnProperty.call(itemsToFit, item)) {
+					var element = itemsToFit[item];
+					fitElement(element,1, 1000);
+					element.classList.remove('fitText');
+				}
+			}
+		}
+
+		function fitElement(element, start, end){
+
+			let size = (end + start) / 2;
+			element.style.fontSize = `${size}px`;
+
+			if(Math.abs(start - end) < 1){
+				while(element.scrollHeight > element.offsetHeight){
+					size--;
+					element.style.fontSize = `${size}px`;
+				}
+				return;
+			}
+
+			if(element.scrollHeight > element.offsetHeight){
+				fitElement(element, start, size);
+			} else {
+				fitElement(element, size, end);
+			}		
+		}
+
+
+		document.onreadystatechange = () => {
+			fitElements();
+			if (document.readyState === 'complete') {
+				if (window.location.href.indexOf("?export") != -1){
+					parent.postMessage(event.target.location.href, "app://obsidian.md");
+				}
+				if (window.location.href.indexOf("print-pdf") != -1){
+					let stateCheck = setInterval(() => {
+						clearInterval(stateCheck);
+						window.print();
+					}, 250);
+				}
+			}
+	};
+
+
+        </script>
+  </head>
+  <body>
+    <div class="reveal">
+      <div class="slides"><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Estructura de Datos y Algoritmos - EDA
+
+ ####  *Preguntas Frecuentes*
+
+[Eduardo Rosales](mailto:ee.rosales24@uniandes.edu.co)
+
+Departamento de Ingeniería de Sistemas y Computación
+
+Universidad de los Andes
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### ¿Cuáles son los canales de comunicación del curso?
+
+- [Bloque Neón](https://bloqueneon.uniandes.edu.co/d2l/home)
+  - LMS (Learning Management System) de la Universidad
+  
+- [Correo Uniandes](https://correo.uniandes.edu.co/)
+  - Medio de comunicación oficial de la Universidad de los Andes
+
+- Servidor [Discord​](https://discord.com/)
+	- Anunciado  → Coordinación de EDA
+	- Información adicional más adelante en el curso…
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### ¿Cuál es el correo del profesor magistral del curso?
+ 
+
+- Eduardo Rosales
+	- [ee.rosales24@uniandes.edu.co](mailto:ee.rosales24@uniandes.edu.co)
+		- Por favor incluya un **asunto muy claro y conciso**
+		- Por favor indique el **motivo específico del correo**
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### ¿Cuál es el horario de atención del profesor magistral?
+
+- Atención con **cita previa**:
+  - [ee.rosales24@uniandes.edu.co](mailto:ee.rosales24@uniandes.edu.co)
+	  - Por favor incluya un **asunto muy claro y conciso**
+	  - Por favor indique el **motivo específico** de la reunión
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### ¿Cuál es el correo del profesor de laboratorio?
+ 
+
+- Juan Pablo Castro Ávila
+	 - [jp.castroa1@uniandes.edu.co](mailto:jp.castroa1@uniandes.edu.co)
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### ¿Cuál es el horario de atención del profesor de laboratorio?
+
+- Atención con **cita previa**:
+  - [jp.castroa1@uniandes.edu.co](mailto:jp.castroa1@uniandes.edu.co)
+
+- Horario:
+	- Por definir
+		- Se publicará aquí y en Bloque Neón
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+###  ¿En dónde puedo encontrar el material del curso?
+
+1. [**Presentaciones de la sección 4**](https://eerosales24.github.io/eda_2025_20/#)
+
+	<br>
+
+
+2. [**Wiki - Documentación del curso**](https://isis1225devs.github.io/ISIS1225-Structure-Documentation/)
+
+
+	<br>
+	
+3. Bloque Neón
+	- **[Aula Unificada](https://bloqueneon.uniandes.edu.co/d2l/home/380216)**
+		- Contenido
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+###  ¿En dónde puedo encontrar el programa del curso?
+
+
+- [Programa del curso](https://eerosales24.github.io/eda_2025_20/general/programa_2025_20_eda.pdf)
+
+<br>
+
+- Es un **deber** del estudiante
+	- Leer cuidadosamente el programa
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+###  ¿Cuál es la bibliografía del curso?
+
+-  *"Data Structures and Algorithms in Python" ​*
+    
+	- Por Michael H. Goldwasser, Michael T. Goodrich, and Roberto Tamassia, 2013​
+	
+	<br>
+
+- Disponible en la [Biblioteca Uniandes](https://uniandes.primo.exlibrisgroup.com/permalink/57U_UDLA/1g0omtq/alma991005784919507681)
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### ¿Cuáles son las "reglas" de comportamiento en la sección?
+
+- En clase:
+	- Mantener la puerta cerrada <i class="fas fa-door-closed"></i>
+	- Sentarse lo más al frente posible <i class="fas fa-users-class"></i>
+	
+
+
+- En clase o laboratorio:
+  - Preguntas en cualquier momento
+	  - ✅  Levante la mano
+	  
+	  <br>
+	  
+	- ❌  <i class="fas fa-hamburger"></i>
+	- ❌  <i class="fas fa-volume-mute"></i>
+	- <i class="fas fa-mobile-alt"></i>  Modo "no molestar"
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### ¿Cuáles son las actividades académicas del curso?
+
+- El curso se divide en **4 módulos**, cada uno incluye las siguientes actividades:
+
+	- [Clase](https://eerosales24.github.io/eda_2025_20/general/preguntas_frecuentes/#/11)
+	- [Laboratorio](https://eerosales24.github.io/eda_2025_20/general/preguntas_frecuentes/#/12)
+	- [Reto](https://eerosales24.github.io/eda_2025_20/general/preguntas_frecuentes/#/14)
+	- [Parcial](https://eerosales24.github.io/eda_2025_20/general/preguntas_frecuentes/#/15)
+	- [Bono](https://eerosales24.github.io/eda_2025_20/general/preguntas_frecuentes/#/19)
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Clase
+
+- Espacio de enseñanza de los conceptos estudiados en el curso
+	- A cargo del profesor magistral
+		- Con enfoque teórico y práctico
+			- 2 sesiones semanales, 1h 20m
+    
+- Fechas:
+	- Semanales
+		- **Lunes y Martes, 11:00am - 12:20pm**
+			- **Salón: SD_303**
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Laboratorio (1/2)
+
+- Actividad práctica evaluable para practicar los conceptos clave del curso
+	- 1 sesión semanal, 1h 20m
+		- Excepto en exámenes
+	- Supervisado principalmente por 
+		- El profesor de laboratorio y 2 monitores
+
+- Enunciados:
+	- Creados y publicados por la Coordinación de EDA​
+
+- Fechas:
+	- Semanales
+		- **Jueves, 11:00am - 12:20pm**
+			- **Laboratorio: ML-109A**
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Laboratorio (2/2)
+
+- Entrega:
+	- Trabajo individual y en grupo de **3 personas**
+		- **Elija muy bien** a su equipo de trabajo​
+			- **No hacerlo ≃ problemas y malas notas** <!-- .element: class="fragment highlight-red" -->
+
+- Calificación (**10%** de la nota del curso):
+	- Los monitores
+	
+	
+<br>
+
+- Información adicional más adelante en el curso…
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Reto
+
+- Actividad práctica evaluable de temática específica
+
+- Fechas:
+	- Publicaciones disponibles en el cronograma de la sección
+
+- Enunciados:
+	- **4** retos
+		- Creados y publicados por la Coordinación de EDA​
+
+- Entrega:
+	- Trabajo individual y en grupo
+		- El mismo grupo de laboratorios<!-- .element: class="fragment highlight-red" -->
+		
+    
+- Calificación (**36%** de la nota del curso):
+	- Los monitores
+
+<br>
+
+- Información adicional más adelante en el curso…
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Parcial (1/4)
+
+- Actividad individual que evalúa los conceptos estudiados en el curso
+	- Enfoque en algoritmia y programación
+
+- Enunciados - **Módulos 1 a 3**:
+	- Creados por el profesor magistral
+	- Mínimo 2 ejercicios que evalúen
+		-  **Capacidades de pensamiento algorítmico**
+		- Calificación objetiva e imparcial:
+			- Basada en rúbricas:
+				- **Correctitud, eficiencia y pruebas exitosas**
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Parcial (2/4)
+
+- Enunciado - **Módulo 4** - examen final:
+	- Creado por la Coordinación de EDA
+		- Evalúa **capacidades de pensamiento algorítmico**
+
+- Logística:
+	- Supervisados por los profesores y monitores
+	- **Módulos 1 a 3**:
+		- En el laboratorio (1h 20mins)​
+			- Con computadores apagados
+	- **Módulo 4 - parcial final**:
+		- En un salón de clases (2 horas)
+			- Asignado por la Dirección de Registro
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Parcial (3/4)
+
+- Fechas:
+	- **Módulos 1 a 3**:
+		- Disponibles en el [cronograma](https://eerosales24.github.io/eda_2025_20/general/preguntas_frecuentes/#/21) de la sección
+		
+	- **Módulo 4** - parcial final:
+		- Ocurrirá en la semana de exámenes finales
+			- Establecida por la **Oficina de Admisiones y Registro**
+				- ❌  Adelantar/modificar fecha
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Parcial (4/4)
+
+
+- Entrega:
+	- Trabajo individual
+	
+- Calificación (**54%** de la nota del curso):
+	- El profesor magistral
+ 
+	<br>
+
+- Información adicional más adelante en el curso...
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Bono
+
+- Actividad opcional para afianzar el aprendizaje de temas clave del curso
+	
+
+- Fechas:
+	- Si alguno, el profesor magistral dará indicaciones
+		
+- Entrega:
+	- Trabajo individual
+
+- Calificación:
+	- El profesor magistral
+	- No acumulable, ni transferible
+	- ❌  Asignar bonos o trabajos extra a un solo estudiante
+	- Si alguno, se aplicaría solo al parcial del módulo
+		- Máximo **+0.35/5.0**
+			- Nota parcial + Bono <= 5.0
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### ¿En dónde puede encontrar el cronograma de la sección?
+
+
+- [Cronograma EDA - Sección 4 - 2025-20](https://eerosales24.github.io/eda_2025_20/general/cronograma_2025_20_eda_04.pdf)
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### ¿Cuál es el requisito de asistencia?
+
+- Requisito para aprobación del curso
+  - Asistencia >= **80%**<!-- .element: class="fragment highlight-red" --><sup id="fn1">1</sup> 
+    - Considerando todas las sesiones (clases y laboratorios)
+
+	<br>
+
+- Los dos profesores llevan una **bitácora de asistencia**
+  
+<br>
+
+- [¿Cómo justificar una inasistencia?](https://eerosales24.github.io/eda_2025_20/general/preguntas_frecuentes/#/22)
+
+<br>
+<p id="footnote"> <sup id="fn1">1</sup> ART. 43 - <a href="https://secretariageneral.uniandes.edu.co/images/documents/reglamento-pregrado-web-2025.pdf">Reglamento General de Estudiantes de Pregrado</a></p>
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### ¿Cómo justificar una inasistencia?
+
+- Se debe presentar una **excusa válida**<sup id="fn1">1</sup> en un plazo de **3 días hábiles**<sup id="fn1">2</sup>
+- La excusa es verificada por el **Servicio Médico** de la universidad
+	- **NO se aceptan incapacidades de médicos particulares**<!-- .element: class="fragment highlight-red" -->
+- ❌ Excusas falsificadas
+  - Conllevan a apertura de [proceso disciplinario](https://decanaturadeestudiantes.uniandes.edu.co/apoyo/preguntas-frecuentes)
+
+<br>
+
+<p id="footnote"> <sup id="fn1">1</sup> Definición de <a href="https://decanaturadeestudiantes.uniandes.edu.co/incapacidades-medicas">incapacidad médica válida</a></p>
+<p id="footnote"> <sup id="fn1">2</sup> ART. 45 - <a href="https://secretariageneral.uniandes.edu.co/images/documents/reglamento-pregrado-web-2025.pdf">Reglamento General de Estudiantes de Pregrado</a></p>
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### ¿Cuál es la política de retiros?
+
+  - El **Consejo Académico** de la universidad dictaminó:
+	  - Hasta semana 11 (cursos de 16 semanas)
+		  - 2 semanas después de entrega de notas parciales
+
+		
+		
+
+  - A **octubre 10**
+	  - Se habrá entregado como mínimo
+		  - El **30%** de la nota del curso
+		  
+	<br>
+	
+- El estudiante es el **único responsable** <!-- .element: class="fragment highlight-red" --> de tomar la decisión de retirar
+	- Último día de retiros
+		- **Octubre 24, 6:00pm**
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### ¿Qué pasa si no voy a un parcial?
+
+  - **Ausencia justificada**
+    - Presentar la justificación al profesor magistral en **máximo 3 días hábiles**
+      - Se programará un supletorio
+      
+	  <br>
+  
+  - **Ausencia no justificada**
+    - La calificación de un parcial no entregado es **0.0** <!-- .element: class="fragment highlight-red" -->
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### ¿Qué sucede si (accidentalmente) entrego una respuesta incompleta en un evaluable?
+
+  - Se califica **únicamente** el contenido que haya sido enviado
+	  - Mediante el medio establecido (Ej: Bloque Neón, GitHub)
+		  - Hasta la fecha y hora límite
+	 - **No hay excepciones** <!-- .element: class="fragment highlight-red" -->
+	      - **No se admiten entregas posteriores**
+		      - **Ni usando un medio distinto al establecido**
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### ¿Cómo se publican notas?
+
+  - En Bloque Neón
+	  - En la plantilla de calificaciones
+
+	<br> 
+
+  - El proceso se informa mediante
+	  - Correo electrónico y/o
+	  - Anuncios en Bloque Neón
+  
+  <br>
+  
+- Información adicional más adelante en el curso...
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### ¿Cuándo se publican notas?
+
+  - A más tardar en **10 días hábiles** siguientes a la evaluación<sup id="fn1">1</sup>
+  
+<br>
+
+<p id="footnote"> <sup id="fn1">1</sup> ART. 64 - <a href="https://secretariageneral.uniandes.edu.co/images/documents/reglamento-pregrado-web-2025.pdf">Reglamento General de Estudiantes de Pregrado</a></p>
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+###  ¿Cuándo se puede hacer reclamos sobre las notas?
+
+  - El plazo máximo para reclamos es **4 días hábiles**
+	  - Después de la entrega de notas<sup id="fn1">1</sup>
+
+<br>
+
+<p id="footnote"> <sup id="fn1">1</sup> ART. 64 - <a href="https://secretariageneral.uniandes.edu.co/images/documents/reglamento-pregrado-web-2025.pdf">Reglamento General de Estudiantes de Pregrado</a></p>
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+###  ¿Cuándo se obtiene respuesta a un reclamo?
+
+  - Los profesores cuentan con **5 días hábiles** para responder a un reclamo<sup id="fn1">1</sup>
+<br>
+
+<p id="footnote"> <sup id="fn1">1</sup> ART. 64 - <a href="https://secretariageneral.uniandes.edu.co/images/documents/reglamento-pregrado-web-2025.pdf">Reglamento General de Estudiantes de Pregrado</a></p>
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### ¿Cómo hacer reclamos sobre la nota de un laboratorio/reto?
+
+- Correo a: [jp.castroa1@uniandes.edu.co](mailto:jp.castroa1@uniandes.edu.co)
+	- **Con copia al monitor que lo calificó**
+	- Por favor incluya un asunto **claro y conciso**
+	- Por favor justifique **muy claramente** el motivo de su reclamo
+    	- Ej: Justifique cómo su solución es correcta 
+	    	- Tal que no le aplique una penalidad específica
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### ¿Cómo hacer reclamos sobre la nota de un parcial?
+
+- Correo a: [ee.rosales24@uniandes.edu.co](mailto:ee.rosales24@uniandes.edu.co)
+	- Por favor incluya un asunto **claro y conciso**
+	- Por favor justifique **muy claramente** el motivo de su reclamo
+		- Ej: Justifique cómo su solución es correcta 
+	    	- Tal que no le aplique una penalidad específica
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### ¿Puedo disolver mi grupo de laboratorios y retos?​ (1/2)
+    
+- Sí​, siguiendo este proceso:
+    
+	- Correo a sus compañeros de equipo​:
+	    
+		- Justificando *muy clara y educadamente* el motivo de disolución​
+	    
+		- Notificando su decisión definitiva
+	    
+		- Copiar el correo a los dos profesores
+	    
+	- Si los profesores autorizan​:
+	
+		- Correo a sus nuevos compañeros de equipo​:
+	
+			- Explicando cómo se compondrá el nuevo grupo​
+	
+			- Copiar el correo a los dos profesores
+	    
+	- Cada uno de los nuevos compañeros​
+	    
+		- Correo a los dos profesores, **aceptando explícitamente el cambio​**
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### ¿Puedo disolver mi grupo de laboratorios y retos?​ (2/2)
+        
+- El cambio será vigente solo desde un próximo evaluable
+	- Se debe entregar cualquier evaluable en curso, aún con el grupo actual<!-- .element: class="fragment highlight-red" -->
+
+	<br>
+
+- Si no puede conseguir un nuevo grupo de 3 integrantes
+	- Puede trabajar en un grupo de 2
+
+	<br>
+
+- Si no puede conseguir un nuevo grupo de al menos 2 integrantes
+	- Puede trabajar solo
+		- Se le evaluará igual que a un grupo de 2 personas<!-- .element: class="fragment highlight-red" -->
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### ¿Cuáles son las consecuencias de un presunto fraude? (1/2)
+
+
+- Obligatorio realizar y entregar trabajo de **autoría 100% propia**
+	- ❌ Compartir código/soluciones
+	- ❌ Copiar código ajeno (plagio)
+		- Incluido código producido por 
+			- [*Chatbots* y similares](https://secretariageneral.uniandes.edu.co/images/documents/lineamientos-uso-inteligencia-artificial-generativa-IAG-uniandes.pdf)
+
+<br>
+
+- En caso de un presunto fraude
+	- Se puede iniciar  un [proceso disciplinario](https://decanaturadeestudiantes.uniandes.edu.co/apoyo/preguntas-frecuentes)
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### ¿Cuáles son las consecuencias de un presunto fraude? (2/2)
+
+- **Parciales:**
+	- Deben​ resolverse completamente de forma individual​
+    
+
+- Ante presunto fraude:​
+    
+	- El profesor puede retirar el enunciado​
+    
+		- La nota será 0.0​
+    
+	- El caso puede ser remitido al Comité Disciplinario
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### ¿Cuáles son las funciones de los monitores? (1/2)
+
+- Los monitores:
+	- Califican:
+	  - Laboratorios y retos
+		  - Realizan sustentaciones
+	- Responden:
+		- Reclamos sobre sus calificaciones
+		- Dudas en los laboratorios
+	- Vigilan los parciales:
+	  - Reportando a los profesores casos de presunto fraude
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### ¿Cuáles son las funciones de los monitores? (2/2)
+
+- Los monitores:
+  - **No responden dudas en parciales**<!-- .element: class="fragment highlight-red" -->, excepto las relacionadas a:
+	- Ambigüedades/errores en el enunciado
+		- Se aclaran para todo el curso
+  - **No** ofrecen ningún tipo de monitoria/tutoría extra/privada
+  - **No** dictan sesiones de clase o laboratorio
+  - **No** califican, ni dan retroalimentación de parciales
+  - **No** comparten ni atienden consultas en sus redes sociales
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### ¿Cuáles son los correos de los monitores del curso?
+
+<br>
+
+- [Laura Carolina Avelino Barrera](mailto:l.avelino@uniandes.edu.co)
+
+	<br>
+
+- [Daniel Suaza Varela](mailto:d.suaza1@uniandes.edu.co)
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### ¿Qué puedo hacer si tengo un problema con algún monitor?
+
+- Correo a los profesores: 
+	- [jp.castroa1@uniandes.edu.co](mailto:jp.castroa1@uniandes.edu.co) 
+	- [ee.rosales24@uniandes.edu.co](mailto:ee.rosales24@uniandes.edu.co)
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### ¿Qué es CupiTaller?
+
+- Ofrece *tutorías* personalizadas y gratuitas
+	- **Recibirá una invitación semanal vía email**
+		- A partir de la semana de apertura
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### ¿Qué es una "tutoría" de CupiTaller? (1/4)
+
+- Sesión de trabajo
+  - Estudiante y tutor
+
+	<br>
+	
+- **Objetivo:** Mejorar las capacidades del estudiantes para
+  - Analizar un problema
+  - Entender sus requerimientos
+  - Planear un algoritmo
+  - Escribir un programa y probarlo
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### ¿Qué es una "tutoría" de CupiTaller? (2/4)
+
+- Una tutoría **NO REEMPLAZA**:
+	- Clases teóricas
+	- Sesiones de laboratorio
+	- Atención a estudiantes por parte de los profesores
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### ¿Qué es una "tutoría" de CupiTaller? (3/4)
+
+- En una tutoría **NO SE PUEDE**:
+	- ❌ Solicitar que el tutor le solucione un laboratorio o reto
+  	-  ❌ Solicitar que el tutor le explique una solución ya desarrollada
+	- ❌ Intentar usar la tutoría como un reemplazo a una
+    	- Clase teórica ó
+    	- Sesión de laboratorio
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### ¿Qué es una "tutoría" de CupiTaller? (4/4)
+
+- Es **responsabilidad exclusiva** del estudiante, sin excepciones:
+    
+- Garantizar que el entregable de un evaluable:
+    
+    - Sea de su **completa autoría**
+        
+    - Utilice únicamente los temas estudiados en el curso
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### ¿Qué es la política de [ajustes razonables](https://decanaturadeestudiantes.uniandes.edu.co/diversidad/solicitud-de-ajuste-razonable)?
+
+- Aplica a estudiantes que tienen una **discapacidad**
+- El estudiante hace la solicitud
+- Ajustes posibles:
+	- Tiempo adicional para evaluaciones
+	- Cambio al formato de evaluación
+	- Cambio de metodología de enseñanza
+	- Apoyo extra de un monitor o los profesores
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### ¿Qué es la [política de momentos difíciles](https://decanaturadeestudiantes.uniandes.edu.co/diversidad/solicitud-de-ajuste-razonable)?
+
+- Aplica a estudiantes que atraviesan una **situación problemática temporal**
+- El profesor magistral evalúa cada caso y llega a un acuerdo con el estudiante
+	- Facilitar al estudiante cumplir con sus deberes académicos
+	- Priorizando su bienestar
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### ¿Qué es el [protocolo MAAD](https://uniandes.edu.co/sites/default/files/asset/document/preguntas-frecuentes-maad.pdf)? (1/2)
+
+- Protocolo para casos de **Maltrato, Acoso, Amenaza y Discriminación** -  MAAD
+- Objetivos:
+	- Apoyo emocional, médico y jurídico
+	- Medidas preventivas
+	- Orientación sobre manejo del caso
+	- Vinculación a políticas institucionales o legales
+- Abarca:
+	- Incidentes dentro y fuera del campus
+    	- Y en plataformas tecnológicas
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### ¿Qué es el [protocolo MAAD](https://uniandes.edu.co/sites/default/files/asset/document/preguntas-frecuentes-maad.pdf)? (2/2)
+
+- Reporte en emergencias:
+	- Línea de emergencia **3394949 Ext. 0000**
+	- Teléfonos rojos en campus
+- Reporte no inmediato:
+	- Línea MAAD (lineamaad@uniandes.edu.co)
+	- [Decanatura de Estudiantes](https://decanaturadeestudiantes.uniandes.edu.co/)
+	- [Ombudsperson](https://ombudsperson.uniandes.edu.co/maad/ruta-de-atencion)
+	- [Red de Estudiantes (no estás solx)](https://noestassolo.virtual.uniandes.edu.co/)
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+<br>
+
+ [<i class="fas fa-home  fa-3x"></i>](https://eerosales24.github.io/eda_2025_20/#)
+</div></script></section></div>
+    </div>
+
+    <script src="dist/reveal.js"></script>
+
+    <script src="plugin/markdown/markdown.js"></script>
+    <script src="plugin/highlight/highlight.js"></script>
+    <script src="plugin/zoom/zoom.js"></script>
+    <script src="plugin/notes/notes.js"></script>
+    <script src="plugin/math/math.js"></script>
+	<script src="plugin/mermaid/mermaid.js"></script>
+	<script src="plugin/chart/chart.min.js"></script>
+	<script src="plugin/chart/plugin.js"></script>
+	<script src="plugin/customcontrols/plugin.js"></script>
+
+    <script>
+      function extend() {
+        var target = {};
+        for (var i = 0; i < arguments.length; i++) {
+          var source = arguments[i];
+          for (var key in source) {
+            if (source.hasOwnProperty(key)) {
+              target[key] = source[key];
+            }
+          }
+        }
+        return target;
+      }
+
+	  function isLight(color) {
+		let hex = color.replace('#', '');
+
+		// convert #fff => #ffffff
+		if(hex.length == 3){
+			hex = `${hex[0]}${hex[0]}${hex[1]}${hex[1]}${hex[2]}${hex[2]}`;
+		}
+
+		const c_r = parseInt(hex.substr(0, 2), 16);
+		const c_g = parseInt(hex.substr(2, 2), 16);
+		const c_b = parseInt(hex.substr(4, 2), 16);
+		const brightness = ((c_r * 299) + (c_g * 587) + (c_b * 114)) / 1000;
+		return brightness > 155;
+	}
+
+	var bgColor = getComputedStyle(document.documentElement).getPropertyValue('--r-background-color').trim();
+	var isLight = isLight(bgColor);
+
+	if(isLight){
+		document.body.classList.add('has-light-background');
+	} else {
+		document.body.classList.add('has-dark-background');
+	}
+
+      // default options to init reveal.js
+      var defaultOptions = {
+        controls: true,
+        progress: true,
+        history: true,
+        center: true,
+        transition: 'default', // none/fade/slide/convex/concave/zoom
+        plugins: [
+          RevealMarkdown,
+          RevealHighlight,
+          RevealZoom,
+          RevealNotes,
+          RevealMath.MathJax3,
+		  RevealMermaid,
+		  RevealChart,
+		  RevealCustomControls,
+        ],
+
+
+    	allottedTime: 120 * 1000,
+
+		mathjax3: {
+			mathjax: 'plugin/math/mathjax/tex-mml-chtml.js',
+		},
+		markdown: {
+		  gfm: true,
+		  mangle: true,
+		  pedantic: false,
+		  smartLists: false,
+		  smartypants: false,
+		},
+
+		mermaid: {
+			theme: isLight ? 'default' : 'dark',
+		},
+
+		customcontrols: {
+			controls: [
+			]
+		},
+      };
+
+      // options from URL query string
+      var queryOptions = Reveal().getQueryHash() || {};
+
+      var options = extend(defaultOptions, {"width":960,"height":700,"margin":"0.025","minScale":"0.1","maxScale":"2.0","controls":"true","controlsLayout":"bottom-right","progress":"true","slideNumber":"true","center":"false","transition":"slide","transitionSpeed":"default"}, queryOptions);
+    </script>
+
+    <script>
+      Reveal.initialize(options);
+    </script>
+  </body>
+
+  <!-- created with Advanced Slides -->
+</html>
