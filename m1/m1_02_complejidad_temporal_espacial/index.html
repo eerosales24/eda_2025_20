@@ -1,0 +1,1859 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+
+    <title></title>
+    <link rel="stylesheet" href="dist/reveal.css" />
+    <link rel="stylesheet" href="dist/theme/iph.css" id="theme" />
+    <link rel="stylesheet" href="plugin/highlight/spyder.css" />
+	<link rel="stylesheet" href="css/layout.css" />
+	<link rel="stylesheet" href="plugin/customcontrols/style.css">
+
+
+
+    <script defer src="dist/fontawesome/all.min.js"></script>
+
+	<script type="text/javascript">
+		var forgetPop = true;
+		function onPopState(event) {
+			if(forgetPop){
+				forgetPop = false;
+			} else {
+				parent.postMessage(event.target.location.href, "app://obsidian.md");
+			}
+        }
+		window.onpopstate = onPopState;
+		window.onmessage = event => {
+			if(event.data == "reload"){
+				window.document.location.reload();
+			}
+			forgetPop = true;
+		}
+
+		function fitElements(){
+			const itemsToFit = document.getElementsByClassName('fitText');
+			for (const item in itemsToFit) {
+				if (Object.hasOwnProperty.call(itemsToFit, item)) {
+					var element = itemsToFit[item];
+					fitElement(element,1, 1000);
+					element.classList.remove('fitText');
+				}
+			}
+		}
+
+		function fitElement(element, start, end){
+
+			let size = (end + start) / 2;
+			element.style.fontSize = `${size}px`;
+
+			if(Math.abs(start - end) < 1){
+				while(element.scrollHeight > element.offsetHeight){
+					size--;
+					element.style.fontSize = `${size}px`;
+				}
+				return;
+			}
+
+			if(element.scrollHeight > element.offsetHeight){
+				fitElement(element, start, size);
+			} else {
+				fitElement(element, size, end);
+			}		
+		}
+
+
+		document.onreadystatechange = () => {
+			fitElements();
+			if (document.readyState === 'complete') {
+				if (window.location.href.indexOf("?export") != -1){
+					parent.postMessage(event.target.location.href, "app://obsidian.md");
+				}
+				if (window.location.href.indexOf("print-pdf") != -1){
+					let stateCheck = setInterval(() => {
+						clearInterval(stateCheck);
+						window.print();
+					}, 250);
+				}
+			}
+	};
+
+
+        </script>
+  </head>
+  <body>
+    <div class="reveal">
+      <div class="slides"><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Estructura de Datos y Algoritmos - EDA
+
+ ####  *Complejidad temporal y espacial*
+
+[Eduardo Rosales](mailto:ee.rosales24@uniandes.edu.co)
+
+Departamento de Ingeniería de Sistemas y Computación
+
+Universidad de los Andes
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Motivación (1/4)
+
+- **¿Por qué  analizar algoritmos?**
+	- Para elegir el algoritmo más eficiente en términos de tiempo y espacio
+
+	- Comprender el soporte teórico
+	- Predecir el desempeño
+	
+		- Comparar algoritmos
+	
+		- Ofrecer garantías al cliente	
+	    
+	- Evitar errores de rendimiento (*performance bugs*)
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Motivación (2/4)
+
+- Ejemplo de algoritmo de búsqueda secuencial:
+    
+```Python
+def busqueda_secuencial(lista, elemento_a_buscar):
+    resultado = None
+    encontrado = False
+
+    indice = 0 
+    while indice < len(lista) and not encontrado:
+        if lista[indice] == elemento_a_buscar:
+            resultado = lista[indice]  
+            encontrado = True
+        indice += 1 
+
+    return resultado
+```
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Motivación (3/4)
+
+- Ejemplo de algoritmo de búsqueda binaria:
+    
+```Python
+def busqueda_binaria(lista, elemento_a_buscar):
+    resultado = None
+    encontrado = False
+
+    inicio, fin = 0, len(lista) - 1
+    while inicio <= fin and not encontrado:
+        medio = (inicio + fin) // 2
+        if lista[medio] < elemento_a_buscar:
+            inicio = medio + 1
+        elif lista[medio] > elemento_a_buscar:
+            fin = medio - 1
+        else:
+            resultado = lista[medio]
+            encontrado = True
+
+    return resultado
+```
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Motivación (4/4)
+
+- ¿Cuál de los anteriores algoritmos es más eficiente para grandes volúmenes de datos?
+	- ¿Por qué?
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Método científico:
+    
+- Observar características del mundo natural
+    
+- Formular un modelo acorde con las observaciones
+    
+- Predecir eventos utilizando la hipótesis
+    
+- Verificar predicciones con más observaciones
+    
+- Validar repitiendo el proceso hasta concordancia 
+	- Entre hipótesis y observaciones
+    
+- Principios:
+    
+	- Los experimentos deben ser reproducibles
+    
+	- Las hipótesis deben ser refutables
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### El método científico aplicado al análisis de algoritmos (1/2)
+
+- Visión clave ([Knuth](https://en.wikipedia.org/wiki/Donald_Knuth) 1970s): 
+    
+	- Propuso usar el método científico 
+		- Para comprender el rendimiento de algoritmos
+    
+<br>
+
+- **¿Qué medir?**
+  - &shy;<!-- .element: class="fragment" data-fragment-index="1" -->Tiempo de ejecución
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### El método científico aplicado al análisis de algoritmos (2/2)
+
+- El tiempo total de ejecución de un programa 
+	- Está determinado por dos factores primarios:
+
+		- El **costo** de ejecutar cada instrucción
+			- No todas las instrucciones tienen igual costo
+			
+		<br>
+		
+		- La **frecuencia** de ejecución de cada instrucción
+			- No todas las instrucciones tienen igual frecuencia
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Complejidad temporal y espacial 
+
+- Hay dos formas comunes de medir la complejidad de un algoritmo:
+
+	<br>
+
+- **Complejidad temporal**
+```plaintext
+Tiempo total de ejecución = 
+	Número operaciones requeridas * Tiempo por operación
+```
+
+	<br>
+
+- **Complejidad espacial**
+```plaintext
+Memoria total = 
+	Número objetos requeridos * Memoria por objeto
+```
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### I. Complejidad Temporal
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### **Aproximación teórica (_a priori_):**
+
+- Determinación (aproximación) matemática 
+- Ventajas:
+	- No requiere la implementación del algoritmo
+	- No depende del hardware o software de soporte
+		- Independiente del tamaño de los datos de entrada
+		- Considera todos los posibles tamaños de entrada
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Hay 3 notaciones comunes para describir la complejidad algorítmica
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Big Theta (Θ):
+    
+
+- Describe un límite asintótico ajustado
+- Indica que un algoritmo tiene un tiempo de ejecución que es 
+	- Tanto superior como inferiormente acotado por una función
+- Baja aplicabilidad en el mundo real
+
+<img src="eda/modulo_1/img/big_theta.png" alt="" style="width: 60%; height: 50%; object-fit: fill">
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Big Omega (Ω):
+    
+- Define un límite inferior asintótico
+- Se utiliza para describir la complejidad mínima de un algoritmo
+- Describir solo el límite inferior, suele ser insuficiente
+    
+<img src="eda/modulo_1/img/big_omega.png" alt="" style="width: 60%; height: 50%; object-fit: fill">
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Big O (O):
+    
+- Establece un límite superior asintótico
+- Se usa para describir la complejidad máxima de un algoritmo
+- Se eliminan los términos de orden inferior y las constantes
+- Describir solo el límite superior, suele ser muy informativo
+
+<img src="eda/modulo_1/img/big_o.png" alt="" style="width: 60%; height: 50%; object-fit: fill">
+
+
+<br>
+
+- En el curso **solo se usa** la notación Big O
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Hay 7 ordenes de crecimiento temporal típicos
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Ordenes de crecimiento temporal típicos (1/2)
+
+<img src="eda/modulo_1/img/ordenes.png" alt="" style="width: 60%; height: 50%; object-fit: fill">
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Ordenes de crecimiento temporal típicos (2/2)
+
+<img src="eda/modulo_1/img/complejidades.png" alt="" style="object-fit: scale-down">
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Orden constante O(1)
+- Características
+	- Tiempo constante y predecible
+	- Independiente del tamaño de los datos
+- Ventajas
+	- Simple de entender e interpretar
+	- Eficiente para volúmenes de datos muy pequeños
+    
+- Desventajas
+	- No aplica para grandes volúmenes de datos
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Operación primitiva o constante
+
+- Operación que se considera de costo constante
+	- También llamada, _operación de orden constante_
+
+	<br>
+
+- Se realiza a través de una  instrucción de bajo nivel 
+	-  Tiempo de ejecución (pseudo) constante en el hardware
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Operaciones primitivas o constantes - Ejemplos
+
+<table border="1" style="border-collapse: collapse; width: 100%; text-align: left;">
+    <thead>
+        <tr style="background-color: #D9EAF7; color: #000;">
+            <th>Operación*</th>
+            <th>Ejemplo</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>Declaración de variables</td>
+            <td><code>int a = 5</code></td>
+        </tr>
+        <tr>
+            <td>Asignación de valor</td>
+            <td><code>a = 10</code></td>
+        </tr>
+        <tr>
+            <td>Comparación de enteros</td>
+            <td><code>a &gt; b</code></td>
+        </tr>
+        <tr>
+            <td>Suma de enteros / punto flotante*</td>
+            <td><code>a + b</code></td>
+        </tr>
+        <tr>
+            <td>Multiplicación de enteros / punto flotante*</td>
+            <td><code>a * b</code></td>
+        </tr>
+        <tr>
+            <td>División de enteros / punto flotante*</td>
+            <td><code>a / b</code></td>
+        </tr>
+        <tr>
+            <td>Módulo de enteros / punto flotante*</td>
+            <td><code>a % b</code></td>
+        </tr>
+        <tr>
+            <td>Acceso a elemento de una lista/diccionario</td>
+            <td><code>lista[i]; diccionario['clave']</code></td>
+        </tr>
+        <tr>
+            <td>Longitud de una lista/diccionario*</td>
+            <td><code>len(lista); len(diccionario)</code></td>
+        </tr>
+    </tbody>
+</table>
+
+
+\* Para números que están dentro de los límites de la representación de punto flotante estándar de 32 o 64 bits
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Ejemplo de algoritmo de orden constante (1/3)
+
+Estimar el orden de crecimiento temporal del siguiente algoritmo:
+
+```Python
+def es_par(n):
+    """
+    Determina si un número es par o impar.
+    Args:
+        n (int): el número a verificar.
+    Returns:
+        bool: True si n es par, False si n es impar.
+    """
+    return n % 2 == 0
+```
+
+- ¿Qué instrucciones se deben analizar?
+	- ¿Cuál es su frecuencia?
+
+<br>
+
+- Nota: Por restricciones de espacio
+	- En algunas presentaciones se usa documentación estándar de Python
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Ejemplo de algoritmo de orden constante (2/3)
+ 
+```Python
+def es_par(n):
+    return n % 2 == 0
+```
+
+- ¿Qué instrucciones se deben analizar?
+	- ¿Cuál es su frecuencia?
+	
+<br>
+	
+- Módulo (%): `1` <!-- .element: class="fragment" data-fragment-index="1" -->
+- Comparación (==): `1` <!-- .element: class="fragment" data-fragment-index="2" -->
+-  `return`: `1` <!-- .element: class="fragment" data-fragment-index="3" -->
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Ejemplo de algoritmo de orden constante (3/3)
+ 
+```Python
+def es_par(n):
+    return n % 2 == 0
+```
+
+- **Todas son operaciones primitivas/constantes**:
+
+```
+T(n) = c1 + c2 + c3
+T(n) = C
+```
+
+<br>
+
+- ¿Orden de crecimiento temporal del algoritmo?
+	 - &shy;<!-- .element: class="fragment" data-fragment-index="1" -->Notación Big O: **O(1)**
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Quiz I
+
+Estime el orden de crecimiento temporal del siguiente algoritmo:
+
+```Python
+def dar_elemento_en_posicion(lista, pos):
+    """
+    Retorna el elemento en la posición especificada de la lista.
+
+    Args:
+        lista (list): La lista de la cual obtener el elemento.
+        pos (int): La posición del elemento a retornar.
+
+    Returns:
+        El elemento en la posición dada o None si la posición es inválida.
+    """
+    resultado = None
+    if 0 <= pos < len(lista):
+        resultado = lista[pos]
+    return resultado
+```
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Quiz I - Solución
+
+
+```Python
+def dar_elemento_en_posicion(lista, pos):
+    resultado = None
+    if 0 <= pos < len(lista):
+        resultado = lista[pos]
+    return resultado
+```
+
+- Asignación (`resultado = None`):  `1` <!-- .element: class="fragment" data-fragment-index="1" -->
+- Comparación (`<=` y `<` combinadas):  `1` <!-- .element: class="fragment" data-fragment-index="2" -->
+- `len()`:  `1` <!-- .element: class="fragment" data-fragment-index="3" -->
+- `if`:  `1` <!-- .element: class="fragment" data-fragment-index="4" -->
+- asignación (`resultado = lista[pos]`):  `1` <!-- .element: class="fragment" data-fragment-index="5" -->
+- Operador [ ] (acceso a la lista):  `1` <!-- .element: class="fragment" data-fragment-index="6" -->
+- `return`:  `1` <!-- .element: class="fragment" data-fragment-index="7" -->
+
+<br>
+
+- Todas son operaciones primitivas/constantes
+<br>
+
+- ¿Orden de crecimiento temporal del algoritmo?
+	 - &shy;<!-- .element: class="fragment" data-fragment-index="8" -->Notación Big O: **O(1)**
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Orden lineal O(n)
+- Características
+	- Tiempo crece proporcionalmente con la cantidad de datos
+	- Típicamente, cada elemento se procesa una vez
+- Ventajas
+	- Simple de entender e interpretar
+	- Eficiente para volúmenes de datos pequeños o medianos
+- Desventajas
+	- Ineficiente a gran escala
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Ejemplo de algoritmo de orden lineal (1/3)
+
+```Python
+for elemento in lista:
+    # Expresiones O(1)
+```
+
+- Característica clave: 
+	- El ciclo recorre cada elemento de la lista una vez
+- Explicación:
+	- `elemento` toma el valor de cada elemento de la listas en cada iteración
+	- El número total de iteraciones (n) es igual al número de elementos en la lista
+		- El tiempo total es directamente proporcional 
+			- Al tamaño de la entrada: **O(n)**
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Ejemplo de algoritmo de orden lineal (2/3)
+
+Estimar el orden de crecimiento temporal del siguiente algoritmo:
+
+```Python
+def sumar_elementos(lista):
+    '''
+    Suma todos los elementos de una lista.
+
+    Args:
+        arreglo (list): Una lista de números (int o float).
+
+    Returns:
+        int o float: La suma de todos los elementos en la lista.
+    '''
+    total = 0
+    for elemento in lista:
+        total += elemento
+    return total
+```
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Ejemplo de algoritmo de orden lineal (3/3)
+
+```Python
+def sumar_elementos(lista):
+    total = 0
+    for elemento in lista:
+        total += elemento
+    return total
+```
+
+- `total = 0`: `1` <!-- .element: class="fragment" data-fragment-index="1" -->
+- `for elemento in lista`: `n` <!-- .element: class="fragment" data-fragment-index="2" -->
+- `total += elemento`: `n` <!-- .element: class="fragment" data-fragment-index="3" -->
+- `return total`: `1` <!-- .element: class="fragment" data-fragment-index="4" -->
+
+<br>
+
+- Las operaciones de complejidad lineal dominan la estimación
+
+<br>
+
+- ¿Orden de crecimiento temporal del algoritmo?
+	 - &shy;<!-- .element: class="fragment" data-fragment-index="8" -->Notación Big O: **O(n)**
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Casos (1/2)
+
+- El análisis de algoritmos no constantes, típicamente considera tres casos:
+
+<br>
+
+- **Peor caso:**
+	- Input que requiere el máximo tiempo de ejecución del algoritmo
+- **Mejor caso:** 
+	- Input que requiere el mínimo tiempo de ejecución del algoritmo
+- **Caso promedio:** 
+	- Estimación promedio del tiempo de ejecución
+		- Considerando la distribución probabilística del input
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Casos (2/2)
+
+<img src="eda/modulo_1/img/baw.png" alt="" style="object-fit: scale-down">
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Análisis de complejidad considerando casos
+
+```Python
+for elemento in lista:
+    if elemento == valor_buscado:
+        # Valor encontrado
+        # Fin de búsqueda
+```
+
+- Característica clave: 
+	- Comprobación de cada elemento hasta encontrar una coincidencia
+- Explicación:
+	- En el **peor caso, hay que visitar cada elemento una vez**
+	- El tiempo total en el peor caso 
+		- Es proporcional al número de elementos: **O(n)**
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Mejor caso
+
+```Python[3]
+for elemento in lista:
+    if elemento == valor_buscado:
+	    # Cuando el primer elemento es el valor buscado
+```
+
+- Representa el escenario más favorable para la ejecución del algoritmo
+	- Normalmente no es representativo de un escenario real de uso
+	- Puede conllevar a una inadecuada planeación de recursos
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Caso promedio
+
+```Python[3]
+for elemento in lista:
+    if elemento == valor_buscado:
+        # Cuando cada elemento tiene igual probabilidad de ser buscado
+```
+
+- Tiempo de ejecución medio para todas las entradas posibles
+	- Utilizado para estimar la eficiencia en situaciones típicas
+- No refleja el rendimiento en el peor de los escenarios
+- Puede ser difícil de calcular
+	- Requiere conocer la distribución probabilística 
+		- De todas las entradas posibles
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Peor caso (1/3)
+
+- ¿Cuál sería el peor caso?
+
+```Python[3]
+for elemento in lista:
+    if elemento == valor_buscado:
+
+```
+
+- &shy;<!-- .element: class="fragment" data-fragment-index="1" -->Cuando el elemento buscado no existe
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Peor caso (2/3)
+
+```Python[3]
+for elemento in lista:
+    if elemento == valor_buscado:
+        # Elemento buscado no existe
+```
+
+- Máximo tiempo de ejecución entre todas las entradas posibles
+- Usado para garantizar límites de eficiencia en cualquier situación
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Peor caso (3/3)
+
+- La notación Big O, describe el peor caso
+	- Límite superior asintótico
+
+<img src="eda/modulo_1/img/big_o.png" alt="" style="width: 30%; height: 25%; object-fit: fill">
+
+
+
+- Si el peor caso es raro
+	- Puede ser demasiado pesimista para el uso general o
+- Proporciona a los usuarios una **expectativa realista** del rendimiento del algoritmo
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Ejemplo de análisis - Peor caso (1/3)
+
+Estimar el orden de crecimiento temporal del siguiente algoritmo:
+
+```python
+def busqueda_secuencial(lista, elemento_a_buscar):
+    """
+    Busca un elemento en la lista de forma secuencial y retorna el elemento si
+    se encuentra.
+
+    Args:
+        lista (list): La lista a buscar.
+        elemento_a_buscar: El elemento a encontrar.
+
+    Returns:
+        El elemento encontrado o None si no se encuentra.
+    """
+    resultado = None
+    encontrado = False
+    indice = 0 
+    while indice < len(lista) and not encontrado:
+        if lista[indice] == elemento_a_buscar:
+            resultado = lista[indice]  # Elemento encontrado
+            encontrado = True
+        indice += 1 
+    return resultado
+```
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Ejemplo de análisis - Peor caso (2/3)
+
+```python
+def busqueda_secuencial(lista, elemento_a_buscar):
+    resultado = None
+    encontrado = False
+    indice = 0 
+    while indice < len(lista) and not encontrado:
+        if lista[indice] == elemento_a_buscar:
+            resultado = lista[indice]  # Elemento encontrado
+            encontrado = True
+        indice += 1 
+    return resultado
+```
+
+- ¿Cuál sería el peor caso?
+	 - &shy;<!-- .element: class="fragment" data-fragment-index="1" -->Elemento buscado inexistente
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Ejemplo de análisis - Peor caso (3/3)
+
+```python
+def busqueda_secuencial(lista, elemento_a_buscar):
+    resultado = None
+    encontrado = False
+    indice = 0 
+    while indice < len(lista) and not encontrado:
+        if lista[indice] == elemento_a_buscar:
+            resultado = lista[indice]  # Elemento encontrado
+            encontrado = True
+        indice += 1 
+    return resultado
+```
+
+- Por simplicidad, se incluyen solo las principales **operaciones lineales**:
+	-  `indice < len(lista) and not encontrado`: `n` <!-- .element: class="fragment" data-fragment-index="1" -->
+	- `lista[indice] == elemento_a_buscar`: `n` <!-- .element: class="fragment" data-fragment-index="2" -->
+	- `indice += 1`: `n` <!-- .element: class="fragment" data-fragment-index="3" -->
+
+
+<br>
+
+- Las operaciones de complejidad lineal dominan la estimación
+
+
+<br>
+
+- ¿Orden de crecimiento temporal del algoritmo?
+	 - &shy;<!-- .element: class="fragment" data-fragment-index="4" -->Notación Big O: **O(n)**
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Orden logarítmico O(log n)
+
+- Características    
+	- Tiempo incrementa lentamente a medida que crecen los datos
+- Ventajas
+	- Eficiente para grandes cantidades de datos
+- Desventajas
+	- Mayor complejidad de implementación
+	- Costos de ordenamiento y mantenimiento de datos
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Ejemplo de algoritmo de orden logarítmico (1/5)
+
+```Python
+i = n
+while i > 0:
+    # Expresiones O(1)
+    i /= c  # ó división entera
+```
+
+- Característica clave: 
+	- Reducción significativa y rápida del rango de operación
+- Explicación:
+	- Variable se `i` divide por `c` en cada iteración
+		- Disminución hasta que `i <= 1`
+- Iteraciones limitadas a log<sub>c</sub> de `n`
+	- En complejidad temporal, no importa el coeficiente constante de log
+		- Entonces, la complejidad logarítmica es **O(log n)**
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Ejemplo de algoritmo de orden logarítmico (2/5)
+
+```Python
+i = 1
+while i < n:
+    # Expresiones O(1)
+    i *= c
+```
+
+- Característica clave: 
+	- Reducción significativa y rápida del rango de operación
+- Explicación:
+	- Variable `i` se multiplica por `c` en cada iteración
+		- Crecimiento exponencial de `i`
+	- Iteraciones limitadas a log<sub>c</sub> de `n`
+		- En complejidad temporal, no importa el coeficiente constante de log
+			- Entonces, la complejidad logarítmica es **O(log n)**
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Ejemplo de algoritmo de orden logarítmico (3/5)
+
+Estimar el orden de crecimiento temporal del siguiente algoritmo:
+
+```Python
+def busqueda_binaria(lista, elemento_a_buscar):
+    """
+    Realiza búsqueda binaria de un elemento en una lista ordenada.
+
+    Args:
+        lista (list): Lista ordenada donde buscar.
+        elemento_a_buscar: Elemento a encontrar.
+
+    Returns:
+        El elemento encontrado si está en la lista, None en caso contrario.
+    """
+    resultado = None
+    encontrado = False
+    inicio, fin = 0, len(lista) - 1
+    while inicio <= fin and not encontrado:
+        medio = (inicio + fin) // 2  # Calcula el índice medio
+        if lista[medio] < elemento_a_buscar:
+            inicio = medio + 1  # Si el elemento está después del medio
+        elif lista[medio] > elemento_a_buscar:
+            fin = medio - 1  # Si el elemento está antes del medio
+        else:
+            resultado = lista[medio]  # Elemento encontrado
+            encontrado = True
+    return resultado
+```
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Ejemplo de algoritmo de orden logarítmico (4/5)
+
+```Python[6]
+def busqueda_binaria(lista, elemento_a_buscar):
+    resultado = None
+    encontrado = False
+    inicio, fin = 0, len(lista) - 1
+    while inicio <= fin and not encontrado:
+        medio = (inicio + fin) // 2  # Calcula el índice medio
+        if lista[medio] < elemento_a_buscar:
+            inicio = medio + 1  # Si el elemento está después del medio
+        elif lista[medio] > elemento_a_buscar:
+            fin = medio - 1  # Si el elemento está antes del medio
+        else:
+            resultado = lista[medio]  # Elemento encontrado
+            encontrado = True
+    return resultado
+```
+
+- Característica clave:
+	- Itera reduciendo la búsqueda a la mitad en cada paso
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Ejemplo de algoritmo de orden logarítmico (5/5)
+
+```Python
+def busqueda_binaria(lista, elemento_a_buscar):
+...
+    while inicio <= fin and not encontrado:
+        medio = (inicio + fin) // 2
+        if lista[medio] < elemento_a_buscar:
+            inicio = medio + 1
+        elif lista[medio] > elemento_a_buscar:
+            fin = medio - 1
+        else:
+            resultado = lista[medio]
+            encontrado = True
+...
+```
+
+- Ejemplo simplificado: 
+	- log<sub>2</sub>(8) = 3
+		- Lista de 8 elementos, máximo 3 divisiones
+
+- Pasos logarítmicos:     
+	- El número de reducciones tiende a log<sub>2</sub>(n)
+
+
+- ¿Orden de crecimiento temporal del algoritmo?
+	 - &shy;<!-- .element: class="fragment" data-fragment-index="1" -->Notación Big O: **O(log n)**
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Búsqueda secuencial  vs búsqueda binaria (1/2)
+
+```Python
+def busqueda_secuencial(lista, elemento_a_buscar):
+    resultado = None
+    encontrado = False
+    indice = 0 
+    while indice < len(lista) and not encontrado:
+        if lista[indice] == elemento_a_buscar:
+            resultado = lista[indice]  
+            encontrado = True
+        indice += 1 
+    return resultado
+```
+
+<br>
+    
+```Python
+def busqueda_binaria(lista, elemento_a_buscar):
+    resultado = None
+    encontrado = False
+    inicio, fin = 0, len(lista) - 1
+    while inicio <= fin and not encontrado:
+        medio = (inicio + fin) // 2
+        if lista[medio] < elemento_a_buscar:
+            inicio = medio + 1
+        elif lista[medio] > elemento_a_buscar:
+            fin = medio - 1
+        else:
+            resultado = lista[medio]
+            encontrado = True
+    return resultado
+```
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### ¿Cuál de los algoritmos anteriores es más eficiente para un enorme volumen de datos y por qué?
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Búsqueda secuencial  vs búsqueda binaria (2/2)
+
+- Búsqueda secuencial:
+	- **Orden lineal O(n):** <!-- .element: class="fragment" data-fragment-index="1" -->
+		- Simple pero ineficiente para grandes cantidades de datos <!-- .element: class="fragment" data-fragment-index="2" -->
+
+- Búsqueda binaria: 
+	- **Orden logarítmico O(log n):** <!-- .element: class="fragment" data-fragment-index="3" -->
+		- Más complejo y requiere ordenamiento, pero,  <!-- .element: class="fragment" data-fragment-index="4" -->
+			- Muy eficiente para grandes cantidades de datos <!-- .element: class="fragment" data-fragment-index="5" -->
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Orden linearítmico O(n log(n))
+
+- Características
+	- Combinación de lineal y logarítmico: 
+		- Tiempo crece proporcional a n y a n log n
+	- Más rápido que lineal para grandes n, pero más lento que logarítmico
+- Ventajas
+	- Eficiente de moderadas a grandes volúmenes de datos
+- Desventajas
+	- Mayor complejidad de implementación
+	- Más lento que algoritmos logarítmicos puros
+	- Puede ser muy costoso para algunos volúmenes de datos grandes
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Ejemplo de algoritmo de orden linearítmico (1/6)
+
+```Python
+for i in range(1, n):  # Parte lineal
+    # Expresiones O(1)
+    j = 1
+    while j < n:  # Parte logarítmica
+        # Expresiones O(1)
+        j *= 2
+```
+
+- Característica clave: 
+	- Combinación de patrones lineales y logarítmico
+- Explicación:
+	- Ciclo externo lineal: 
+		- Itera linealmente a través de `n` elementos
+- Ciclo interno logarítmico: 
+	- `j` se duplica hasta que es mayor o igual a `n`
+	- `j` aumenta exponencialmente, limitando iteraciones a log<sub>2</sub>(n)
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Ejemplo de algoritmo de orden linearítmico (2/6)
+
+Estimar el orden de crecimiento temporal del siguiente algoritmo:
+
+```Python
+def buscar_en_sublistas_con_bbinaria(listas, elemento_buscado):
+    """
+    Busca un elemento en cada sublista ordenada de la lista principal.
+
+    Args:
+        listas (list of list): Lista de sublistas ordenadas.
+        elemento_buscado: el elemento a buscar.
+
+    Returns:
+        tuple: (índice_lista_principal, índice_sublista) del elemento
+        encontrado, o (None, None) si el elemento no se encuentra.
+    """
+    resultado = (None, None)
+    encontrado = False
+
+    for indice_lista_principal, sublista in enumerate(listas):
+        if not encontrado:
+            indice_sublista = busqueda_binaria(sublista, elemento_buscado)
+            if indice_sublista is not None:
+                resultado = (indice_lista_principal, indice_sublista)
+                encontrado = True
+    return resultado
+```
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Ejemplo de algoritmo de orden linearítmico (3/6)
+
+- Usar la estrategia _dividir y conquistar_:
+
+```Python[1]
+ for indice_lista_principal, sublista in enumerate(listas):
+        if not encontrado:
+            indice_sublista = busqueda_binaria(sublista, elemento_buscado)
+```
+
+- Característica clave:    
+	- El ciclo recorre cada elemento de la lista una vez
+	- Este segmento del algoritmo sigue un patrón lineal:
+		- Para n sublistas, en el peor de los casos, 
+			- Se tendrá que revisar cada una de ellas
+				- **O(n)**
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Ejemplo de algoritmo de orden linearítmico (4/6)
+
+- Usar la estrategia _dividir y conquistar_:
+
+```Python[3]
+ for indice_lista_principal, sublista in enumerate(listas):
+        if not encontrado:
+            indice_sublista = busqueda_binaria(sublista, elemento_buscado)
+```
+
+- Sin embargo, aquí el ciclo no solo ejecuta expresiones O(1)    
+	- También hace un llamado a la función `busqueda_binaria`
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Ejemplo de algoritmo de orden linearítmico (5/6)
+
+- Usar la estrategia _dividir y conquistar_:
+
+```Python[3]
+ for indice_lista_principal, sublista in enumerate(listas):
+        if not encontrado:
+            indice_sublista = busqueda_binaria(sublista, elemento_buscado)
+```
+
+- Característica clave:
+	- Itera reduciendo la búsqueda a la mitad en cada paso  
+	- Este segmento sigue un patrón logarítmico:
+		- **O(log n)**
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Ejemplo de algoritmo de orden linearítmico (6/6)
+
+Estimar el orden de crecimiento temporal del siguiente algoritmo:
+
+```Python
+def buscar_en_sublistas_con_bbinaria(listas, elemento_buscado):
+    resultado = (None, None)
+    encontrado = False
+
+    for indice_lista_principal, sublista in enumerate(listas):
+        if not encontrado:
+            indice_sublista = busqueda_binaria(sublista, elemento_buscado)
+            if indice_sublista is not None:
+                resultado = (indice_lista_principal, indice_sublista)
+                encontrado = True
+    return resultado
+```
+
+<br>
+
+- ¿Orden de crecimiento temporal del algoritmo?
+	 - &shy;<!-- .element: class="fragment" data-fragment-index="1" -->Notación Big O: **O(n log m)**
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Orden cuadrático O(n2)
+
+- Características    
+	- El tiempo de ejecución escala con el cuadrado del tamaño de la entrada
+	- Tiempo proporcional a n²
+
+	- Efectivo para pequeñas entradas, 
+		- Pero impráctico rápidamente con grandes volúmenes
+    
+- Ventajas
+	- Simple de entender e interpretar
+    
+	- Eficiente para conjuntos de datos muy pequeños, con operaciones específicas
+    
+- Desventajas
+	- Ineficiente para grandes volúmenes de datos
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Ejemplo de algoritmo de orden cuadrático (1/4)
+
+```python
+for i in range(n):
+    for j in range(n):
+        # Expresiones O(1)
+```
+
+- Característica clave: 
+	- El tiempo de ejecución escala al cuadrado del tamaño de la entrada
+    
+- Explicación:
+	- Dos ciclos anidados: 
+		- Interacciones totales
+			- n * n, donde cada par (i, j) se considera una vez
+		- Entonces, la complejidad es cuadrática: O(n²)
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Ejemplo de algoritmo de orden cuadrático (2/4)
+
+Estimar el orden de crecimiento temporal del siguiente algoritmo:
+
+```python
+def hay_duplicados(lista):
+    """
+    Comprueba si una lista contiene elementos duplicados. Recorre la lista
+    comparando cada elemento con los demás para detectar duplicados. 
+
+    Args:
+        lista (list): La lista de elementos a comprobar.
+
+    Returns:
+        bool: True si hay duplicados en la lista, False en caso contrario.
+    """
+    duplicado_encontrado = False
+    i = 0
+    while i < len(lista) and not duplicado_encontrado:
+        j = i + 1
+        while j < len(lista) and not duplicado_encontrado:
+            if lista[i] == lista[j]:
+                duplicado_encontrado = True
+            j += 1
+        i += 1
+    return duplicado_encontrado
+```
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Ejemplo de algoritmo de orden cuadrático (3/4)
+
+```python
+def hay_duplicados(lista):
+    duplicado_encontrado = False
+    i = 0
+    while i < len(lista) and not duplicado_encontrado:
+        j = i + 1
+        while j < len(lista) and not duplicado_encontrado:
+            if lista[i] == lista[j]:
+                duplicado_encontrado = True
+            j += 1
+        i += 1
+    return duplicado_encontrado
+```
+
+- Patrón de comparaciones:
+	- Con `i = 0`, `j` realiza `n - 1` comparaciones
+	- Con`i = 1`, `j` realiza `n - 2` comparaciones
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Ejemplo de algoritmo de orden cuadrático (4/4)
+
+```python
+def hay_duplicados(lista):
+    duplicado_encontrado = False
+    i = 0
+    while i < len(lista) and not duplicado_encontrado:
+        j = i + 1
+        while j < len(lista) and not duplicado_encontrado:
+            if lista[i] == lista[j]:
+                duplicado_encontrado = True
+            j += 1
+        i += 1
+    return duplicado_encontrado
+```
+
+- Suma total de comparaciones: 
+	- La suma es la serie aritmética de los primeros n - 1 números
+		- (n - 1) + (n - 2) + (n - 3) + ... + 1 = n(n - 1) / 2 ≈ n²
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+```python
+def hay_duplicados(lista):
+    duplicado_encontrado = False
+    i = 0
+    while i < len(lista) and not duplicado_encontrado:
+        j = i + 1
+        while j < len(lista) and not duplicado_encontrado:
+            if lista[i] == lista[j]:
+                duplicado_encontrado = True
+            j += 1
+        i += 1
+    return duplicado_encontrado
+```
+
+- Orden de crecimiento temporal del algoritmo:
+	 - &shy;<!-- .element: class="fragment" data-fragment-index="1" -->Notación Big O: **O(n²)**
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Quiz II
+
+Estime el orden de crecimiento temporal del siguiente algoritmo:
+
+```Python
+def generar_pares(n):
+    """
+    Genera todos los pares posibles de números desde 0 hasta n-1. Cada par
+    representa una combinación única de dos números en el rango especificado.
+
+    Args:
+        n (int): El límite superior para los números a emparejar. 
+            Los números van desde 0 hasta n-1.
+
+    Returns:
+        list of tuples: Una lista de tuplas, donde cada tupla contiene un par 
+            único de números.
+    """
+    pares = []
+    for i in range(n):
+        for j in range(n):
+            pares.append((i, j))
+    return pares
+```
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Quiz II - Solución
+
+
+```Python
+def generar_pares(n):
+    pares = []
+    for i in range(n):
+        for j in range(n):
+            pares.append((i, j))
+    return pares
+```
+
+- `for j in range(n)`:  `n²` <!-- .element: class="fragment" data-fragment-index="1" -->
+- `pares.append((i, j))`:  `n²` <!-- .element: class="fragment" data-fragment-index="2" -->
+
+<br>
+
+- ¿Orden de crecimiento temporal del algoritmo?
+	 - &shy;<!-- .element: class="fragment" data-fragment-index="3" -->Notación Big O: **O(n²)**
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Complejidad temporal - Shaker Sort (1/3)
+
+Estime el orden de crecimiento temporal del siguiente algoritmo:
+```python
+def cocktail_shaker_sort(arr: list[int]) -> None:
+    start = 0
+    end = len(arr) - 1
+    swapped = True
+
+    while swapped:
+        swapped = False
+        # Movimiento de izquierda a derecha
+        for i in range(start, end):
+            if arr[i] > arr[i + 1]:
+                arr[i], arr[i + 1] = arr[i + 1], arr[i]
+                swapped = True
+        end -= 1
+
+        # Movimiento de derecha a izquierda
+        for i in range(end, start, -1):
+            if arr[i] < arr[i - 1]:
+                arr[i], arr[i - 1] = arr[i - 1], arr[i]
+                swapped = True
+        start += 1
+
+```
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Complejidad temporal - Shaker Sort (2/3)
+
+
+- En el peor caso (elementos en orden inverso)
+	- Se mueve  el elemento más grande al final
+	- Se mueve el elemento más pequeño al inicio
+		- La lista se recorre por completo dos veces
+			- Una hacia adelante
+			- Una hacia atrás
+
+<img src="Pasted image 20250126104235.png" alt="" style="width: 20%; height: 37%; object-fit: fill">
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Complejidad temporal - Shaker Sort (3/3)
+
+-  Cuando  el arreglo está totalmente desordenado:
+	
+```plaintext
+- Primera pasada: n−1 comparaciones
+- Segunda pasada: n−2 comparaciones
+- ...
+- Última pasada: 1 comparación
+```
+
+
+<p>
+    <math xmlns="http://www.w3.org/1998/Math/MathML">
+        <mfrac>
+            <mrow>
+                <mi>n</mi>
+                <mo>&#x22C5;</mo>
+                <mo>(</mo>
+                <mi>n</mi>
+                <mo>&#x2212;</mo>
+                <mn>1</mn>
+                <mo>)</mo>
+            </mrow>
+            <mn>2</mn>
+        </mfrac>
+        <mo>≈</mo>
+        <msup>
+            <mi>n</mi>
+            <mn>2</mn>
+        </msup>
+    </math>
+</p>
+
+- ¿Orden de crecimiento temporal del algoritmo?
+	 - &shy;<!-- .element: class="fragment" data-fragment-index="3" -->Notación Big O: **O(n²)**
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Orden cúbico O(n³)
+
+- Características
+	- Tiempo de ejecución proporcional al cubo del tamaño de la entrada
+	- Efectivo para pequeñas entradas
+		- Pero impráctico rápidamente con grandes volúmenes
+    
+- Ventajas
+	- Puede ser adecuado para problemas 
+		- Que requieren operaciones tridimensionales
+    
+- Desventajas
+	- Muy ineficiente a medida que el tamaño de la entrada crece
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Ejemplo de algoritmo de orden cúbico (1/2)
+
+
+```python
+for i in range(n):
+    for j in range(n):
+        for k in range(n):
+            # Expresiones O(1)
+```
+
+
+- Característica clave: 
+	- El tiempo de ejecución escala con el cubo del tamaño de la entrada
+
+- Explicación:
+	- Tres ciclos anidados
+		- Interacciones totales
+			- `n * n * n`
+				- Donde cada trío `(i, j, k)` se considera una vez
+		- Entonces, la complejidad es cúbica: **O(n³)**
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Ejemplo de algoritmo de orden cúbico (2/3)
+
+Estimar el orden de crecimiento temporal del siguiente algoritmo:
+
+```python
+def buscar_tripletes(lista):
+    """
+    Encuentra todos los tripletes que sumen cero.
+
+    Args:
+        lista (list): lista de números enteros.
+
+    Returns:
+        list of tuples: lista de tripletes (i, j, k), donde i + j + k == 0.
+    """
+    triplete = []
+    for i in lista: # Se ejecuta n veces
+        for j in lista: # Se ejecuta n veces, por cada iteración de i
+            for k in lista: # Se ejecuta n veces, por cada iteración de j
+                if i + j + k == 0: # Se ejecuta n * n * n
+                    triplete.append((i, j, k)) # Se ejecuta hasta n * n * n
+    return triplete
+```
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Ejemplo de algoritmo de orden cúbico (3/3)
+
+```python
+def buscar_tripletes(lista):
+    triplete = []
+    for i in lista:
+        for j in lista:
+            for k in lista:
+                if i + j + k == 0:
+                    triplete.append((i, j, k))
+    return triplete
+```
+
+- `for j in lista`:  `n²` <!-- .element: class="fragment" data-fragment-index="1" -->
+- `for k in lista`:  `n³` <!-- .element: class="fragment" data-fragment-index="2" -->
+- `if i + j + k == 0`:  `n³` <!-- .element: class="fragment" data-fragment-index="3" -->
+- `triplete.append((i, j, k))`:  `n³` <!-- .element: class="fragment" data-fragment-index="4" -->
+
+<br>
+
+- ¿Orden de crecimiento temporal del algoritmo?
+	 - &shy;<!-- .element: class="fragment" data-fragment-index="5" -->Notación Big O: **O(n³)**
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Quiz III
+
+```python
+def buscar_tripletes(lista):
+    triplete = []
+    for i in lista:
+        for j in lista:
+            for k in lista:
+                if i + j + k == 0:
+                    triplete.append((i, j, k))
+    return triplete
+```
+
+- ¿Cómo impactaría duplicar el tamaño de la lista de entrada en el tiempo de ejecución de la función `buscar_tripletes`?
+	- Duplicaría el tiempo de ejecución
+	- Triplicaría el tiempo de ejecución
+	- Cuadruplicaría el tiempo de ejecución
+	- Octuplicaría el tiempo de ejecución
+	- No tendría impacto significativo
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Quiz III - Solución
+
+- ¿Cómo impactaría duplicar el tamaño de la lista de entrada en el tiempo de ejecución de la función `buscar_tripletes`?
+	- Duplicaría el tiempo de ejecución
+	- Triplicaría el tiempo de ejecución
+	- Cuadruplicaría el tiempo de ejecución
+	- **Octuplicaría el tiempo de ejecución** 
+	- No tendría impacto significativo
+
+- Explicación: 
+	- &shy;<!-- .element: class="fragment" data-fragment-index="1" -->Se octuplicaría el tiempo de ejecución (2³ = 8)
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Orden exponencial O(bⁿ)
+
+- Características
+	- Crecimiento muy rápido
+		- El tiempo aumenta exponencialmente con el tamaño de la entrada
+		- Tiempo proporcional a `bⁿ`, donde `b` y `n` son `> 1` 
+    
+
+	- Típicamente involucra algoritmos que exploran todas las posibilidades
+    
+- Ventajas
+	- Apropiado para problemas pequeños donde se requieren soluciones exhaustivas
+    
+- Desventajas
+	- Generalmente no es viable para grandes volúmenes de datos
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Ejemplo de algoritmo de orden exponencial (1/4)
+
+Estimar el orden de crecimiento temporal del siguiente algoritmo:
+
+```python
+def generar_combinaciones(conjunto):
+    """
+    Genera todas las combinaciones posibles de un conjunto.
+    
+	Args:
+        conjunto: Lista que representa el conjunto (Ej.:, ["A", "B", "C"])
+        
+    Retrurns:
+        list of lists: Todas las combinaciones posibles
+    """
+    n = len(conjunto)
+    total_combinaciones = 2 ** n  # Número total de combinaciones
+    combinaciones = []
+
+    for i in range(total_combinaciones):
+        combinacion_actual = []
+        for j in range(n):
+            # Verifica si el bit j está encendido en el número i:
+            if i & (1 << j):   
+                combinacion_actual.append(conjunto[j])
+        combinaciones.append(combinacion_actual)
+    return combinaciones
+```
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Ejemplo de algoritmo de orden exponencial (2/4)
+
+
+```python
+    """
+    >>> generar_combinaciones(["A", "B", "C"])
+    [[], ['A'], ['B'], ['A', 'B'], ['C'], ['A', 'C'], ['B', 'C'], ['A', 'B', 'C']]
+    """
+```
+
+
+- Número total de combinaciones:
+	- Hay 2ⁿ combinaciones posibles para un conjunto de tamaño `n`
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Ejemplo de algoritmo de orden exponencial (3/4)
+
+
+```python[2,5]
+    n = len(conjunto)
+    total_combinaciones = 2 ** n  # Número total de combinaciones
+    combinaciones = []
+
+    for i in range(total_combinaciones):
+
+```
+
+- Este ciclo genera un total de 2ⁿ iteraciones
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Ejemplo de algoritmo de orden exponencial (4/4)
+
+```python
+def generar_combinaciones(conjunto):
+    n = len(conjunto)
+    total_combinaciones = 2 ** n 
+    combinaciones = []
+    for i in range(total_combinaciones):
+        combinacion_actual = []
+        for j in range(n):
+            if i & (1 << j):   
+                combinacion_actual.append(conjunto[j])
+        combinaciones.append(combinacion_actual)
+    return combinaciones
+```
+
+- `for i in range(total_combinaciones)`:  `2ⁿ` <!-- .element: class="fragment" data-fragment-index="1" -->
+- `for j in range(n)`:  `n` <!-- .element: class="fragment" data-fragment-index="2" -->
+
+<br>
+
+- ¿Orden de crecimiento temporal del algoritmo?
+	 - &shy;<!-- .element: class="fragment" data-fragment-index="3" -->Notación Big O: **O(n * 2ⁿ)**
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Aproximación empírica (_a posteriori_) (1/2)
+
+- Observar (medir) comportamiento del algoritmo
+- Difícil obtener medidas precisas
+- Requiere la completa implementación del algoritmo
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Aproximación empírica (_a posteriori_) (2/2)
+
+    
+- **Factores clave:** 
+	- Tiempo de ejecución
+		- Suele ser proporcional al tamaño del input
+	- Memoria requerida
+		- Estática y en tiempo de ejecución
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Aproximación empírica (_a posteriori_) - Tiempo de ejecución
+
+
+<img src="eda/modulo_1/img/tiempo.png" alt="" style="width: 40%; height: 40%; object-fit: fill">
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Aproximación empírica (_a posteriori_) - Ventajas
+
+- "Realismo" 
+	- Mide comportamiento directo 
+		- Considerando constantes y algunos factores secundarios
+    
+
+- "Sencillez" 
+	- Puede  ser más fácil de implementar que algunos análisis teóricos
+		- Especialmente en algoritmos complejos
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Aproximación empírica (_a posteriori_) - Desventajas
+
+- Dependencia del entorno
+	- Resultados varían por hardware, sistema operativo, programas concurrentes, etc.  
+
+- No generalizable
+	- Información limitada a tamaños de entrada específicos
+		- No aplica a todos los posibles tamaños  
+		
+- Influencia de factores externos
+	- Carga del sistema y gestión de memoria pueden distorsionar resultados
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### II . Complejidad Espacial
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Complejidad espacial
+
+    
+- Mide la memoria usada por un algoritmo en relación al tamaño de entrada
+- Generalmente basado en el peor caso de uso de memoria
+- Incluye la memoria utilizada por:
+	- Variables
+	- Asignaciones dinámicas
+	- **Estructuras de datos**
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Espacio constante  (O(1))
+
+- Si el espacio no depende del tamaño de la entrada
+
+	<br>
+
+- Ej:
+```python
+def suma(num1, num2):
+    suma = num1 + num2
+    return suma
+```
+
+- Independientemente del tamaño de `num1` y `num2`
+	- Solo se necesita un espacio constante para `suma`
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Espacio lineal  (O(n))
+
+- Si el espacio crece linealmente con el tamaño de la entrada
+
+	<br>
+
+- Ej:
+```python
+def duplicar_lista(lista):
+    lista_duplicada = []
+    for elemento in lista:
+        lista_duplicada.append(elemento * 2)
+    return lista_duplicada
+```
+
+- El espacio necesario para `lista_duplicada`
+	- **Crece linealmente** con el tamaño de lista original
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Espacio auxiliar
+
+- Memoria adicional aparte de la entrada
+
+	<br>
+
+- Ej:
+```python
+def ordenar_lista(lista):
+    lista_ordenada = sorted(lista)
+    return lista_ordenada
+```
+    
+- La `lista_ordenada` es una copia de `lista`
+	- Resultando en un **espacio adicional**
+		- Proporcional al tamaño de lista original
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+<i class="fas fa-question-circle fa-2x fa-spin fa-4x"></i>
+
+
+<br>
+<br>
+
+
+[<i class="fas fa-home  fa-3x"></i>](https://eerosales24.github.io/eda_2025_20/#)
+</div></script></section></div>
+    </div>
+
+    <script src="dist/reveal.js"></script>
+
+    <script src="plugin/markdown/markdown.js"></script>
+    <script src="plugin/highlight/highlight.js"></script>
+    <script src="plugin/zoom/zoom.js"></script>
+    <script src="plugin/notes/notes.js"></script>
+    <script src="plugin/math/math.js"></script>
+	<script src="plugin/mermaid/mermaid.js"></script>
+	<script src="plugin/chart/chart.min.js"></script>
+	<script src="plugin/chart/plugin.js"></script>
+	<script src="plugin/customcontrols/plugin.js"></script>
+
+    <script>
+      function extend() {
+        var target = {};
+        for (var i = 0; i < arguments.length; i++) {
+          var source = arguments[i];
+          for (var key in source) {
+            if (source.hasOwnProperty(key)) {
+              target[key] = source[key];
+            }
+          }
+        }
+        return target;
+      }
+
+	  function isLight(color) {
+		let hex = color.replace('#', '');
+
+		// convert #fff => #ffffff
+		if(hex.length == 3){
+			hex = `${hex[0]}${hex[0]}${hex[1]}${hex[1]}${hex[2]}${hex[2]}`;
+		}
+
+		const c_r = parseInt(hex.substr(0, 2), 16);
+		const c_g = parseInt(hex.substr(2, 2), 16);
+		const c_b = parseInt(hex.substr(4, 2), 16);
+		const brightness = ((c_r * 299) + (c_g * 587) + (c_b * 114)) / 1000;
+		return brightness > 155;
+	}
+
+	var bgColor = getComputedStyle(document.documentElement).getPropertyValue('--r-background-color').trim();
+	var isLight = isLight(bgColor);
+
+	if(isLight){
+		document.body.classList.add('has-light-background');
+	} else {
+		document.body.classList.add('has-dark-background');
+	}
+
+      // default options to init reveal.js
+      var defaultOptions = {
+        controls: true,
+        progress: true,
+        history: true,
+        center: true,
+        transition: 'default', // none/fade/slide/convex/concave/zoom
+        plugins: [
+          RevealMarkdown,
+          RevealHighlight,
+          RevealZoom,
+          RevealNotes,
+          RevealMath.MathJax3,
+		  RevealMermaid,
+		  RevealChart,
+		  RevealCustomControls,
+        ],
+
+
+    	allottedTime: 120 * 1000,
+
+		mathjax3: {
+			mathjax: 'plugin/math/mathjax/tex-mml-chtml.js',
+		},
+		markdown: {
+		  gfm: true,
+		  mangle: true,
+		  pedantic: false,
+		  smartLists: false,
+		  smartypants: false,
+		},
+
+		mermaid: {
+			theme: isLight ? 'default' : 'dark',
+		},
+
+		customcontrols: {
+			controls: [
+			]
+		},
+      };
+
+      // options from URL query string
+      var queryOptions = Reveal().getQueryHash() || {};
+
+      var options = extend(defaultOptions, {"width":960,"height":700,"margin":"0.025","minScale":"0.1","maxScale":"2.0","controls":"true","controlsLayout":"bottom-right","progress":"true","slideNumber":"true","center":"false","transition":"slide","transitionSpeed":"default"}, queryOptions);
+    </script>
+
+    <script>
+      Reveal.initialize(options);
+    </script>
+  </body>
+
+  <!-- created with Advanced Slides -->
+</html>
