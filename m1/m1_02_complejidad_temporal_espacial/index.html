@@ -1472,42 +1472,6 @@ def buscar_tripletes(lista):
 </div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
 <div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
 
-### Quiz III
-
-```python
-def buscar_tripletes(lista):
-    triplete = []
-    for i in lista:
-        for j in lista:
-            for k in lista:
-                if i + j + k == 0:
-                    triplete.append((i, j, k))
-    return triplete
-```
-
-- ¿Cómo impactaría duplicar el tamaño de la lista de entrada en el tiempo de ejecución de la función `buscar_tripletes`?
-	- Duplicaría el tiempo de ejecución
-	- Triplicaría el tiempo de ejecución
-	- Cuadruplicaría el tiempo de ejecución
-	- Octuplicaría el tiempo de ejecución
-	- No tendría impacto significativo
-</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
-<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
-
-### Quiz III - Solución
-
-- ¿Cómo impactaría duplicar el tamaño de la lista de entrada en el tiempo de ejecución de la función `buscar_tripletes`?
-	- Duplicaría el tiempo de ejecución
-	- Triplicaría el tiempo de ejecución
-	- Cuadruplicaría el tiempo de ejecución
-	- **Octuplicaría el tiempo de ejecución** 
-	- No tendría impacto significativo
-
-- Explicación: 
-	- &shy;<!-- .element: class="fragment" data-fragment-index="1" -->Se octuplicaría el tiempo de ejecución (2³ = 8)
-</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
-<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
-
 ### Orden exponencial O(bⁿ)
 
 - Características
@@ -1615,7 +1579,7 @@ def generar_combinaciones(conjunto):
 </div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
 <div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
 
-### Aproximación empírica (_a posteriori_) (1/2)
+### Aproximación empírica (_a posteriori_ ) (1/2)
 
 - Observar (medir) comportamiento del algoritmo
 - Difícil obtener medidas precisas
@@ -1623,7 +1587,7 @@ def generar_combinaciones(conjunto):
 </div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
 <div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
 
-### Aproximación empírica (_a posteriori_) (2/2)
+### Aproximación empírica (_a posteriori_ ) (2/2)
 
     
 - **Factores clave:** 

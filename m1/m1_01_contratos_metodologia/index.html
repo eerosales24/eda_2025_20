@@ -117,20 +117,19 @@ Universidad de los Andes
 ### doctrings - Ejemplo
     
 ```Python
-def suma(primer_operando1: int, segundo_operando2: int) -> int:
+def suma(primer_operando: int, segundo_operando: int) -> int:
     """
     Calcula la suma de dos números enteros.
 
-    :param operando1: El primer número entero a sumar.
-    :type operando1: int
-    :param operando2: El segundo número entero a sumar.
-    :type operando2: int, optional
+    :param primer_operando: El primer número entero a sumar.
+    :type primer_operando: int
+    :param segundo_operando: El segundo número entero a sumar.
+    :type segundo_operando: int
 
     :returns: El resultado de sumar los dos números enteros.
     :rtype: int
     """
-    return primer_operando1 + segundo_operando2
-
+    return primer_operando + segundo_operando
 ```
 </div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
 <div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
@@ -254,19 +253,19 @@ help(doctest.testmod)
 ### Función `suma`
 
 ```Python
-def suma(primer_operando1: int, segundo_operando2: int) -> int:
+def suma(primer_operando: int, segundo_operando: int) -> int:
     """
     Calcula la suma de dos números enteros.
 
-    :param operando1: El primer número entero a sumar.
-    :type operando1: int
-    :param operando2: El segundo número entero a sumar.
-    :type operando2: int, optional
+    :param primer_operando: El primer número entero a sumar.
+    :type primer_operando: int
+    :param segundo_operando: El segundo número entero a sumar.
+    :type segundo_operando: int
 
     :returns: El resultado de sumar los dos números enteros.
     :rtype: int
     """
-    return primer_operando1 + segundo_operando2
+    return primer_operando + segundo_operando
 ```
 </div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
 <div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
@@ -275,14 +274,14 @@ def suma(primer_operando1: int, segundo_operando2: int) -> int:
 
 ```Python[14-21]
 import doctest
-def suma(primer_operando1: int, segundo_operando2: int) -> int:
+def suma(primer_operando: int, segundo_operando: int) -> int:
     """
     Calcula la suma de dos números enteros.
 
-    :param operando1: El primer número entero a sumar.
-    :type operando1: int
-    :param operando2: El segundo número entero a sumar.
-    :type operando2: int, optional
+    :param primer_operando: El primer número entero a sumar.
+    :type primer_operando: int
+    :param segundo_operando: El segundo número entero a sumar.
+    :type segundo_operando: int
 
     :returns: El resultado de sumar los dos números enteros.
     :rtype: int
@@ -296,7 +295,7 @@ def suma(primer_operando1: int, segundo_operando2: int) -> int:
     >>> suma(-2, 5)  # Caso enteros positivos y negativos
     3
     """
-    return primer_operando1 + segundo_operando2
+    return primer_operando + segundo_operando
 
 doctest.run_docstring_examples(suma, globals(), verbose=True)
 ```
