@@ -1579,7 +1579,7 @@ def generar_combinaciones(conjunto):
 </div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
 <div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
 
-### Aproximación empírica (_a posteriori_ ) (1/2)
+### Aproximación empírica (_a posteriori_ ) (1/3)
 
 - Observar (medir) comportamiento del algoritmo
 - Difícil obtener medidas precisas
@@ -1587,7 +1587,7 @@ def generar_combinaciones(conjunto):
 </div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
 <div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
 
-### Aproximación empírica (_a posteriori_ ) (2/2)
+### Aproximación empírica (_a posteriori_ ) (2/3)
 
     
 - **Factores clave:** 
@@ -1595,6 +1595,26 @@ def generar_combinaciones(conjunto):
 		- Suele ser proporcional al tamaño del input
 	- Memoria requerida
 		- Estática y en tiempo de ejecución
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Aproximación empírica (_a posteriori_ ) (3/3)
+
+
+```python
+import time  
+  
+start_time = time.time()  
+  
+# Your code or operation to be timed goes here  
+# Example:  
+sum(range(10**6))  
+  
+end_time = time.time()  
+elapsed_time = end_time - start_time  
+  
+print(f"Elapsed time: {elapsed_time:.4f} seconds")
+```
 </div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
 <div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
 
@@ -1621,7 +1641,7 @@ def generar_combinaciones(conjunto):
 ### Aproximación empírica (_a posteriori_) - Desventajas
 
 - Dependencia del entorno
-	- Resultados varían por hardware, sistema operativo, programas concurrentes, etc.  
+	- Resultados varían por hardware, S.O., programas concurrentes, etc.  
 
 - No generalizable
 	- Información limitada a tamaños de entrada específicos
@@ -1650,7 +1670,7 @@ def generar_combinaciones(conjunto):
 
 ### Espacio constante  (O(1))
 
-- Si el espacio no depende del tamaño de la entrada
+- El espacio no depende del tamaño de la entrada
 
 	<br>
 
@@ -1662,13 +1682,13 @@ def suma(num1, num2):
 ```
 
 - Independientemente del tamaño de `num1` y `num2`
-	- Solo se necesita un espacio constante para `suma`
+	- Solo se necesita espacio constante para `suma`
 </div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
 <div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
 
 ### Espacio lineal  (O(n))
 
-- Si el espacio crece linealmente con el tamaño de la entrada
+- El espacio crece linealmente con el tamaño de la entrada
 
 	<br>
 

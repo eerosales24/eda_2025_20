@@ -1,0 +1,1863 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+
+    <title></title>
+    <link rel="stylesheet" href="dist/reveal.css" />
+    <link rel="stylesheet" href="dist/theme/iph.css" id="theme" />
+    <link rel="stylesheet" href="plugin/highlight/spyder.css" />
+	<link rel="stylesheet" href="css/layout.css" />
+	<link rel="stylesheet" href="plugin/customcontrols/style.css">
+
+
+
+    <script defer src="dist/fontawesome/all.min.js"></script>
+
+	<script type="text/javascript">
+		var forgetPop = true;
+		function onPopState(event) {
+			if(forgetPop){
+				forgetPop = false;
+			} else {
+				parent.postMessage(event.target.location.href, "app://obsidian.md");
+			}
+        }
+		window.onpopstate = onPopState;
+		window.onmessage = event => {
+			if(event.data == "reload"){
+				window.document.location.reload();
+			}
+			forgetPop = true;
+		}
+
+		function fitElements(){
+			const itemsToFit = document.getElementsByClassName('fitText');
+			for (const item in itemsToFit) {
+				if (Object.hasOwnProperty.call(itemsToFit, item)) {
+					var element = itemsToFit[item];
+					fitElement(element,1, 1000);
+					element.classList.remove('fitText');
+				}
+			}
+		}
+
+		function fitElement(element, start, end){
+
+			let size = (end + start) / 2;
+			element.style.fontSize = `${size}px`;
+
+			if(Math.abs(start - end) < 1){
+				while(element.scrollHeight > element.offsetHeight){
+					size--;
+					element.style.fontSize = `${size}px`;
+				}
+				return;
+			}
+
+			if(element.scrollHeight > element.offsetHeight){
+				fitElement(element, start, size);
+			} else {
+				fitElement(element, size, end);
+			}		
+		}
+
+
+		document.onreadystatechange = () => {
+			fitElements();
+			if (document.readyState === 'complete') {
+				if (window.location.href.indexOf("?export") != -1){
+					parent.postMessage(event.target.location.href, "app://obsidian.md");
+				}
+				if (window.location.href.indexOf("print-pdf") != -1){
+					let stateCheck = setInterval(() => {
+						clearInterval(stateCheck);
+						window.print();
+					}, 250);
+				}
+			}
+	};
+
+
+        </script>
+  </head>
+  <body>
+    <div class="reveal">
+      <div class="slides"><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Estructura de Datos y Algoritmos - EDA
+
+ ####  *Recursividad*
+
+[Eduardo Rosales](mailto:ee.rosales24@uniandes.edu.co)
+
+Departamento de Ingeniería de Sistemas y Computación
+
+Universidad de los Andes
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Repetición en Python
+
+- Iterativa - ciclos:
+	- `for`
+	- `while`
+
+<br>
+
+- **Recursividad**
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Recursividad
+
+- La función se invoca a sí misma
+	- Para resolver una instancia más pequeña del problema
+- Divide y vencerás
+	- Descomponer problemas en sub-problemas
+
+	<br>
+
+- Ejemplo en la vida  real → Muñecas  rusas
+	- Versiones más pequeñas anidadas
+	- Profundidad finita
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Recursividad
+
+- Componentes:
+	- **Caso base**: 
+		- Condición que detiene la recursión
+			- Función **no** se invoca a sí misma
+	- **Caso recursivo**: 
+		- Función se invoca a sí misma 
+			- En una **versión más pequeña** del problema
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Metodología de desarrollo de software
+
+- El orden importa:
+	
+<img src="iph/n1/img/sw.png" alt="" style="object-fit: scale-down">
+
+<!-- .element: style="width: 15%; height: 25%" -->
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Análisis (1/10)
+
+1.  Identificar y especificar el problema
+2.  Identificar restricciones
+3.  Documentar
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Análisis (2/10)
+
+- **¿Cuál es el problema a solucionar?**
+	- El cálculo del factorial
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Factorial (1/2)
+
+- Denotado como `n!`, donde `n` es un número
+	- Producto de todos los enteros positivos `≤ n`
+- Ej:
+
+```plaintext
+No hay enteros positivos menores que 1, así que el producto vacío es 1:
+factorial(0) = 1 
+
+factorial(1) = 1
+
+factorial(2) = 2 × factorial(1) = 2
+
+factorial(3) = 3 × factorial(2) = 6
+
+factorial(4) = 4 × factorial(3) = 24
+
+factorial(5) = 5 × factorial(4) = 120
+```
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Factorial (2/2)
+
+```plaintext
+factorial(0) = 1 
+factorial(1) = 1
+factorial(2) = 2 × factorial(1) = 2
+factorial(3) = 3 × factorial(2) = 6
+factorial(4) = 4 × factorial(3) = 24
+factorial(5) = 5 × factorial(4) = 120
+```
+
+<img src="eda/modulo_1/img/factorial.png" alt="" style="width: 70%; height: 10%; object-fit: fill">
+
+
+- &shy;<!-- .element: class="fragment" data-fragment-index="1" -->✅  Entender la definición matemática del factorial
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Análisis (3/10)
+
+- **¿Cuál es el propósito de la función?**
+	- Calcular el factorial de un número entero positivo
+	
+<br>
+
+- **¿Cuál será el nombre la función?**
+	- El nombre debe ser **auto explicativo**
+		- Ej:
+			- `factorial`
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Análisis (4/10)
+		
+- **¿Qué dato(s) de entrada requiere?**
+	- &shy;<!-- .element: class="fragment" data-fragment-index="1" -->Un número entero
+
+<br>
+
+- **¿Qué salida (resultado) producirá?**
+	- &shy;<!-- .element: class="fragment" data-fragment-index="2" -->Un número entero que es
+		- El factorial del número dado
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Análisis (5/10)
+		
+- **Especificar las restricciones:**
+
+<br>
+
+- **¿Qué restricciones le aplican a los datos de entrada?**
+	- El factorial sólo está definido para enteros no negativos
+	
+<br>
+
+- **¿Qué restricciones le aplican a la salida?**
+	- Debe ser un número entero positivo
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Análisis (6/10)
+
+- Escribir la documentación: 
+	- **¿Cuál es el propósito de la función?**
+
+```Python[2]
+    """
+    Calcula el factorial de un número (n!).
+
+    :param numero: El número positivo para calcular su factorial.
+    :type numero: int
+
+    :returns: El factorial del número proporcionado.
+    :rtype: int
+    """
+```
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Análisis (7/10)
+
+- Escribir la documentación: 
+	-  **¿Qué dato(s) de entrada requiere?**
+
+```Python[4,5]
+    """
+    Calcula el factorial de un número (n!).
+
+    :param numero: El número positivo para calcular su factorial.
+    :type numero: int
+
+    :returns: El factorial del número proporcionado.
+    :rtype: int
+    """
+```
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Análisis (8/10)
+
+- Escribir la documentación: 
+	- **¿Qué salida (resultado) producirá?**
+
+```Python[7,8]
+    """
+    Calcula el factorial de un número (n!).
+
+    :param numero: El número positivo para calcular su factorial.
+    :type numero: int
+
+    :returns: El factorial del número proporcionado.
+    :rtype: int
+    """
+```
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Análisis (9/10)
+
+- Así se ve la documentación básica producida en el análisis:
+
+```Python
+    """
+    Calcula el factorial de un número (n!).
+
+    :param numero: El número positivo para calcular su factorial.
+    :type numero: int
+
+    :returns: El factorial del número proporcionado.
+    :rtype: int
+    """
+```
+
+- Note que la documentación refleja las **restricciones**
+	- `(int)` indica 
+		- Que el tipo de dato de entrada esperado es un entero
+		- Que el tipo de dato a retornar es un entero
+	- Se especifica la naturaleza positiva de la entrada
+		- El factorial es por definición positivo
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Análisis (10/10)
+
+ - Recuerde que por disposición de la Coordinación de EDA
+	 - Los laboratorios, retos y su documentación
+		 - Usan este formato de documentación:
+
+```Python
+    """
+    Calcula el factorial de un número (n!).
+
+    :param numero: El número positivo para calcular su factorial.
+    :type numero: int
+
+    :returns: El factorial del número proporcionado.
+    :rtype: int
+    """
+```
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Diseño (1/8)
+
+ 1. Formular ejemplos
+	- Casos significativos y no redundantes
+ 2. Diseñar el algoritmo
+ 3. Diseñar y documentar las pruebas
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Diseño (2/8)
+
+- **Formular ejemplos**
+	- Usando casos significativos y no redundantes
+
+```plaintext
+factorial(0) = 1 
+factorial(1) = 1
+factorial(2) = 2
+factorial(3) = 6
+factorial(4) = 24
+factorial(5) = 120
+```
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Diseño (3/8)
+
+- Diseñar el algoritmo para solucionar el problema 
+	- A partir de la formulación de ejemplos
+
+<br>
+
+- El algoritmo será recursivo
+	- Entonces se necesita:
+	    1. Caso base
+	    2. Caso recursivo
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Diseño (4/8)
+
+- ¿Cuáles serán los **casos base**?
+	- &shy;<!-- .element: class="fragment" data-fragment-index="1" -->Cuando la función NO se llama a sí misma
+```plaintext
+factorial(0) = 1
+factorial(1) = 1
+```
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Diseño (5/8)
+
+- ¿Cuál es el **caso recursivo**?
+	- &shy;<!-- .element: class="fragment" data-fragment-index="1" -->Cuando la función se llama a sí misma
+```plaintext
+factorial(2) = 2 × factorial(1) = 2
+factorial(3) = 3 × factorial(2) = 6
+factorial(4) = 4 × factorial(3) = 24
+factorial(5) = 5 × factorial(4) = 120
+```
+
+- &shy;<!-- .element: class="fragment" data-fragment-index="2" -->Es decir:
+	- &shy;<!-- .element: class="fragment" data-fragment-index="3" -->`n` multiplicado por el factorial de `n − 1`
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Diseño (6/8)
+
+- Se define y documenta cada caso de prueba
+	- Así se veía un ejemplo:
+```plaintext
+factorial(0) = 1
+```
+- Así se ve un caso de prueba, documentado:
+```Python
+>>> factorial(0)  #  Caso base
+1
+```
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Diseño (7/8)
+
+```Python
+>>> factorial(0)  #  Caso base
+1
+```
+
+- Explicación:
+	- Si se llama a la función `factorial()`
+		- Usando como dato de entrada: **`0`** 
+		- Se **debe** obtener como resultado: **`1`**
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Diseño (8/8)
+
+- Así se ven los casos de prueba de la función
+	- En este caso se usarán solo **6** casos
+		- Se incluyen **dentro de la documentación**
+
+```Python[10-21]
+"""
+    Calcula el factorial de un número (n!).
+
+    :param numero: El número positivo para calcular su factorial.
+    :type numero: int
+
+    :returns: El factorial del número proporcionado.
+    :rtype: int
+
+    >>> factorial(0)  # Caso base
+    1
+    >>> factorial(1)  # Caso base
+    1
+    >>> factorial(2)  # Caso recursivo con 2
+    2
+    >>> factorial(3)  # Caso recursivo con 3
+    6
+    >>> factorial(4)  # Caso recursivo con 4
+    24
+    >>> factorial(5)  # Caso recursivo con 5
+    120
+"""
+```
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Construcción (1/10)
+
+- **Construcción**:
+	- Codificar/implementar el diseño usando:
+		- Documentación
+        - Convenciones
+        - Buenas prácticas de programación
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Construcción (2/10)
+
+- Definir (declarar) la función:
+
+```Python
+def factorial(n):
+```
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Construcción (3/10)
+
+-  Escribir la implementación de la función
+- Por ahora, se omitirá la validación de las restricciones
+	- Sólo serán documentadas
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Construcción (4/10)
+- ¿Cómo se verían los **casos base** en Python?    
+	- &shy;<!-- .element: class="fragment" data-fragment-index="1" --> Un _ejemplo_ de solución:
+```Python
+    if n == 0 or n == 1:
+        return 1
+```
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Construcción (5/10)
+
+- Escribir el caso recursivo:
+        
+```Python[3-11]
+if n == 0 or n == 1:
+    return 1
+elif n == 2:
+        return 2 * factorial(2 - 1)
+    elif n == 3:
+        return 3 * factorial(3 - 1)
+    elif n == 4:
+        return 4 * factorial(4 - 1)
+    elif n == 5:
+        return 5 * factorial(5 - 1)
+# Y continuaría…
+```
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Construcción (6/10)
+
+- Escribir el caso recursivo:
+        
+```Python
+elif n == 2:
+        return 2 * factorial(2 - 1)
+    elif n == 3:
+        return 3 * factorial(3 - 1)
+    elif n == 4:
+        return 4 * factorial(4 - 1)
+    elif n == 5:
+        return 5 * factorial(5 - 1)
+        
+# Y continuaría…
+```
+
+- &shy;<!-- .element: class="fragment" data-fragment-index="1" -->❌ Esta implementación sería impráctica para `n` muy grandes
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Construcción (7/10)
+
+- Se refina el código con base a la definición matemática:
+<img src="eda/modulo_1/img/factorial.png" alt="" style="object-fit: scale-down">
+
+
+- ¿Cómo se vería el **caso recursivo** en Python?    
+	- &shy;<!-- .element: class="fragment" data-fragment-index="1" --> Un _ejemplo_ de solución:
+<!-- .element: style="width: 55%; height: 8%" -->
+```python
+def factorial(n):
+    if n == 0 or n == 1:
+        return 1
+    else:
+        return n * factorial(n - 1)
+```
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Construcción (8/10)
+
+-   Pulir el código:
+
+```python
+def factorial(n):
+    return 1 if n <= 1 else n * factorial(n - 1)
+```
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Operador ternario 
+
+- Es una sintaxis concisa para `if-else` en una línea
+- Sintaxis:
+```python
+expresion1 if Condicion else expresion2
+```
+
+- Se evalúa `Condición`
+
+- Si `Condición` evalúa a `True`
+	- Evaluar `expresion1` 
+		- Retornar su valor resultante
+- Caso contrario
+	-  Evaluar `expresion2` 
+		- Retornar su valor resultante
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Operador ternario  - Ejemplo (1/4)
+
+```python
+resultado = 'Par' if num % 2 == 0 else 'Impar'
+```
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Operador ternario  - Ejemplo (2/4)
+
+
+<img src="iph/n2/img/ot_1.png" alt="" style="object-fit: scale-down">
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Operador ternario  - Ejemplo (3/4)
+
+
+<img src="iph/n2/img/ot_2.png" alt="" style="object-fit: scale-down">
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Operador ternario  - Ejemplo (4/4)
+
+<img src="iph/n2/img/ot_3.png" alt="" style="object-fit: scale-down">
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Operador ternario  vs `if`
+
+```python
+resultado = 'Par' if num % 2 == 0 else 'Impar'
+```
+
+
+- A diferencia de la instrucción `if`
+	- El operador ternario **es una expresión**
+	- Puede ser utilizado en asignaciones
+		- Ej:
+			- A  la variable `resultado` 
+				- Se le asigna el valor de retorno 
+					- Del operador ternario
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Construcción (9/10)
+
+
+```python
+def factorial(n):
+    return 1 if n <= 1 else n * factorial(n - 1)
+```
+
+<br>
+
+- &shy;<!-- .element: class="fragment" data-fragment-index="1" -->Se evalúa la condición: 
+	- &shy;<!-- .element: class="fragment" data-fragment-index="2" -->if n <= 1
+- &shy;<!-- .element: class="fragment" data-fragment-index="3" -->Si la condición evalúa a `True`:
+	- &shy;<!-- .element: class="fragment" data-fragment-index="4" --> `return 1`
+- &shy;<!-- .element: class="fragment" data-fragment-index="5" -->Caso contrario (`else`):
+	- &shy;<!-- .element: class="fragment" data-fragment-index="6" -->`n * factorial(n - 1)`
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Construcción (10/10)
+
+- Así se ve la implementación completa de la función `factorial()`:
+
+```Python
+def factorial(n):
+    """
+    Calcula el factorial de un número.
+
+    :param n: El número positivo para calcular su factorial.
+    :type n: int
+
+    :returns: El factorial del número proporcionado.
+    :rtype: int
+
+    >>> factorial(0)  # Caso base
+    1
+    >>> factorial(1)  # Caso base
+    1
+    >>> factorial(2)
+    2
+    >>> factorial(3)
+    6
+    >>> factorial(4)
+    24
+    >>> factorial(5)
+    120
+    """
+    return 1 if n <= 1 else n * factorial(n - 1)
+```
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Pruebas (1/4)
+
+1. Verificar si el resultado obtenido es el esperado
+2. Depurar:
+	- Corregir errores
+	- Pulir/mejorar/optimizar
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Pruebas (4/4)
+
+- Ejecutar los doctests:
+
+```Python[1,28]
+import doctest
+
+def factorial(n):
+    """
+    Calcula el factorial de un número.
+
+    :param n: El número positivo para calcular su factorial.
+    :type n: int
+
+    :returns: El factorial del número proporcionado.
+    :rtype: int
+
+    >>> factorial(0)  # Caso base
+    1
+    >>> factorial(1)  # Caso base
+    1
+    >>> factorial(2)
+    2
+    >>> factorial(3)
+    6
+    >>> factorial(4)
+    24
+    >>> factorial(5)
+    120
+    """
+    return 1 if n <= 1 else n * factorial(n - 1)
+
+doctest.run_docstring_examples(factorial, globals(), verbose=True)
+```
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Pruebas (4/4)
+
+- Revisar los resultados y corregir si es necesario:
+
+```plaintext
+Trying:
+    factorial(0)
+Expecting:
+    1
+ok
+Trying:
+    factorial(1)
+Expecting:
+    1
+ok
+Trying:
+    factorial(2)
+Expecting:
+    2
+ok
+Trying:
+    factorial(3)
+Expecting:
+    6
+ok
+Trying:
+    factorial(4)
+Expecting:
+    24
+ok
+Trying:
+    factorial(5)
+Expecting:
+    120
+ok
+```
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Pruebas (4/4)
+
+ - Recuerde que por disposición de la Coordinación de EDA
+	 - Los laboratorios y retos
+		 - Usan otro tipo de pruebas
+
+	<br>
+
+- Los doctests solo se usan como una forma clara y concisa
+	- De mostrar pruebas **en presentaciones**
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Reglas de recursividad:
+
+
+
+1. Definir el(los) caso(s) base con solución conocida<!-- .element: class="fragment" data-fragment-index="1" -->
+ 
+<br>
+
+2. Establecer el(los) caso(s) recursivo(s) que resuelvan los sub-problemas<!-- .element: class="fragment" data-fragment-index="2" -->
+
+ 
+<br>
+
+
+3. Garantizar que los casos recursivos converjan al caso base<!-- .element: class="fragment" data-fragment-index="3" -->
+
+ 
+<br>
+
+4. Si hay múltiples casos recursivos, deben ser disyuntos<!-- .element: class="fragment" data-fragment-index="4" -->
+
+ 
+<br>
+
+
+5. La solución debe combinar los resultados de los casos base y recursivos<!-- .element: class="fragment" data-fragment-index="5" -->
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Quiz I
+
+- Implemente la función `fibonacci()` recursivamente
+
+- **Serie de fibonacci**:
+	- Serie en donde cada número es la suma de los dos anteriores
+	- Ej:
+```plaintext
+fibonacci(0) = 0
+fibonacci(1) = 1
+fibonacci(2) = fibonacci(1) + fibonacci(0) = 1 + 0 = 1
+fibonacci(3) = fibonacci(2) + fibonacci(1) = 1 + 1 = 2
+fibonacci(4) = fibonacci(3) + fibonacci(2) = 2 + 1 = 3
+fibonacci(5) = fibonacci(4) + fibonacci(3) = 3 + 2 = 5
+…
+fibonacci(n) = fibonacci(n−1) + fibonacci(n−2)
+```
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Quiz I - Solucion
+
+```python
+def fibonacci(n):
+    """
+    Calcula el n-ésimo número de la secuencia de Fibonacci.
+
+    :param n: La posición en la secuencia de Fibonacci (entero no negativo).
+    :type n: int
+
+    :returns: El n-ésimo número de Fibonacci.
+    :rtype: int
+
+    >>> fibonacci(0)
+    0
+    >>> fibonacci(1)
+    1
+    >>> fibonacci(2)
+    1
+    >>> fibonacci(12)
+    144
+    >>> fibonacci(24)
+    46368
+    """
+    return n if n <= 1 else fibonacci(n - 1) + fibonacci(n - 2)
+```
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Análisis de algoritmos recursivos
+
+- Es posible analizar la complejidad de algoritmos recursivos
+	- Para ello es clave el concepto de activación
+
+- **Activación**
+	- Cada invocación individual de una función recursiva incluye:
+		- Conjunto único de parámetros
+		- Punto de retorno y estado del cálculo
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### ¿Cómo analizar la complejidad de algoritmos recursivos?
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Complejidad temporal de algoritmos recursivos
+
+- Contabilizar cada operación realizada en cada activación
+	- En cada invocación de la función
+		 - Considerar sólo las operaciones dentro de esa activación
+ - Sumar el número de operaciones ejecutadas en todas las activaciones
+	- Para obtener el total del algoritmo recursivo
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Complejidad temporal - Factorial recursivo (1/5)
+
+  
+```python
+return 1 if n <= 1 ...
+```
+
+- Casos bases:
+	- Retorno inmediato de `1` para `n` igual a `0` o `1`
+
+	<br>
+
+	- ¿Cuál es la complejidad temporal de los casos base?
+		- &shy;<!-- .element: class="fragment" data-fragment-index="1" -->**O(1)**
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Complejidad temporal - Factorial recursivo (2/5)
+
+  
+```python
+return ... else n * factorial(n - 1)
+```
+
+- Caso recursivo:
+	- Cada llamada recursiva genera
+		- Una llamada más
+			- Hasta llegar a los casos base
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Complejidad temporal - Factorial recursivo (3/5)
+
+```python
+def factorial(n):
+    return 1 if n <= 1 else n * factorial(n - 1)
+```
+
+- Hay un total de `n` activaciones
+	- Porque el parámetro disminuye `(n - 1)`
+		- De `n` a `0`, reduciéndose en `1` con cada invocación recursiva
+			- Hasta alcanzar los casos base
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Complejidad temporal - Factorial recursivo (4/5)
+
+- Cada activación del factorial
+	- Ejecuta un número constante de operaciones
+
+- Número total de operaciones
+	- Para cada una de las `n` activaciones
+		- Solo se realiza operaciones constantes O(1)
+
+<img src="Pasted image 20250126111602.png" alt="" style="width: 30%; height: 25%; object-fit: fill">
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Complejidad temporal - Factorial Recursivo (5/5)
+
+- ¿Cuál sería el orden de crecimiento temporal del algoritmo?
+	 - &shy;<!-- .element: class="fragment" data-fragment-index="1" -->Notación Big O: **O(n)**
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### ¿Como analizar la complejidad espacial?
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Pila (Stack) - Introducción preliminar
+
+- Estructura de datos con comportamiento LIFO
+	- Último en entrar, primero en salir (Last In, First Out)
+
+<img src="Pasted image 20250126111839.png" alt="" style="width: 60%; height: 35%; object-fit: fill">
+
+
+- El Call Stack de Python es una pila
+	- Almacena invocaciones a funciones y variables locales
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+###  Call Stack y Recursividad (1/2)
+
+- Almacena invocaciones a funciones y variables locales 
+	- Durante la ejecución de un programa
+
+	<br>
+
+- Cada vez que una función es invocada
+	- Su contexto (parámetros y variables locales) se apila
+		- En un _frame_
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+###  Call Stack y Recursividad (2/2)
+
+
+- El contexto se desapila, solo cuando la función termina
+	- Al retornar, el estado de la pila vuelve al estado antes de apilar
+
+
+	<br>
+
+
+- Permite seguir el flujo de ejecución 
+	- Y resolver llamadas anidadas o recursivas de ma
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Comprendiendo la recursividad (1/17)
+
+```python
+def factorial(n: int) -> int:
+    return 1 if n <= 1 else n * factorial(n - 1)
+
+factorial(4)
+```
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Comprendiendo la recursividad (2/17)
+
+```python
+def factorial(n: int) -> int:
+    return 1 if n <= 1 else n * factorial(n - 1)
+
+factorial(4)
+```
+
+<img src="iph/n3/img/fb_1.png" alt="" style="object-fit: scale-down">
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Comprendiendo la recursividad (3/17)
+
+```python
+    return 1 if n <= 1 else n * factorial(n - 1)
+```
+
+<img src="iph/n3/img/fb_2.png" alt="" style="width: 55%; height: 40%; object-fit: fill">
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Comprendiendo la recursividad (4/17)
+
+```python
+    return 1 if n <= 1 else n * factorial(n - 1)
+```
+
+<img src="iph/n3/img/fb_3.png" alt="" style="width: 55%; height: 45%; object-fit: fill">
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Comprendiendo la recursividad (5/17)
+
+```python
+    return 1 if n <= 1 else n * factorial(n - 1)
+```
+
+<img src="iph/n3/img/fb_4.png" alt="" style="width: 55%; height: 50%; object-fit: fill">
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Comprendiendo la recursividad (6/17)
+
+```python
+    return 1 if n <= 1 else n * factorial(n - 1)
+```
+
+<img src="iph/n3/img/fb_5.png" alt="" style="width: 55%; height: 50%; object-fit: fill">
+
+
+<br>
+
+- Nota: Aquí no se desapila ante `return`
+	- Solo para hacer observable toda la traza
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Comprendiendo la recursividad (7/17)
+
+```python
+    return 1 if n <= 1 else n * factorial(n - 1)
+```
+
+<img src="iph/n3/img/fb_6.png" alt="" style="width: 55%; height: 50%; object-fit: fill">
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Comprendiendo la recursividad (8/17)
+
+```python
+    return 1 if n <= 1 else n * factorial(n - 1)
+```
+
+<img src="iph/n3/img/fb_7.png" alt="" style="width: 55%; height: 50%; object-fit: fill">
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Comprendiendo la recursividad (9/17)
+
+```python
+    return 1 if n <= 1 else n * factorial(n - 1)
+```
+
+<img src="iph/n3/img/fb_8.png" alt="" style="width: 55%; height: 50%; object-fit: fill">
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Comprendiendo la recursividad (10/17)
+
+```python
+    return 1 if n <= 1 else n * factorial(n - 1)
+```
+
+<img src="iph/n3/img/fb_9.png" alt="" style="width: 55%; height: 50%; object-fit: fill">
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Comprendiendo la recursividad (11/17)
+
+```python
+    return 1 if n <= 1 else n * factorial(n - 1)
+```
+
+<img src="iph/n3/img/fb_10.png" alt="" style="width: 55%; height: 50%; object-fit: fill">
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Comprendiendo la recursividad (12/17)
+
+```python
+    return 1 if n <= 1 else n * factorial(n - 1)
+```
+
+<img src="iph/n3/img/fb_11.png" alt="" style="width: 55%; height: 50%; object-fit: fill">
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Comprendiendo la recursividad (13/17)
+
+```python
+    return 1 if n <= 1 else n * factorial(n - 1)
+```
+
+<img src="iph/n3/img/fb_12.png" alt="" style="width: 55%; height: 50%; object-fit: fill">
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Comprendiendo la recursividad (14/17)
+
+```python
+    return 1 if n <= 1 else n * factorial(n - 1)
+```
+
+<img src="iph/n3/img/fb_13.png" alt="" style="width: 55%; height: 50%; object-fit: fill">
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Comprendiendo la recursividad (15/17)
+
+```python
+    return 1 if n <= 1 else n * factorial(n - 1)
+```
+
+<img src="iph/n3/img/fb_14.png" alt="" style="width: 55%; height: 50%; object-fit: fill">
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Comprendiendo la recursividad (16/17)
+
+<img src="iph/n3/img/fb_15.png" alt="" style="object-fit: scale-down">
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Comprendiendo la recursividad (17/17)
+
+```python
+def factorial(n: int) -> int:
+    return 1 if n <= 1 else n * factorial(n - 1)
+
+factorial(4)  # → 24
+```
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### ¿Qué pasaría si la recursividad no se detiene apropiadamente?
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### `RecursionError`
+
+- Excepción que ocurre cuando:
+    - Una función se llama a sí misma demasiadas veces
+        
+- Causa:
+    - Recursión sin caso base
+	    - Solo hay caso recursivo
+    - Función mal diseñada
+	    - La ejecución no alcanza el caso base
+        
+- Python limita la profundidad recursiva (**~1000 llamadas**)
+    
+- Ayuda: [RecursionError](https://docs.python.org/3/library/exceptions.html#RecursionError)
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### `RecursionError` - Ejemplo
+
+```python
+def infinito():
+    return infinito()
+
+infinito()  # Llamada infinita
+```
+
+
+<div class="callout callout-color7">
+<div class="callout-title">
+<div class="callout-icon">
+
+<i class="fas fa-bolt" ></i>
+
+
+</div>
+<div class="callout-title-inner">
+
+Error
+
+</div>
+</div>
+<div class="callout-content">
+
+RecursionError: maximum recursion depth exceeded
+
+</div>
+</div>
+<!-- .element: style="width: 80%; font-size: 24px; transform: rotate(0deg)" -->
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Solucionando un `RecursionError` (1/3)
+
+- Asegurar que la función:
+
+    1. Tenga **un caso base**
+        
+    2. **Avance hacia el o los casos base**
+	    - En cada recursión
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Solucionando un `RecursionError` (2/3)
+
+- ¿Cómo se soluciona el siguiente error?
+
+```python
+def fibonacci(n: int) -> int:
+    # No hay caso base:
+    return fibonacci(n - 1) + fibonacci(n - 2)  # → 'RecursionError'
+
+fibonacci(12)  
+```
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Solucionando un `RecursionError` (3/3)
+
+- ¿Cómo se soluciona el siguiente error?
+
+```python
+def fibonacci(n: int) -> int:
+    # No hay caso base:
+    return fibonacci(n - 1) + fibonacci(n - 2)  # → 'RecursionError'
+
+fibonacci(12)  
+```
+
+<br>
+
+- ✅ Añadir caso base:
+
+```python
+def fibonacci(n: int) -> int:
+    return n if n <= 1 else fibonacci(n - 1) + fibonacci(n - 2)
+
+fibonacci(12)  # → 144
+```
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Complejidad espacial - Factorial recursivo (1/3)
+
+```python[3]
+def factorial(n):
+    return 1 if n <= 1 else n * factorial(n - 1)
+factorial(5)
+```
+
+- [Python Tutor](https://pythontutor.com/visualize.html)
+	- Mantiene un espacio de pila propocional a `n` durante su ejecución:
+<img src="Pasted image 20250126112438.png" alt="" style="width: 50%; height: 35%; object-fit: fill">
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Complejidad espacial - Factorial recursivo (1/3)
+
+- Cada llamada recursiva
+	- Añade una nueva activación de función a la pila de llamadas
+		- Solo para factorial(5), hay una secuencia de 5 invocaciones: 
+	- El espacio de pila aumenta **linealmente** con `n`:
+		- Ocupando más espacio a medida que se añaden llamadas
+		- Requiere de un _frame_ de la pila por cada llamado recursivo
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Complejidad espacial - Factorial recursivo (1/3)
+
+
+- ¿Cuál es el orden de crecimiento espacial del algoritmo?
+	 - &shy;<!-- .element: class="fragment" data-fragment-index="1" -->Notación Big O: **O(n)**
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Análisis del Fibonacci recursivo
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Complejidad temporal - Fibonacci recursivo (1/7)
+
+  
+```python
+return n if n <= 1 ...
+```
+
+- Casos bases:
+	- Retorno inmediato de `1` para `n` igual a `0` o `1`
+		- Entonces, la complejidad es:
+			- &shy;<!-- .element: class="fragment" data-fragment-index="1" -->**O(1)**
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Complejidad temporal - Fibonacci recursivo (2/7)
+
+  
+```python
+return ... else fibonacci(n - 1) + fibonacci(n - 2)
+```
+
+- Caso recursivo:
+	- Cada llamada recursiva genera
+		- **Dos** llamadas más (hasta llegar a los casos base)
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Complejidad temporal - Fibonacci recursivo (3/7)
+
+- Cada caso recursivo resulta en **2 llamadas**:
+	- `fibonacci(n-1)` y `fibonacci(n-2)`
+- Esto produce un árbol de llamadas recursivas:
+
+<img src="Pasted image 20250126105346.png" alt="" style="width: 40%; height: 30%; object-fit: fill">
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Complejidad temporal - Fibonacci recursivo (4/7)
+
+
+- Número total de llamadas recursivas:
+	- El número de nodos en el árbol crece **exponencialmente** con `n`
+		- La altura del árbol es `n`
+
+- Crecimiento exponencial:
+	- El árbol de llamadas se **duplica** en cada nivel
+		- Llevando a aprox. a **2ⁿ** llamadas totales
+
+
+<img src="Pasted image 20250126105346.png" alt="" style="width: 35%; height: 24%; object-fit: fill">
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Complejidad temporal - Fibonacci recursivo (5/7)
+
+```python
+return ... else fibonacci(n - 1) + fibonacci(n - 2)
+```
+
+<br>
+
+- **Operaciones por activación:**
+    - Cada llamada a `fibonacci()` ejecuta un número constante de operaciones:
+		- Cada nodo en el árbol realiza operaciones constantes O(1)
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Complejidad temporal - Fibonacci recursivo (6/7)
+
+- **Número total de operaciones:**
+    - Dado que el árbol recursivo tiene O(2ⁿ) nodos
+        - La complejidad temporal total es exponencial
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Complejidad temporal - Fibonacci recursivo (7/7)
+
+- ¿Cuál es el orden de crecimiento temporal del algoritmo?
+	 - &shy;<!-- .element: class="fragment" data-fragment-index="8" -->Notación Big O: **O(2ⁿ)**
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Complejidad espacial - Fibonacci recursivo
+
+
+- ¿Cuál es el orden de crecimiento espacial del algoritmo?
+	 - &shy;<!-- .element: class="fragment" data-fragment-index="1" -->Notación Big O: **O(n)** 
+	- &shy;<!-- .element: class="fragment" data-fragment-index="2" -->Debido a la profundidad de la pila de llamadas recursivas  
+		- &shy;<!-- .element: class="fragment" data-fragment-index="3" -->Que alcanza máximo **n** niveles en el peor caso
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### ¿Cuándo la recursividad  es eficiente?
+
+
+<table border="1">
+  <thead>
+    <tr>
+      <th>Tipo de problema</th>
+      <th>¿Cuándo la recursión es eficiente o conveniente?</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Algunos algoritmos de árboles</td>
+      <td>Siempre. Por su naturaleza jerárquica</td>
+    </tr>
+    <tr>
+      <td>Divide &amp; vencerás</td>
+      <td>Cuando el problema puede dividirse en mitades</td>
+    </tr>
+    <tr>
+      <td>Backtracking</td>
+      <td>Cuando hay que probar muchas combinaciones</td>
+    </tr>
+    <tr>
+      <td>Programación dinámica</td>
+      <td>Si se usa memoización para evitar redundancias</td>
+    </tr>
+    <tr>
+      <td>Algunos algoritmos de grafos</td>
+      <td>Por claridad y alineación con la lógica de pila</td>
+    </tr>
+  </tbody>
+</table>
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Clasificación de funciones recursivas (1/4)
+
+- Según la ubicación de llamada recursiva
+- Según el número de llamadas recursivas generadas en tiempo de ejecución
+- Según la naturaleza de la llamada
+	- No hay operaciones después del llamado a la recursión ó
+	 - Hay operaciones pendientes después de la recursión
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Clasificación de funciones recursivas (2/4)
+
+- Si se depende de la ubicación de la llamada:
+
+	<br>
+
+- **Recursividad directa**:
+	- La función se llama a sí misma
+		- Ej: función factorial recursiva
+
+- **Recursividad indirecta**:
+	- La función `a(..)` llama a la función `b(...)`, y ésta llama a la función `a(...)`
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Recursividad indirecta - Ejemplo
+
+```Python
+def es_par(n: int) -> bool:
+    """
+    Verifica si un número es par utilizando recursión.
+
+    :param n: El número entero a verificar.
+    :type n: int
+
+    :returns: True si el número es par, False en caso contrario.
+    :rtype: bool
+    """
+    if n == 0:
+        return True
+    else:
+        return es_impar(n - 1)
+
+def es_impar(n: int) -> bool:
+    """
+    Verifica si un número es impar utilizando recursión.
+
+    :param n: El número entero a verificar.
+    :type n: int
+
+    :returns: True si el número es impar, False en caso contrario.
+    :rtype: bool
+    """
+    if n == 0:
+        return False
+    else:
+        return es_par(n - 1)
+```
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Clasificación de funciones recursivas (3/4)
+
+- Si se depende del número de llamadas recursivas generadas
+
+	<br>
+
+- **Recursividad lineal o simple**:
+	- Se genera una única llamada interna
+	- Se puede transformar fácilmente en iterativa
+	- Ej: Función factorial recursiva
+
+- **Recursividad no lineal o múltiple**:
+	- Se generan dos o más llamadas internas
+	- Ej: Función fibonacci recursiva
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Repetición en Python
+
+- **Iterativa** - ciclos:
+	- `for`
+	- `while`
+	
+- Recursividad
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Iterativo
+
+- Utiliza ciclos (como `for` o `while`)
+	- Para repetir acciones
+
+- Avanza mediante incrementos o decrementos explícitos de variables
+- Mantiene el estado del cálculo en variables temporales
+- Mantiene un espacio de pila **constante** durante su ejecución
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Ejemplo de algoritmo iterativo - Factorial (1/3)
+
+```Python
+def factorial(n):
+    if n == 0:  # Caso especial:
+        return 1
+    else:       # Caso general:
+        fact = 1
+        for i in range(2, n + 1):
+            fact *= i
+    return fact
+```
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Ejemplo de algoritmo iterativo - Factorial (2/3)
+
+- [Python Tutor](https://pythontutor.com/visualize.html)
+	- Mantiene un espacio de pila **constante** durante su ejecución:
+<img src="Pasted image 20250126131554.png" alt="" style="object-fit: scale-down">
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Ejemplo de algoritmo iterativo - Factorial (3/3)
+
+- Usa un ciclo for para multiplicar números desde `2` hasta `n`
+
+- Mantiene un espacio de pila constante durante su ejecución
+	- Una única activación de función
+		- Independiente del valor de `n`
+
+- Actualiza la variable `fact` en cada iteración
+	- Sin llamadas adicionales a la función
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Quiz II
+
+Estime el orden de crecimiento temporal del siguiente algoritmo:
+
+```Python
+def factorial(n):
+    if n == 0:  # Caso especial:
+        return 1
+    else:       # Caso general:
+        fact = 1
+        for i in range(2, n + 1):
+            fact *= i
+    return fact
+```
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Quiz II - Solución
+
+
+
+- El ciclo se ejecuta `n−1` veces
+	- Desde `2` hasta `n`
+
+<br>
+
+
+- Orden de crecimiento temporal del algoritmo:
+	 - &shy;<!-- .element: class="fragment" data-fragment-index="1" -->Notación Big O: **O(n)**
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Quiz III
+
+Estime el orden de crecimiento espacial del siguiente algoritmo:
+
+```Python
+def factorial(n):
+    if n == 0:  # Caso especial:
+        return 1
+    else:       # Caso general:
+        fact = 1
+        for i in range(2, n + 1):
+            fact *= i
+    return fact
+```
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Quiz III - Solución
+
+
+- El ciclo no genera llamadas recursivas 
+	- Ni utiliza estructuras de datos adicionales (como listas o diccionarios)
+- Todo el trabajo se realiza _in situ_  o _in place_ con un espacio constante
+	- El uso de memoria no aumenta con el tamaño de `n`
+
+<br>
+
+- Orden de crecimiento espacial del algoritmo:
+	 - &shy;<!-- .element: class="fragment" data-fragment-index="1" -->Notación Big O: **O(1)**
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Recursivo vs. Iterativo (complejidad espacial)
+
+- **Recursivo**:
+	- Uso de espacio de pila de llamadas proporcional a `n`
+	- Puede llevar a un desbordamiento de la pila para valores muy grandes de `n`
+		- Debido a la profundidad de la recursión
+
+- **Iterativo**:
+	- Uso de espacio de pila de llamadas constante
+	- Más eficiente en términos de memoria para valores grandes de `n`
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Clasificación de funciones recursivas (4/4)
+
+- Si se depende de la naturaleza de la llamada recursiva
+
+<br>
+
+- **Recursividad final (Tail) - (Iterativa)**:
+	- La llamada recursiva se realiza como última instrucción dentro de la función
+		- No hay operaciones pendientes después de la llamada recursiva
+	- Puede optimizarse para volverse recursiva
+		- Se puede transformar en un ciclo internamente
+	- A este tipo de recursión se le suele llamar iterativa
+
+- **Recursividad no final (No Tail)**:
+	- Hay operaciones pendientes después de la llamada recursiva
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Ejemplo de recursividad final (Tail) - Factorial (1/2)
+
+```Python
+def factorial_tail_recursive(n, accumulator=1):
+    """
+    Calcula el factorial de un número utilizando recursión de cola.
+
+    :param n: Número para calcular el factorial.
+    :param accumulator: Resultado acumulado (inicialmente 1).
+    :return: Factorial del número dado.
+    """
+    if n == 0:
+        return accumulator  # Caso base: Devolver el acumulador
+    else:
+        return factorial_tail_recursive(n - 1, accumulator * n)
+
+```
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Ejemplo de recursividad final (Tail) - Factorial (2/2)
+
+```Python
+def factorial_tail_recursive(n, accumulator=1):
+    if n == 0:
+        return accumulator  # Caso base: Retorna el acumulador
+    else:
+        return factorial_tail_recursive(n - 1, accumulator * n)
+```
+
+
+- El parámetro `accumulator` se utiliza para almacenar el resultado parcial del cálculo
+- La llamada recursiva **es la última operación** que se ejecuta
+	- Pasando el nuevo estado del acumulador
+- **No hay trabajo pendiente** después de la llamada recursiva
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Ejemplo de recursividad no final (No tail) - Factorial
+
+```python
+def fibonacci(n):
+    return n if n <= 1 else fibonacci(n - 1) + fibonacci(n - 2)
+```
+
+- Hay operaciones pendientes después de la llamada recursiva
+	- En la pila, se mantiene una activación por cada llamada recursiva
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+<img src="Pasted image 20250126130411.png" alt="" style="object-fit: scale-down">
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+<i class="fas fa-question-circle fa-2x fa-spin fa-4x"></i>
+
+
+<br>
+<br>
+
+
+[<i class="fas fa-home  fa-3x"></i>](https://eerosales24.github.io/eda_2025_20/#)
+</div></script></section></div>
+    </div>
+
+    <script src="dist/reveal.js"></script>
+
+    <script src="plugin/markdown/markdown.js"></script>
+    <script src="plugin/highlight/highlight.js"></script>
+    <script src="plugin/zoom/zoom.js"></script>
+    <script src="plugin/notes/notes.js"></script>
+    <script src="plugin/math/math.js"></script>
+	<script src="plugin/mermaid/mermaid.js"></script>
+	<script src="plugin/chart/chart.min.js"></script>
+	<script src="plugin/chart/plugin.js"></script>
+	<script src="plugin/customcontrols/plugin.js"></script>
+
+    <script>
+      function extend() {
+        var target = {};
+        for (var i = 0; i < arguments.length; i++) {
+          var source = arguments[i];
+          for (var key in source) {
+            if (source.hasOwnProperty(key)) {
+              target[key] = source[key];
+            }
+          }
+        }
+        return target;
+      }
+
+	  function isLight(color) {
+		let hex = color.replace('#', '');
+
+		// convert #fff => #ffffff
+		if(hex.length == 3){
+			hex = `${hex[0]}${hex[0]}${hex[1]}${hex[1]}${hex[2]}${hex[2]}`;
+		}
+
+		const c_r = parseInt(hex.substr(0, 2), 16);
+		const c_g = parseInt(hex.substr(2, 2), 16);
+		const c_b = parseInt(hex.substr(4, 2), 16);
+		const brightness = ((c_r * 299) + (c_g * 587) + (c_b * 114)) / 1000;
+		return brightness > 155;
+	}
+
+	var bgColor = getComputedStyle(document.documentElement).getPropertyValue('--r-background-color').trim();
+	var isLight = isLight(bgColor);
+
+	if(isLight){
+		document.body.classList.add('has-light-background');
+	} else {
+		document.body.classList.add('has-dark-background');
+	}
+
+      // default options to init reveal.js
+      var defaultOptions = {
+        controls: true,
+        progress: true,
+        history: true,
+        center: true,
+        transition: 'default', // none/fade/slide/convex/concave/zoom
+        plugins: [
+          RevealMarkdown,
+          RevealHighlight,
+          RevealZoom,
+          RevealNotes,
+          RevealMath.MathJax3,
+		  RevealMermaid,
+		  RevealChart,
+		  RevealCustomControls,
+        ],
+
+
+    	allottedTime: 120 * 1000,
+
+		mathjax3: {
+			mathjax: 'plugin/math/mathjax/tex-mml-chtml.js',
+		},
+		markdown: {
+		  gfm: true,
+		  mangle: true,
+		  pedantic: false,
+		  smartLists: false,
+		  smartypants: false,
+		},
+
+		mermaid: {
+			theme: isLight ? 'default' : 'dark',
+		},
+
+		customcontrols: {
+			controls: [
+			]
+		},
+      };
+
+      // options from URL query string
+      var queryOptions = Reveal().getQueryHash() || {};
+
+      var options = extend(defaultOptions, {"width":960,"height":700,"margin":"0.025","minScale":"0.1","maxScale":"2.0","controls":"true","controlsLayout":"bottom-right","progress":"true","slideNumber":"true","center":"false","transition":"slide","transitionSpeed":"default"}, queryOptions);
+    </script>
+
+    <script>
+      Reveal.initialize(options);
+    </script>
+  </body>
+
+  <!-- created with Advanced Slides -->
+</html>
