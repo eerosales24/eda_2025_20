@@ -1,0 +1,1234 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+
+    <title></title>
+    <link rel="stylesheet" href="dist/reveal.css" />
+    <link rel="stylesheet" href="dist/theme/iph.css" id="theme" />
+    <link rel="stylesheet" href="plugin/highlight/spyder.css" />
+	<link rel="stylesheet" href="css/layout.css" />
+	<link rel="stylesheet" href="plugin/customcontrols/style.css">
+
+
+
+    <script defer src="dist/fontawesome/all.min.js"></script>
+
+	<script type="text/javascript">
+		var forgetPop = true;
+		function onPopState(event) {
+			if(forgetPop){
+				forgetPop = false;
+			} else {
+				parent.postMessage(event.target.location.href, "app://obsidian.md");
+			}
+        }
+		window.onpopstate = onPopState;
+		window.onmessage = event => {
+			if(event.data == "reload"){
+				window.document.location.reload();
+			}
+			forgetPop = true;
+		}
+
+		function fitElements(){
+			const itemsToFit = document.getElementsByClassName('fitText');
+			for (const item in itemsToFit) {
+				if (Object.hasOwnProperty.call(itemsToFit, item)) {
+					var element = itemsToFit[item];
+					fitElement(element,1, 1000);
+					element.classList.remove('fitText');
+				}
+			}
+		}
+
+		function fitElement(element, start, end){
+
+			let size = (end + start) / 2;
+			element.style.fontSize = `${size}px`;
+
+			if(Math.abs(start - end) < 1){
+				while(element.scrollHeight > element.offsetHeight){
+					size--;
+					element.style.fontSize = `${size}px`;
+				}
+				return;
+			}
+
+			if(element.scrollHeight > element.offsetHeight){
+				fitElement(element, start, size);
+			} else {
+				fitElement(element, size, end);
+			}		
+		}
+
+
+		document.onreadystatechange = () => {
+			fitElements();
+			if (document.readyState === 'complete') {
+				if (window.location.href.indexOf("?export") != -1){
+					parent.postMessage(event.target.location.href, "app://obsidian.md");
+				}
+				if (window.location.href.indexOf("print-pdf") != -1){
+					let stateCheck = setInterval(() => {
+						clearInterval(stateCheck);
+						window.print();
+					}, 250);
+				}
+			}
+	};
+
+
+        </script>
+  </head>
+  <body>
+    <div class="reveal">
+      <div class="slides"><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Estructuras de Datos y Algoritmos
+
+#### *Estructuras de Datos Lineales III*
+
+[Eduardo Rosales](mailto:ee.rosales24@uniandes.edu.co)
+
+Departamento de Ingeniería de Sistemas y Computación
+
+Universidad de los Andes
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Primer intento de implementación de una lista enlazada simple en Python
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Primer intento
+
+- En un primer intento se usará una _lista de Python_ para implementar una lista​:
+    
+	- `new_list()​`
+		- Retornará una lista de Python vacía​
+    
+	- `is_empty()​`
+		- Informará si se trata de una lista de Python vacía​
+	    
+	- `add_first(lst, elemento)​`
+		- Añadirá un elemento al inicio de una lista Python​
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### `new_list()`
+
+```python
+def new_list():
+    """
+    Retorna una lista enlazada simple vacía.
+
+    :returns: Una lista vacía.
+    :rtype: list
+    """
+    return []
+```
+
+
+- Lista vacía​
+	- Por definición, una lista vacía no contiene ningún elemento
+	
+	<br>
+
+- **¿Complejidad temporal?**
+	- &shy;<!-- .element: class="fragment" data-fragment-index="1" -->✅ **O(1)**
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### `is_empty()`
+
+```python
+def is_empty(lst):
+    """
+    Verifica si una lista enlazada simple está vacía.
+
+    :param lst: La lista a verificar.
+    :type lst: list
+
+    :returns: True si la lista está vacía, False en caso contrario.
+    :rtype: bool
+    """
+    return not lst
+```
+
+
+- Lista vacía​
+	- Por definición, una lista vacía e
+		- _falsy_ (se resuelve a `False`)
+
+	<br>
+
+- **¿Complejidad temporal?**
+	- &shy;<!-- .element: class="fragment" data-fragment-index="1" -->✅ **O(1)**
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### `add_first()` (1/3)
+
+
+```python
+def add_first(lst, elemento):
+    """
+    Agrega un elemento al inicio de la lista enlazada simple.
+
+    :param lst: Lista a la que se le agregará el elemento.
+    :type lst: list
+    :param elemento: El elemento a agregar.
+    :type elemento: any
+
+    :returns: La lista con el elemento agregado al inicio.
+    :rtype: list
+    """
+    return [elemento] + lst  # ó lst.insert(0, elemento)
+```
+
+- **¿Complejidad temporal?**
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### `add_first()` (2/3)
+
+```python
+def add_first(lst, elemento):
+    return [elemento] + lst
+```
+
+- Concatenar listas
+	- Implica copiar todos los elementos a una nueva lista
+
+	<br>
+
+
+- **¿Complejidad temporal?**
+	- &shy;<!-- .element: class="fragment" data-fragment-index="1" --> **O(n)**
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### `add_first()` (3/3)
+
+```python
+def add_first(lst, elemento):
+    return lst.insert(0, elemento)
+```
+
+- Usar `list.insert()` implica desplazar todos los elementos de la lista
+
+	<br>
+
+
+- **¿Complejidad temporal?**
+	- &shy;<!-- .element: class="fragment" data-fragment-index="1" -->**O(n)**
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Complejidad temporal  - Listas
+
+- La complejidad de la inserción al inicio
+	- En una lista enlazada **no debería ser O(n)**
+
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tabla de Complejidad</title>
+    <style>
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: center;
+            font-family: Arial, sans-serif;
+        }
+        th, td {
+            border: 1px solid black;
+            padding: 10px;
+        }
+        th {
+            background-color: #cfe2f3;
+            font-weight: bold;
+        }
+        td:first-child {
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <table>
+        <tr>
+            <th>Estructura de datos</th>
+            <th>Acceso</th>
+            <th>Inserción al inicio</th>
+            <th>Eliminación al inicio</th>
+            <th>Inserción al final</th>
+            <th>Eliminación al final</th>
+            <th>Inserción/Eliminación interna</th>
+        </tr>
+        <tr>
+            <td>Array List</td>
+            <td>O(1)</td>
+            <td>O(n)</td>
+            <td>O(n)</td>
+            <td>O(1)*</td>
+            <td>O(1)</td>
+            <td>O(n)</td>
+        </tr>
+        <tr>
+            <td>Single Linked List</td>
+            <td>O(n)</td>
+            <td><b>O(1)</b></td>
+            <td>O(1)</td>
+            <td>O(n)**</td>
+            <td>O(n)</td>
+            <td>O(n)</td>
+        </tr>
+        <tr>
+            <td>Head-Tail List</td>
+            <td>O(n)</td>
+            <td><b>O(1)</b></td>
+            <td>O(1)</td>
+            <td>O(1)</td>
+            <td>O(n)</td>
+            <td>O(n)</td>
+        </tr>
+    </table>
+</body>
+</html>
+
+ \* Amortizado
+ 
+ \*\* Si  no hay una referencia a la cola (no es un head-tail list), se debe recorrer todos los nodos para insertar al final
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### ❌ Primer intento
+
+
+- Es inaceptable que agregar al inicio de una lista enlazada simple 
+	- Sea de complejidad O(n)
+		- **Debería ser O(1)**
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Segundo intento
+
+- En un segundo intento se usará un **diccionario** de Python​:
+    
+	- `new_list()​`
+		- Retornará un diccionario 
+			- Representando a una lista de Python vacía​
+    
+	- `is_empty()​`
+		- Informará si se trata de una lista vacía​
+    
+	- `add_first(lst, elemento)​`
+		- Añadirá un elemento al inicio de la lista
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### `new_list()`
+
+```python
+
+def new_list():
+    """
+    Retorna una lista enlazada simple vacía.
+    
+    Define la estructura usando un diccionario con
+     ``first`` y ``last`` como None y el ``size`` en cero.
+
+    :returns: Una lista vacía.
+    :rtype: linked_list
+    """
+    newlist = {
+        "first": None,
+        "last": None,
+        "size": 0,
+    }
+    return new_list
+```
+
+- Lista vacía​
+	- Por definición, una lista vacía no contiene ningún elemento
+	- El tamaño por defecto es cero
+	
+	<br>
+
+- **¿Complejidad temporal?**
+	- &shy;<!-- .element: class="fragment" data-fragment-index="1" -->✅ **O(1)**
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### `is_empty()`
+
+```python
+def is_empty(lst):
+    """
+    Verifica si la lista está vacía.
+
+    :param lst: La lista a verificar.
+    :type lst: dict
+
+    :returns: True si la lista está vacía, False en caso contrario.
+    :rtype: bool
+    """
+    return lst["size"] == 0
+```
+
+- Lista vacía​
+	- El contador `size` es cero
+		- Únicamente cuando la lista está vacía
+
+	<br>
+
+- **¿Complejidad temporal?**
+	- &shy;<!-- .element: class="fragment" data-fragment-index="1" -->✅ **O(1)**
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+# ¿Cómo implementar `add_first()`?
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Nodo (1/3)
+
+- Unidad básica: 
+	- Elemento fundamental en listas enlazadas
+
+	<br>
+
+- Almacenamiento dinámico: 
+	- Permite gestionar memoria de forma flexible 
+		- Sin reservar un tamaño fijo
+
+
+	<br>
+
+- Eficiencia en modificaciones: 
+	- Inserciones y eliminaciones 
+		- Mediante la actualización de referencias
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Nodo (2/3)
+
+- Enlace entre datos: 
+	- Usa referencias para conectar nodos y recorrer la estructura
+
+	<br>
+
+- Soporte para estructuras avanzadas: 
+	- Base para listas doblemente enlazadas, pilas y colas
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Nodo (3/3)
+
+<img src="eda/img/node.png" alt="" style="object-fit: scale-down">
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### `list_node.py` (1/2)
+
+```python
+def new_single_node(element):
+    """
+    Crea un nodo para una lista simplemente enlazada.
+
+    :param element: Elemento a almacenar en el nodo.
+    :type element: any
+    :return: Nodo creado.
+    :rtype: dict
+    """
+    return {"info": element, "next": None}
+```
+
+- Cada nodo es un diccionario
+	- Con parejas llave-valor que modelan:
+		- Los datos: 
+			- `"info"`
+		- La referencia al siguiente nodo: 
+			- `next`
+	- Complejidad: 
+		- &shy;<!-- .element: class="fragment" data-fragment-index="1" -->O(1)
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### `list_node.py` (2/2)
+
+```python
+def get_element(node):
+    """
+    Obtiene la información almacenada en un nodo.
+
+    :param node: Nodo a examinar.
+    :type node: dict
+    :return: Información del nodo.
+    :rtype: any
+    """
+    return node["info"]
+```
+
+- Permite obtener los datos en el nodo
+	- Complejidad: 
+		- &shy;<!-- .element: class="fragment" data-fragment-index="1" -->O(1)
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### `add_first()` (1/4)
+
+<img src="eda/img/sl_4.png" alt="" style="width: 50%; height: 50%; object-fit: fill">
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### `add_first()` (2/4)
+
+- Comprendamos aún mejor lo que hará `add_first()`:
+
+<pre style="color: #006400; font-size: 11px;">
+>>> my_list = {"first": None, "last": None, "size": 0}
+>>> add_first(my_list, 10)  # Caso lista vacía, elemento int
+{'first': {'info': 10, 'next': None}, 'last': {'info': 10, 'next': None}, 'size': 1}
+    
+>>> add_first(my_list, 20)  # Caso agregar un 2do elemento int
+{'first': {'info': 20, 'next': {'info': 10, 'next': None}}, 'last': {'info': 10, 'next': None}, 'size': 2}
+    
+>>> add_first(my_list, "A")  # Caso agregar un 3er elemento str
+{'first': {'info': 'A', 'next': {'info': 20, 'next': {'info': 10, 'next': None}}}, 'last': {'info': 10, 'next': None}, 'size': 3}
+</pre>
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### `add_first()` (3/4)
+
+```python
+def add_first(my_list, element):
+    """
+    Inserta un elemento al inicio de una lista simplemente enlazada.
+
+    :param my_list: Lista en la que se insertará el elemento.
+    :type my_list: dict
+    :param element: Elemento a insertar.
+    :type element: any
+    :return: Lista actualizada.
+    :rtype: dict
+
+    >>> my_list = {"first": None, "last": None, "size": 0}
+    >>> add_first(my_list, 10)  # Caso lista vacía, elemento int
+    {'first': {'info': 10, 'next': None}, 'last': {'info': 10, 'next': None}, 'size': 1}
+    
+    >>> add_first(my_list, 20)  # Caso agregar un 2do elemento int
+    {'first': {'info': 20, 'next': {'info': 10, 'next': None}}, 'last': {'info': 10, 'next': None}, 'size': 2}
+    
+    >>> add_first(my_list, "A")  # Caso agregar un 3er elemento str
+    {'first': {'info': 'A', 'next': {'info': 20, 'next': {'info': 10, 'next': None}}}, 'last': {'info': 10, 'next': None}, 'size': 3}
+    """
+    new_node = new_single_node(element)
+    new_node["next"] = my_list["first"]
+    my_list["first"] = new_node
+
+    if my_list["size"] == 0:
+        my_list["last"] = new_node
+
+    my_list["size"] += 1
+    return my_list
+```
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### `add_first()` (3/3)
+
+```python
+def add_first(my_list, element):
+    # Crea un nuevo nodo con el elemento:
+    new_node = new_single_node(element)
+    
+    # Apunta el nuevo nodo a la cabeza (primer nodo):
+    new_node["next"] = my_list["first"]
+
+    # Actualiza la referencia a la cabeza:
+    my_list["first"] = new_node
+
+    if my_list["size"] == 0:
+        # Si la lista estaba vacía
+	        # El nuevo nodo es también la cola (el útlimo nodo)
+        my_list["last"] = new_node  
+
+    # Incrementa el tamaño de la lista:
+    my_list["size"] += 1  
+    
+    return my_list  # Retorna la lista actualizada
+```
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### `add_first()` - Complejidad temporal (1/3)
+
+- Crear un nuevo nodo
+	- `new_single_node(element)` → O(1)
+- Actualizar punteros 
+	- `new_node["next"] = my_list["first"]` → O(1)
+- Actualizar referencia al primer nodo 
+	- `my_list["first"] = new_node` → O(1)
+- Verificar si la lista está vacía 
+	- `if my_list["size"] == 0:` → O(1)
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### `add_first()` - Complejidad temporal (2/3)
+
+
+- Actualizar el último nodo si la lista estaba vacía 
+	- `my_list["last"] = new_node` → O(1)
+- Incrementar el tamaño de la lista 
+	- `my_list["size"] += 1` → O(1)
+- Retornar la lista actualizada
+	- `return my_list` → O(1)
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### `add_first()` - Complejidad temporal (3/3)
+
+<br>
+
+- ❌ Primer intento
+	- ~Complejidad: O(n)~
+		- **Debería ser O(1)**
+
+<br>
+
+- ✅  Segundo intento
+	- **Complejidad: O(1)**
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Ejercicio en clase:  `add_last()`
+
+<img src="eda/img/sl_5.png" alt="" style="width: 50%; height: 47%; object-fit: fill">
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Ejercicio en clase :  `add_last()` - Solución (1/3)
+
+```python
+def add_last(my_list, element):
+    """
+    Inserta un elemento al final de una lista simplemente enlazada.
+
+    :param my_list: Lista en la que se insertará el elemento.
+    :type my_list: dict
+    :param element: Elemento a insertar.
+    :type element: any
+    :return: Lista actualizada.
+    :rtype: dict
+```
+
+
+<pre style="color: #006400; font-size: 12px;">
+>>> my_list = {"first": None, "last": None, "size": 0}
+>>> add_last(my_list, 10)  # Caso lista vacía, elemento int
+{'first': {'info': 10, 'next': None}, 'last': {'info': 10, 'next': None}, 'size': 1}
+    
+>>> add_last(my_list, 20)  # Caso agregar un 2do elemento int
+{'first': {'info': 10, 'next': {'info': 20, 'next': None}}, 'last': {'info': 20, 'next': None}, 'size': 2}
+    
+>>> add_last(my_list, "B")  # Caso agregar un 3er elemento str
+{'first': {'info': 10, 'next': {'info': 20, 'next': {'info': 'B', 'next': None}}}, 
+ 'last': {'info': 'B', 'next': None}, 'size': 3}
+</pre>
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Ejercicio en clase :  `add_last()` - Solución (2/3)
+
+```python
+    ...
+    
+    # Crea un nuevo nodo con el elemento
+    new_node = new_single_node(element)
+
+    # Si la lista está vacía, el nuevo nodo es el primero
+    if my_list["size"] == 0:
+        my_list["first"] = new_node
+    else:
+        # Conecta la cola (último nodo) al nuevo nodo
+        my_list["last"]["next"] = new_node
+    ...
+```
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Ejercicio en clase :  `add_last()` - Solución (3/3)
+
+```python
+def add_last(my_list, element):
+   ...
+
+    # Actualiza la referencia a la cola (último nodo)
+    my_list["last"] = new_node
+
+    # Aumenta el tamaño de la lista.
+    my_list["size"] += 1  
+
+    return my_list  # Retorna la lista actualizada
+```
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Ejemplo de recorrido total de una lista enlazada simple
+
+```python
+def print_list_info(my_list):
+    """
+    Imprime la información de cada nodo en una lista simplemente enlazada.
+
+    :param lst: Lista simplemente enlazada.
+    :type lst: dict
+
+    :return: Muestra la información en pantalla.
+    :rtype: None
+    
+    >>> my_list = {"first": None, "last": None, "size": 0}
+    >>> print_list_info(my_list)
+
+    >>> my_list = {"first": {"info": 10, "next": {"info": 20, "next": {"info": 30, "next": None}}}, "size": 3}
+    >>> print_list_info(my_list)
+    10
+    20
+    30
+    """
+    if my_list["size"] > 0:
+        current_node = my_list["first"]
+        while current_node is not None:
+            print(current_node["info"])
+            current_node = current_node["next"]
+```
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Ejercicio en clase: `get()` -  Tips
+
+- **Validaciones**:
+	- Validar si la lista está vacía o la posición es inválida
+	
+- **Inicialización:**
+    - Se apunta al primer nodo de la lista
+    
+- **Recorrido:**
+    - Se avanza nodo por nodo hasta alcanzar la posición `pos`
+    
+- **Actualización:**
+    - En cada paso, se mueve al siguiente nodo
+    
+- **Resultado:**
+    - Al llegar a `pos`, se retorna la información del nodo
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Ejercicio en clase: `get()` - docstring/doctests
+
+```python
+def get(my_list, pos):
+    """
+    Retorna el elemento en la posición ``pos`` de una lista simplemente enlazada.
+
+    Recorre la lista hasta la posición ``pos`` y retorna su contenido sin
+    modificar la lista. La posición debe ser un entero mayor o igual a 0 y menor 
+    que el tamaño de la lista. Si la lista está vacía o la posición es inválida, 
+    retorna ``None``.
+
+    :param my_list: Lista simplemente enlazada.
+    :type my_list: dict
+    :param pos: Posición del elemento a obtener.
+    :type pos: int
+    :return: Elemento en la posición ``pos`` o ``None`` si la lista está vacía o la posición es inválida.
+    :rtype: any
+```
+
+<pre style="color: #006400; font-size: 13px;">
+    >>> empty_list = {"first": None, "size": 0}  # Caso lista vacía
+    >>> get(empty_list, 0) is None 
+    True
+
+    >>> empty_list = {"first": None, "size": 0}   # Caso posición no válida
+    >>> get(empty_list, 3)  is None 
+    True
+		
+    >>> my_list = {"first": {"info": 10, "next": {"info": 20, "next": {"info": 30, "next": None}}}, "size": 3}
+    >>> get(my_list, 0)  # Elemento inicial
+    10
+    >>> get(my_list, 1)  # Segundo elemento
+    20
+    >>> get(my_list, 2)  # Último elemento
+    30
+</pre>
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Ejercicio en clase: `get()` - Solución (1/2)
+
+- O(n):
+
+```python
+def get(my_list, pos):
+    """
+    Retorna la información del elemento en la posición ``pos`` de una 
+	lista simplemente enlazada.
+
+    Recorre la lista hasta la posición ``pos`` y retorna su información sin
+    modificar la lista. La posición debe ser un entero mayor o igual a 0 y menor 
+    que el tamaño de la lista. Si la lista está vacía o la posición es inválida, 
+    retorna ``None``.
+
+    :param my_list: Lista simplemente enlazada.
+    :type my_list: dict
+    :param pos: Posición del elemento a obtener.
+    :type pos: int
+    :return: Elemento en la posición ``pos`` o ``None`` si la lista está vacía o la posición es inválida.
+    :rtype: any
+
+    >>> empty_list = {"first": None, "size": 0}  # Caso lista vacía
+    >>> get(empty_list, 0) is None 
+    True
+
+    >>> empty_list = {"first": None, "size": 0}   # Caso posición inválida
+    >>> get(empty_list, 3)  is None 
+    True
+		
+    >>> my_list = {"first": {"info": 10, "next": {"info": 20, "next": {"info": 30, "next": None}}}, "size": 3}
+    >>> get(my_list, 0)  # Elemento inicial
+    10
+    >>> get(my_list, 1)  # Segundo elemento
+    20
+    >>> get(my_list, 2)  # Último elemento
+    30
+    """
+    result = None
+
+    if my_list["first"] is not None and 0 <= pos < my_list["size"]:
+        current_node = my_list["first"]
+        index = 0
+
+        while index < pos:
+            current_node = current_node["next"]
+            index += 1
+        
+        result = current_node["info"]
+
+    return result
+```
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Ejercicio en clase: `get()` - Solución (2/2)
+
+- O(n):
+
+```python
+def get(my_list, pos):
+    """
+    Retorna la información del elemento en la posición ``pos`` de una 
+	lista simplemente enlazada.
+
+    Recorre la lista hasta la posición ``pos`` y retorna su información sin
+    modificar la lista. La posición debe ser un entero mayor o igual a 0 y menor 
+    que el tamaño de la lista. Si la lista está vacía o la posición es inválida, 
+    retorna ``None``.
+
+    :param my_list: Lista simplemente enlazada.
+    :type my_list: dict
+    :param pos: Posición del elemento a obtener.
+    :type pos: int
+    :return: Elemento en la posición ``pos`` o ``None`` si la lista está vacía o la posición es inválida.
+    :rtype: any
+
+    >>> empty_list = {"first": None, "size": 0}  # Caso lista vacía
+    >>> get(empty_list, 0) is None 
+    True
+
+    >>> empty_list = {"first": None, "size": 0}   # Caso posición inválida
+    >>> get(empty_list, 3) is None 
+    True
+		
+    >>> my_list = {"first": {"info": 10, "next": {"info": 20, "next": {"info": 30, "next": None}}}, "size": 3}
+    >>> get(my_list, 0)  # Elemento inicial
+    10
+    >>> get(my_list, 1)  # Segundo elemento
+    20
+    >>> get(my_list, 2)  # Último elemento
+    30
+    """
+    result = None
+
+    if my_list["first"] is not None and 0 <= pos < my_list["size"]:
+        current_node = my_list["first"]
+        for _ in range(pos):
+            current_node = current_node["next"]
+        result = current_node["info"]
+
+    return result
+```
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Ejercicio en clase: `remove_first()`
+
+
+<img src="eda/img/sl_6.png" alt="" style="object-fit: scale-down">
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Ejercicio en clase: `remove_first()` - Tips
+
+- **Validaciones:**
+    - Verificar si la lista está vacía
+    
+- **Eliminación del primer nodo:**
+    - Guardar la información del nodo a eliminar
+    - Apuntar `"first"` al siguiente nodo de la lista
+    
+- **Actualización de la estructura:**
+    - Reducir el tamaño de la lista
+    - Si la lista queda vacía
+	    - Actualizar `last` a `None`
+	    
+- **Resultado:**
+    - Retornar la información (`info`) del nodo eliminado
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Ejercicio en clase: `remove_first()` - docstring/doctests
+
+```python
+def remove_first(my_list):
+    """
+    Elimina y retorna la información del primer elemento de una lista
+	simplemente enlazada.
+    
+    Si la lista está vacía, retorna None. Actualiza las referencias y 
+	el tamaño de la lista.
+
+    :param my_list: Lista simplemente enlazada.
+    :type my_list: dict
+    :return: Valor del primer nodo eliminado o None si la lista está vacía.
+    :rtype: any
+```
+
+<pre style="color: #006400; font-size: 13px;">
+    >>> empty_list = {"first": None, "last": None, "size": 0}  # Caso lista vacía
+    >>> remove_first(empty_list) is None
+    True
+    >>> empty_list  # Verifica que la estructura no cambió
+    {'first': None, 'last': None, 'size': 0}
+
+    >>> one_element_list = {"first": {"info": 10, "next": None}, "last": {"info": 10, "next": None}, "size": 1}
+    >>> remove_first(one_element_list)  # Caso lista con un solo elemento
+    10
+    >>> one_element_list  # Verifica que la lista queda vacía
+    {'first': None, 'last': None, 'size': 0}
+
+    >>> multi_element_list = {
+    ...     "first": {"info": 5, "next": {"info": 15, "next": {"info": 25, "next": None}}}, 
+    ...     "last": {"info": 25, "next": None}, 
+    ...     "size": 3
+    ... }
+    >>> remove_first(multi_element_list)  # Caso con varios elementos
+    5
+    >>> multi_element_list  # Verifica que la lista se actualiza correctamente
+    {'first': {'info': 15, 'next': {'info': 25, 'next': None}}, 'last': {'info': 25, 'next': None}, 'size': 2}
+</pre>
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Ejercicio en clase: `remove_first()` - Solución (1/2)
+
+```python
+def remove_first(my_list):
+    removed_info = None
+
+    if my_list["size"] > 0:
+        node = my_list["first"]
+        removed_info = node["info"]
+        
+        # Mueve el puntero al siguiente nodo:
+        my_list["first"] = node["next"]  
+        my_list["size"] -= 1
+    ...
+		
+```
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Ejercicio en clase: `remove_first()` - Solución (2/2)
+
+```python
+def remove_first(my_list):
+        ...
+
+        if my_list["size"] == 0:
+            # Si la lista queda vacía, actualizar "last":
+            my_list["last"] = None  
+
+    return removed_info  # Retorna el valor eliminado o None si estaba vacía
+```
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### ¿Cuál es la complejidad temporal de `remove_first()`?
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### `remove_first()` - Complejidad temporal
+
+- Verificación de lista vacía 
+	- `if my_list["size"] == 0:` → O(1)
+- Acceder al primer nodo
+	- `node = my_list["first"]` → O(1)
+- Actualizar `first`
+	- `my_list["first"] = node["next"]` → O(1)
+- Actualizar tamaño
+	- `my_list["size"] -= 1` → O(1)
+- Actualizar `last` si la lista queda vacía
+	- `if my_list["size"] == 0: my_list["last"] = None` → O(1)
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Ejercicio en clase: `remove_last()` - docstring/doctests
+
+```python
+def remove_last(my_list):
+    """
+    Elimina y retorna la información del último elemento de una lista
+	simplemente enlazada.
+
+    Si la lista está vacía, retorna None. Si la lista tiene un solo elemento, 
+    se reutiliza `remove_first()` para evitar duplicación de código. 
+    De lo contrario, se recorre la lista para encontrar el penúltimo nodo 
+    y actualizar `last`.
+
+    :param my_list: Lista simplemente enlazada.
+    :type my_list: dict
+    :return: Valor del nodo eliminado o None si la lista está vacía.
+    :rtype: any
+```
+
+<pre style="color: #006400; font-size: 13px;">
+    >>> empty_list = {"first": None, "last": None, "size": 0}  # Caso lista vacía
+    >>> remove_last(empty_list) is None
+    True
+    >>> empty_list  # Verifica que la estructura no cambió
+    {'first': None, 'last': None, 'size': 0}
+
+    >>> one_element_list = {"first": {"info": 10, "next": None}, "last": {"info": 10, "next": None}, "size": 1}
+    >>> remove_last(one_element_list)  # Caso con un solo elemento (debe usar remove_first)
+    10
+    >>> one_element_list  # Verifica que la lista queda vacía
+    {'first': None, 'last': None, 'size': 0}
+
+    >>> multi_element_list = {
+    ...     "first": {"info": 5, "next": {"info": 15, "next": {"info": 25, "next": None}}}, 
+    ...     "last": {"info": 25, "next": None}, 
+    ...     "size": 3
+    ... }
+    >>> remove_last(multi_element_list)  # Caso con varios elementos
+    25
+    >>> multi_element_list  # Verifica que el nuevo último nodo es el penúltimo original
+    {'first': {'info': 5, 'next': {'info': 15, 'next': None}}, 'last': {'info': 15, 'next': None}, 'size': 2}
+</pre>
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Ejercicio en clase: `remove_last()` - Solución (1/2)
+
+```python
+def remove_last(my_list):
+    removed_info = None
+
+    if my_list["size"] > 0:
+        if my_list["first"] == my_list["last"]:
+            # Caso de un solo elemento, reutiliza código:
+            removed_info = remove_first(my_list)  
+        else:
+            current = my_list["first"]
+            # Recorre hasta el penúltimo nodo:
+            while current["next"] != my_list["last"]:
+                current = current["next"]  
+    ...
+		
+```
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Ejercicio en clase: `remove_last()` - Solución (2/2)
+
+```python
+def remove_last(my_list):
+        ...
+            removed_info = my_list["last"]["info"]
+            my_list["last"] = current
+            my_list["last"]["next"] = None
+            my_list["size"] -= 1
+
+    return removed_info
+```
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### ¿Cuál es la complejidad temporal de `remove_last()`?
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### `remove_last()` - Complejidad temporal (1/2)
+
+- Verificación de lista vacía
+    - `if my_list["size"] == 0:` → O(1)
+
+- Caso especial: Lista con un solo elemento
+    - `if my_list["first"] == my_list["last"]:` → O(1)
+    - `remove_first(my_list)` (llamada a función `remove_first()`) → O(1)
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### `remove_last()` - Complejidad temporal (2/2)
+
+- Recorrer la lista hasta el penúltimo nodo
+	- `while current["next"] != my_list["last"]:` → **O(n)**  
+
+- Actualizar `last`
+	- `my_list["last"] = current` → O(1)
+
+- Desconectar el último nodo
+	- `my_list["last"]["next"] = None` → O(1)
+
+- Actualizar tamaño de la lista
+	- `my_list["size"] -= 1` → O(1)
+
+- Retornar el valor eliminado
+	- `return removed_info` → O(1)
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+<i class="fas fa-question-circle fa-2x fa-spin fa-4x"></i>
+
+
+
+
+
+<br>
+<br>
+
+
+[<i class="fas fa-home  fa-3x"></i>](https://eerosales24.github.io/eda_2025_20/#)
+</div></script></section></div>
+    </div>
+
+    <script src="dist/reveal.js"></script>
+
+    <script src="plugin/markdown/markdown.js"></script>
+    <script src="plugin/highlight/highlight.js"></script>
+    <script src="plugin/zoom/zoom.js"></script>
+    <script src="plugin/notes/notes.js"></script>
+    <script src="plugin/math/math.js"></script>
+	<script src="plugin/mermaid/mermaid.js"></script>
+	<script src="plugin/chart/chart.min.js"></script>
+	<script src="plugin/chart/plugin.js"></script>
+	<script src="plugin/customcontrols/plugin.js"></script>
+
+    <script>
+      function extend() {
+        var target = {};
+        for (var i = 0; i < arguments.length; i++) {
+          var source = arguments[i];
+          for (var key in source) {
+            if (source.hasOwnProperty(key)) {
+              target[key] = source[key];
+            }
+          }
+        }
+        return target;
+      }
+
+	  function isLight(color) {
+		let hex = color.replace('#', '');
+
+		// convert #fff => #ffffff
+		if(hex.length == 3){
+			hex = `${hex[0]}${hex[0]}${hex[1]}${hex[1]}${hex[2]}${hex[2]}`;
+		}
+
+		const c_r = parseInt(hex.substr(0, 2), 16);
+		const c_g = parseInt(hex.substr(2, 2), 16);
+		const c_b = parseInt(hex.substr(4, 2), 16);
+		const brightness = ((c_r * 299) + (c_g * 587) + (c_b * 114)) / 1000;
+		return brightness > 155;
+	}
+
+	var bgColor = getComputedStyle(document.documentElement).getPropertyValue('--r-background-color').trim();
+	var isLight = isLight(bgColor);
+
+	if(isLight){
+		document.body.classList.add('has-light-background');
+	} else {
+		document.body.classList.add('has-dark-background');
+	}
+
+      // default options to init reveal.js
+      var defaultOptions = {
+        controls: true,
+        progress: true,
+        history: true,
+        center: true,
+        transition: 'default', // none/fade/slide/convex/concave/zoom
+        plugins: [
+          RevealMarkdown,
+          RevealHighlight,
+          RevealZoom,
+          RevealNotes,
+          RevealMath.MathJax3,
+		  RevealMermaid,
+		  RevealChart,
+		  RevealCustomControls,
+        ],
+
+
+    	allottedTime: 120 * 1000,
+
+		mathjax3: {
+			mathjax: 'plugin/math/mathjax/tex-mml-chtml.js',
+		},
+		markdown: {
+		  gfm: true,
+		  mangle: true,
+		  pedantic: false,
+		  smartLists: false,
+		  smartypants: false,
+		},
+
+		mermaid: {
+			theme: isLight ? 'default' : 'dark',
+		},
+
+		customcontrols: {
+			controls: [
+			]
+		},
+      };
+
+      // options from URL query string
+      var queryOptions = Reveal().getQueryHash() || {};
+
+      var options = extend(defaultOptions, {"width":960,"height":700,"margin":"0.025","minScale":"0.1","maxScale":"2.0","controls":"true","controlsLayout":"bottom-right","progress":"true","slideNumber":"true","center":"false","transition":"slide","transitionSpeed":"default"}, queryOptions);
+    </script>
+
+    <script>
+      Reveal.initialize(options);
+    </script>
+  </body>
+
+  <!-- created with Advanced Slides -->
+</html>
