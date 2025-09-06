@@ -1,0 +1,3455 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+
+    <title></title>
+    <link rel="stylesheet" href="dist/reveal.css" />
+    <link rel="stylesheet" href="dist/theme/iph.css" id="theme" />
+    <link rel="stylesheet" href="plugin/highlight/spyder.css" />
+	<link rel="stylesheet" href="css/layout.css" />
+	<link rel="stylesheet" href="plugin/customcontrols/style.css">
+
+
+
+    <script defer src="dist/fontawesome/all.min.js"></script>
+
+	<script type="text/javascript">
+		var forgetPop = true;
+		function onPopState(event) {
+			if(forgetPop){
+				forgetPop = false;
+			} else {
+				parent.postMessage(event.target.location.href, "app://obsidian.md");
+			}
+        }
+		window.onpopstate = onPopState;
+		window.onmessage = event => {
+			if(event.data == "reload"){
+				window.document.location.reload();
+			}
+			forgetPop = true;
+		}
+
+		function fitElements(){
+			const itemsToFit = document.getElementsByClassName('fitText');
+			for (const item in itemsToFit) {
+				if (Object.hasOwnProperty.call(itemsToFit, item)) {
+					var element = itemsToFit[item];
+					fitElement(element,1, 1000);
+					element.classList.remove('fitText');
+				}
+			}
+		}
+
+		function fitElement(element, start, end){
+
+			let size = (end + start) / 2;
+			element.style.fontSize = `${size}px`;
+
+			if(Math.abs(start - end) < 1){
+				while(element.scrollHeight > element.offsetHeight){
+					size--;
+					element.style.fontSize = `${size}px`;
+				}
+				return;
+			}
+
+			if(element.scrollHeight > element.offsetHeight){
+				fitElement(element, start, size);
+			} else {
+				fitElement(element, size, end);
+			}		
+		}
+
+
+		document.onreadystatechange = () => {
+			fitElements();
+			if (document.readyState === 'complete') {
+				if (window.location.href.indexOf("?export") != -1){
+					parent.postMessage(event.target.location.href, "app://obsidian.md");
+				}
+				if (window.location.href.indexOf("print-pdf") != -1){
+					let stateCheck = setInterval(() => {
+						clearInterval(stateCheck);
+						window.print();
+					}, 250);
+				}
+			}
+	};
+
+
+        </script>
+  </head>
+  <body>
+    <div class="reveal">
+      <div class="slides"><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Estructura de Datos y Algoritmos - EDA
+
+####  *Ordenamientos iterativos*
+
+[Eduardo Rosales](mailto:ee.rosales24@uniandes.edu.co)
+
+Departamento de Ingeniería de Sistemas y Computación
+
+Universidad de los Andes
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Criterios de complejidad temporal
+
+- **Peor caso**: 
+	- Máximo tiempo requerido en el escenario menos favorable
+- **Promedio**: 
+	- Tiempo promedio en el escenario "promedio"
+- **Mejor caso**: 
+	- Mínimo tiempo en el escenario más favorable
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Criterios de complejidad espacial 
+
+- Espacio extra:
+	- Memoria adicional necesaria para el ordenamiento
+	- No incluye al espacio ocupado por la lista original
+	- Varía entre algoritmos: 
+		- De constante o en sitio O(n) a 
+			- Proporcional al tamaño de la lista O(n)
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Criterios de estabilidad
+
+- **Estable**: 
+	- Preserva orden relativo de elementos iguales
+		- **Orden relativo**: Posición original de los elementos en el conjunto
+	- Importante para ordenamientos compuestos
+	- Diferencia clave entre algoritmos con resultados similares
+
+	<br>
+
+- **Inestable**: 
+	- NO preserva orden relativo de elementos iguales
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Estable vs. inestable (1/2)
+
+- Ejemplo de ordenamiento **estable**:
+<img src="eda/img/estable.png" alt="" style="object-fit: scale-down">
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Estable vs. inestable (2/2)
+
+- Ejemplo de ordenamiento **inestable**:
+<img src="eda/img/inestable.png" alt="" style="object-fit: scale-down">
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Criterios de eficiencia espacial (1/2)
+
+- **In place** (en sitio, en lugar, _in situ_): 
+	- Realiza el ordenamiento modificando la estructura original 
+		- Minimiza el uso de memoria adicional
+		- Espacio extra aproximado – O(1)
+	- Ideal para restricciones de espacio
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Criterios de eficiencia espacial (2/2)
+
+- **Not in-place** (fuera de sitio, con uso de memoria adicional): 
+	- Requiere memoria adicional
+	- Crea estructuras nuevas para el resultado
+	- Mayor consumo de espacio
+		- Típicamente O(n)
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Conozcamos algunos algoritmos de ordenamiento iterativos
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Selection Sort
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Selection sort (1/5)
+
+
+- Busca el menor elemento en la lista
+	- Intercambiándolo con elemento en la posición cero
+- Busca el 2do menor elemento en la lista
+	- Intercambiándolo con elemento en  la posición 1
+- Buscar el i-ésimo menor elemento en la lista
+	 - Intercambiándolo con elemento en la posición (i-1)
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Selection sort (2/5)
+
+- Mentalmente
+	- Ordene el siguiente arreglo:
+
+<img src="eda/img/ss_2.png" alt="" style="object-fit: scale-down">
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Selection sort (3/5)
+
+- Solución:
+
+<img src="eda/img/ss_1.png" alt="" style="object-fit: scale-down">
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Selection sort (4/5)
+
+
+<img src="eda/img/ss_3.png" alt="" style="width: 75%; height: 55%; object-fit: fill">
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Selection sort (5/5)
+
+- **Características**:
+	- El ordenamiento sucede de izquierda a derecha
+	- Reduce la zona de búsqueda en cada iteración
+		- Excluyendo a los ya ordenados
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Selection sort - Implementación
+
+```python
+def selection_sort(arr):
+    """
+    Ordena una lista en orden ascendente utilizando el algoritmo Selection Sort.
+    
+    :param arr: Lista de elementos a ordenar.
+    :type arr: list
+    
+    :return: Lista ordenada en orden ascendente.
+    :rtype: list
+    """
+    n = len(arr)
+    for i in range(n - 1):
+        min_index = i
+        for j in range(i + 1, n):
+            if arr[j] < arr[min_index]:
+                min_index = j
+        if min_index != i:
+            arr[i], arr[min_index] = arr[min_index], arr[i]
+    return arr
+```
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Selection sort - Caso lista vacía
+
+```python
+def selection_sort(arr):
+    """
+    >>> selection_sort([])  # Caso lista vacía
+    []
+    """
+    n = len(arr)
+    for i in range(n - 1):
+        min_index = i
+        for j in range(i + 1, n):
+            if arr[j] < arr[min_index]:
+                min_index = j
+        if min_index != i:
+            arr[i], arr[min_index] = arr[min_index], arr[i]
+    return arr
+```
+
+
+- El primer `for` no se ejecuta
+	- `for i in range(-1)`
+- Se retorna la lista vacía
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Selection sort - Caso un elemento
+
+```python
+def selection_sort(arr):
+    """
+    >>> selection_sort([5])  # Caso lista con un solo objeto
+    [5]
+    """
+    n = len(arr)
+    for i in range(n - 1):
+        min_index = i
+        for j in range(i + 1, n):
+            if arr[j] < arr[min_index]:
+                min_index = j
+        if min_index != i:
+            arr[i], arr[min_index] = arr[min_index], arr[i]
+    return arr
+```
+
+- El primer `for` no se ejecuta
+	- `for i in range(0)`
+- Se retorna la lista original
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Selection sort - Caso múltiples elementos ya ordenados (1/5)
+
+
+```python
+def selection_sort(arr):
+    """    
+    >>> selection_sort([1, 2, 3, 4, 5])  # Caso lista ordenada
+    [1, 2, 3, 4, 5]
+    """
+    n = len(arr)
+    for i in range(n - 1):
+        min_index = i
+        for j in range(i + 1, n):
+            if arr[j] < arr[min_index]:
+                min_index = j
+        if min_index != i:
+            arr[i], arr[min_index] = arr[min_index], arr[i]
+    return arr
+```
+
+- `for i in range(n - 1)`
+	- `n = 5`, 
+		- 4 iteraciones:
+			- `i = 0`
+			- `i = 3`
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Selection sort - Caso múltiples elementos ya ordenados (2/5)
+
+
+```python
+def selection_sort(arr):
+    """    
+    >>> selection_sort([1, 2, 3, 4, 5])  # Caso lista ordenada
+    [1, 2, 3, 4, 5]
+    """
+    n = len(arr)
+    for i in range(n - 1):
+        min_index = i
+        for j in range(i + 1, n):
+            if arr[j] < arr[min_index]:
+                min_index = j
+        if min_index != i:
+            arr[i], arr[min_index] = arr[min_index], arr[i]
+    return arr
+```
+
+- `for j in range(i + 1, n)`
+	- `n = 5`
+	- `j` inicia desfasado en una posición, 4 iteraciones
+		- `j = 1`
+		- `j = 4`
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Selection sort - Caso múltiples elementos ya ordenados (3/5)
+
+
+```python
+def selection_sort(arr):
+    """    
+    >>> selection_sort([1, 2, 3, 4, 5])  # Caso lista ordenada
+    [1, 2, 3, 4, 5]
+    """
+    n = len(arr)
+    for i in range(n - 1):
+        min_index = i
+        for j in range(i + 1, n):
+            if arr[j] < arr[min_index]:
+                min_index = j
+        if min_index != i:
+            arr[i], arr[min_index] = arr[min_index], arr[i]
+    return arr
+```
+
+- `for j in range(i + 1, n)`
+	- Para `i = 0` → `j` recorre `1, 2, 3, 4` (4 iteraciones)
+	- Para `i = 1` → `j` recorre `2, 3, 4` (3 iteraciones)
+	- Para `i = 2` → `j` recorre `3, 4` (2 iteraciones)
+	- Para `i = 3` → `j` recorre `4` (1 iteración)
+	- Para `i = 4` → No entra en el segundo bucle (0 iteraciones)
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Selection sort - Caso múltiples elementos ya ordenados (4/5)
+
+
+```python
+def selection_sort(arr):
+    """    
+    >>> selection_sort([1, 2, 3, 4, 5])  # Caso lista ordenada
+    [1, 2, 3, 4, 5]
+    """
+    n = len(arr)
+    for i in range(n - 1):
+        min_index = i
+        for j in range(i + 1, n):
+            if arr[j] < arr[min_index]:
+                min_index = j
+        if min_index != i:
+            arr[i], arr[min_index] = arr[min_index], arr[i]
+    return arr
+```
+
+- Aún si la lista llega ordenada
+	-  Ciclos anidados​
+		- Externo recorre lista
+			- Interno busca mínimo​
+- Comparaciones totales: ​
+	- n(n−1)/2
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Selection sort - Caso múltiples elementos ya ordenados (5/5)
+
+
+```python
+def selection_sort(arr):
+    """    
+    >>> selection_sort([1, 2, 3, 4, 5])  # Caso lista ordenada
+    [1, 2, 3, 4, 5]
+    """
+    n = len(arr)
+    for i in range(n - 1):
+        min_index = i
+        for j in range(i + 1, n):
+            if arr[j] < arr[min_index]:
+                min_index = j
+        if min_index != i:
+            arr[i], arr[min_index] = arr[min_index], arr[i]
+    return arr
+```
+
+
+```plaintext
+Iteración 1: [1, 2, 3, 4, 5]
+Iteración 2: [1, 2, 3, 4, 5]
+Iteración 3: [1, 2, 3, 4, 5]
+Iteración 4: [1, 2, 3, 4, 5]
+```
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Selection sort - Caso múltiples elementos desordenados (1/11)
+
+
+```python
+def selection_sort(arr):
+    """    
+    >>> selection_sort([3, 1, 4, 1, 5, 9, 2, 6, 5, 3, 5])  # Caso lista desordenada
+    [1, 1, 2, 3, 3, 4, 5, 5, 5, 6, 9]
+    """
+    n = len(arr)
+    for i in range(n - 1):
+        min_index = i
+        for j in range(i + 1, n):
+            if arr[j] < arr[min_index]:
+                min_index = j
+        if min_index != i:
+            arr[i], arr[min_index] = arr[min_index], arr[i]
+    return arr
+```
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Selection sort - Caso múltiples elementos desordenados (2/11)
+
+```python
+def selection_sort(arr):
+    """    
+    >>> selection_sort([3, 1, 4, 1, 5, 9, 2, 6, 5, 3, 5])  # Caso lista desordenada
+    [1, 1, 2, 3, 3, 4, 5, 5, 5, 6, 9]
+    """
+    n = len(arr)
+    for i in range(n - 1):
+        min_index = i
+        for j in range(i + 1, n):
+            if arr[j] < arr[min_index]:
+                min_index = j
+        if min_index != i:
+            arr[i], arr[min_index] = arr[min_index], arr[i]
+    return arr
+```
+
+```plaintext
+Iteración 1: [1, 3, 4, 1, 5, 9, 2, 6, 5, 3, 5]
+```
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Selection sort - Caso múltiples elementos desordenados (3/11)
+
+```python
+def selection_sort(arr):
+    """    
+    >>> selection_sort([3, 1, 4, 1, 5, 9, 2, 6, 5, 3, 5])  # Caso lista desordenada
+    [1, 1, 2, 3, 3, 4, 5, 5, 5, 6, 9]
+    """
+    n = len(arr)
+    for i in range(n - 1):
+        min_index = i
+        for j in range(i + 1, n):
+            if arr[j] < arr[min_index]:
+                min_index = j
+        if min_index != i:
+            arr[i], arr[min_index] = arr[min_index], arr[i]
+    return arr
+```
+
+```plaintext
+Iteración 1: [1, 3, 4, 1, 5, 9, 2, 6, 5, 3, 5]
+Iteración 2: [1, 1, 4, 3, 5, 9, 2, 6, 5, 3, 5]
+```
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Selection sort - Caso múltiples elementos desordenados (4/11)
+
+```python
+def selection_sort(arr):
+    """    
+    >>> selection_sort([3, 1, 4, 1, 5, 9, 2, 6, 5, 3, 5])  # Caso lista desordenada
+    [1, 1, 2, 3, 3, 4, 5, 5, 5, 6, 9]
+    """
+    n = len(arr)
+    for i in range(n - 1):
+        min_index = i
+        for j in range(i + 1, n):
+            if arr[j] < arr[min_index]:
+                min_index = j
+        if min_index != i:
+            arr[i], arr[min_index] = arr[min_index], arr[i]
+    return arr
+```
+
+```plaintext
+Iteración 1: [1, 3, 4, 1, 5, 9, 2, 6, 5, 3, 5]
+Iteración 2: [1, 1, 4, 3, 5, 9, 2, 6, 5, 3, 5]
+Iteración 3: [1, 1, 2, 3, 5, 9, 4, 6, 5, 3, 5]
+```
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Selection sort - Caso múltiples elementos desordenados (5/11)
+
+```python
+def selection_sort(arr):
+    """    
+    >>> selection_sort([3, 1, 4, 1, 5, 9, 2, 6, 5, 3, 5])  # Caso lista desordenada
+    [1, 1, 2, 3, 3, 4, 5, 5, 5, 6, 9]
+    """
+    n = len(arr)
+    for i in range(n - 1):
+        min_index = i
+        for j in range(i + 1, n):
+            if arr[j] < arr[min_index]:
+                min_index = j
+        if min_index != i:
+            arr[i], arr[min_index] = arr[min_index], arr[i]
+    return arr
+```
+
+```plaintext
+Iteración 1: [1, 3, 4, 1, 5, 9, 2, 6, 5, 3, 5]
+Iteración 2: [1, 1, 4, 3, 5, 9, 2, 6, 5, 3, 5]
+Iteración 3: [1, 1, 2, 3, 5, 9, 4, 6, 5, 3, 5]
+Iteración 4: [1, 1, 2, 3, 5, 9, 4, 6, 5, 3, 5]
+```
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Selection sort - Caso múltiples elementos desordenados (6/11)
+
+```python
+def selection_sort(arr):
+    """    
+    >>> selection_sort([3, 1, 4, 1, 5, 9, 2, 6, 5, 3, 5])  # Caso lista desordenada
+    [1, 1, 2, 3, 3, 4, 5, 5, 5, 6, 9]
+    """
+    n = len(arr)
+    for i in range(n - 1):
+        min_index = i
+        for j in range(i + 1, n):
+            if arr[j] < arr[min_index]:
+                min_index = j
+        if min_index != i:
+            arr[i], arr[min_index] = arr[min_index], arr[i]
+    return arr
+```
+
+```plaintext
+Iteración 1: [1, 3, 4, 1, 5, 9, 2, 6, 5, 3, 5]
+Iteración 2: [1, 1, 4, 3, 5, 9, 2, 6, 5, 3, 5]
+Iteración 3: [1, 1, 2, 3, 5, 9, 4, 6, 5, 3, 5]
+Iteración 4: [1, 1, 2, 3, 5, 9, 4, 6, 5, 3, 5]
+Iteración 5: [1, 1, 2, 3, 3, 9, 4, 6, 5, 5, 5]
+```
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Selection sort - Caso múltiples elementos desordenados (7/11)
+
+```python
+def selection_sort(arr):
+    """    
+    >>> selection_sort([3, 1, 4, 1, 5, 9, 2, 6, 5, 3, 5])  # Caso lista desordenada
+    [1, 1, 2, 3, 3, 4, 5, 5, 5, 6, 9]
+    """
+    n = len(arr)
+    for i in range(n - 1):
+        min_index = i
+        for j in range(i + 1, n):
+            if arr[j] < arr[min_index]:
+                min_index = j
+        if min_index != i:
+            arr[i], arr[min_index] = arr[min_index], arr[i]
+    return arr
+```
+
+```plaintext
+Iteración 1: [1, 3, 4, 1, 5, 9, 2, 6, 5, 3, 5]
+Iteración 2: [1, 1, 4, 3, 5, 9, 2, 6, 5, 3, 5]
+Iteración 3: [1, 1, 2, 3, 5, 9, 4, 6, 5, 3, 5]
+Iteración 4: [1, 1, 2, 3, 5, 9, 4, 6, 5, 3, 5]
+Iteración 5: [1, 1, 2, 3, 3, 9, 4, 6, 5, 5, 5]
+Iteración 6: [1, 1, 2, 3, 3, 4, 9, 6, 5, 5, 5]
+```
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Selection sort - Caso múltiples elementos desordenados (8/11)
+
+```python
+def selection_sort(arr):
+    """    
+    >>> selection_sort([3, 1, 4, 1, 5, 9, 2, 6, 5, 3, 5])  # Caso lista desordenada
+    [1, 1, 2, 3, 3, 4, 5, 5, 5, 6, 9]
+    """
+    n = len(arr)
+    for i in range(n - 1):
+        min_index = i
+        for j in range(i + 1, n):
+            if arr[j] < arr[min_index]:
+                min_index = j
+        if min_index != i:
+            arr[i], arr[min_index] = arr[min_index], arr[i]
+    return arr
+```
+
+```plaintext
+Iteración 1: [1, 3, 4, 1, 5, 9, 2, 6, 5, 3, 5]
+Iteración 2: [1, 1, 4, 3, 5, 9, 2, 6, 5, 3, 5]
+Iteración 3: [1, 1, 2, 3, 5, 9, 4, 6, 5, 3, 5]
+Iteración 4: [1, 1, 2, 3, 5, 9, 4, 6, 5, 3, 5]
+Iteración 5: [1, 1, 2, 3, 3, 9, 4, 6, 5, 5, 5]
+Iteración 6: [1, 1, 2, 3, 3, 4, 9, 6, 5, 5, 5]
+Iteración 7: [1, 1, 2, 3, 3, 4, 5, 6, 9, 5, 5]
+```
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Selection sort - Caso múltiples elementos desordenados (9/11)
+
+```python
+def selection_sort(arr):
+    """    
+    >>> selection_sort([3, 1, 4, 1, 5, 9, 2, 6, 5, 3, 5])  # Caso lista desordenada
+    [1, 1, 2, 3, 3, 4, 5, 5, 5, 6, 9]
+    """
+    n = len(arr)
+    for i in range(n - 1):
+        min_index = i
+        for j in range(i + 1, n):
+            if arr[j] < arr[min_index]:
+                min_index = j
+        if min_index != i:
+            arr[i], arr[min_index] = arr[min_index], arr[i]
+    return arr
+```
+
+```plaintext
+Iteración 1: [1, 3, 4, 1, 5, 9, 2, 6, 5, 3, 5]
+Iteración 2: [1, 1, 4, 3, 5, 9, 2, 6, 5, 3, 5]
+Iteración 3: [1, 1, 2, 3, 5, 9, 4, 6, 5, 3, 5]
+Iteración 4: [1, 1, 2, 3, 5, 9, 4, 6, 5, 3, 5]
+Iteración 5: [1, 1, 2, 3, 3, 9, 4, 6, 5, 5, 5]
+Iteración 6: [1, 1, 2, 3, 3, 4, 9, 6, 5, 5, 5]
+Iteración 7: [1, 1, 2, 3, 3, 4, 5, 6, 9, 5, 5]
+Iteración 8: [1, 1, 2, 3, 3, 4, 5, 5, 9, 6, 5]
+```
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Selection sort - Caso múltiples elementos desordenados (10/11)
+
+```python
+def selection_sort(arr):
+    """    
+    >>> selection_sort([3, 1, 4, 1, 5, 9, 2, 6, 5, 3, 5])  # Caso lista desordenada
+    [1, 1, 2, 3, 3, 4, 5, 5, 5, 6, 9]
+    """
+    n = len(arr)
+    for i in range(n - 1):
+        min_index = i
+        for j in range(i + 1, n):
+            if arr[j] < arr[min_index]:
+                min_index = j
+        if min_index != i:
+            arr[i], arr[min_index] = arr[min_index], arr[i]
+    return arr
+```
+
+```plaintext
+Iteración 1: [1, 3, 4, 1, 5, 9, 2, 6, 5, 3, 5]
+Iteración 2: [1, 1, 4, 3, 5, 9, 2, 6, 5, 3, 5]
+Iteración 3: [1, 1, 2, 3, 5, 9, 4, 6, 5, 3, 5]
+Iteración 4: [1, 1, 2, 3, 5, 9, 4, 6, 5, 3, 5]
+Iteración 5: [1, 1, 2, 3, 3, 9, 4, 6, 5, 5, 5]
+Iteración 6: [1, 1, 2, 3, 3, 4, 9, 6, 5, 5, 5]
+Iteración 7: [1, 1, 2, 3, 3, 4, 5, 6, 9, 5, 5]
+Iteración 8: [1, 1, 2, 3, 3, 4, 5, 5, 9, 6, 5]
+Iteración 9: [1, 1, 2, 3, 3, 4, 5, 5, 5, 6, 9]
+```
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Selection sort - Caso múltiples elementos desordenados (11/11)
+
+```python
+def selection_sort(arr):
+    """    
+    >>> selection_sort([3, 1, 4, 1, 5, 9, 2, 6, 5, 3, 5])  # Caso lista desordenada
+    [1, 1, 2, 3, 3, 4, 5, 5, 5, 6, 9]
+    """
+    n = len(arr)
+    for i in range(n - 1):
+        min_index = i
+        for j in range(i + 1, n):
+            if arr[j] < arr[min_index]:
+                min_index = j
+        if min_index != i:
+            arr[i], arr[min_index] = arr[min_index], arr[i]
+    return arr
+```
+
+```plaintext
+Iteración 1: [1, 3, 4, 1, 5, 9, 2, 6, 5, 3, 5]
+Iteración 2: [1, 1, 4, 3, 5, 9, 2, 6, 5, 3, 5]
+Iteración 3: [1, 1, 2, 3, 5, 9, 4, 6, 5, 3, 5]
+Iteración 4: [1, 1, 2, 3, 5, 9, 4, 6, 5, 3, 5]
+Iteración 5: [1, 1, 2, 3, 3, 9, 4, 6, 5, 5, 5]
+Iteración 6: [1, 1, 2, 3, 3, 4, 9, 6, 5, 5, 5]
+Iteración 7: [1, 1, 2, 3, 3, 4, 5, 6, 9, 5, 5]
+Iteración 8: [1, 1, 2, 3, 3, 4, 5, 5, 9, 6, 5]
+Iteración 9: [1, 1, 2, 3, 3, 4, 5, 5, 5, 6, 9]
+Iteración 10: [1, 1, 2, 3, 3, 4, 5, 5, 5, 6, 9]
+```
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Simulación  - Selection Sort
+
+- En esta versión
+	- El más grande se coloca al final:
+		- [Selection sort](https://www.hackerearth.com/practice/algorithms/sorting/selection-sort/visualize/)
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Selection sort - Complejidad temporal (1/3)
+
+- El número de comparaciones realizadas en cada iteración es:
+
+	- 1ra iteración:
+		- Compara `n−1` elementos
+	- 2da iteración:
+		- Compara `n−2` elementos
+	- 3ra iteración:
+		- Compara `n-3` elementos
+	- En la última iteración:
+		- Solo queda 1 comparación
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Selection sort - Complejidad temporal (2/3)
+
+
+- El número de comparaciones realizadas es:
+```html
+(n-1) + (n-2) + (n-3) + ... + 2 + 1
+```
+
+- Esta es una **serie aritmética**, cuya suma se calcula con la fórmula:
+```html
+S = (n(n-1)) / 2
+```
+
+- En notación asintótica:
+```html
+S = (n² - n) / 2 = O(n²)
+```
+
+- Entonces, el número de comparaciones es O(n²)
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Selection sort - Complejidad temporal (3/3)
+
+- En cada iteración
+	- Si se encuentra un nuevo mínimo
+		- Se realiza un **intercambio** entre la posición actual y la posición del mínimo
+	- En el peor caso:
+		- Se realizan **n-1 intercambios** (uno por iteración)
+	- Entonces, el número de intercambios es menor que el de comparaciones
+- Conclusión: 
+	- Los intercambios son: **O(n)**
+		- Pero la complejidad total está dominada por 
+			- Las comparaciones: **O(n²)**
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Selection sort - Complejidad temporal (2/2)
+
+- **Peor caso**: O(n²)
+	- Lista está en orden inverso
+- **Caso promedio**: O(n²)
+	- Lista parcialmente ordenada
+- **Mejor caso**: O(n²)
+	- Lista ordenada
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Selection sort - Complejidad espacial (1/2)
+
+```python
+def selection_sort(arr):
+    n = len(arr)
+    for i in range(n - 1):
+        min_index = i
+        for j in range(i + 1, n):
+            if arr[j] < arr[min_index]:
+                min_index = j
+        if min_index != i:
+            arr[i], arr[min_index] = arr[min_index], arr[i]
+    return arr
+```
+
+- Intercambia elementos directamente dentro de la lista
+	- Sin crear nuevas estructuras
+
+- Utiliza índices para comparar y reordenar elementos
+	- No requiere espacio extra más allá de variables temporales para índices
+- Requiere de una cantidad fija y mínima de memoria adicional
+	- Que no depende del tamaño de la lista
+
+- ¿Complejidad espacial?
+    - &shy;<!-- .element: class="fragment" data-fragment-index="1" -->**O(1)**
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Selection sort - Estabilidad
+
+<img src="eda/img/ss_no_estable.png" alt="" style="object-fit: scale-down">
+
+
+- **No estable**
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Selection sort - In place
+
+- Sí
+	- No necesita estructuras de datos adicionales
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Algoritmos de ordenamiento iterativos (1/3)
+
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f4;
+      padding: 5px;
+      display: flex;
+      justify-content: center;
+    }
+    table {
+      width: 60%;
+      border-collapse: collapse;
+      text-align: center;
+      background-color: white;
+      border-radius: 5px;
+      overflow: hidden;
+      box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
+      font-size: 16px;
+    }
+    th, td {
+      border: 1px solid black;
+      padding: 8px;
+    }
+    th {
+      background-color: #cfe2f3;
+      font-weight: bold;
+    }
+    td:first-child {
+      font-weight: bold;
+    }
+    tr:nth-child(even) {
+      background-color: #f9f9f9;
+    }
+    tr:hover {
+      background-color: #f1f1f1;
+    }
+  </style>
+</head>
+<body>
+  <table>
+    <tr>
+      <th>Algoritmo</th>
+      <th>Peor caso</th>
+      <th>Promedio</th>
+      <th>Mejor caso</th>
+      <th>Espacio extra</th>
+      <th>Estable</th>
+      <th>In place</th>
+    </tr>
+    <tr>
+      <td>Selection sort</td>
+      <td>O(n²)</td>
+      <td>O(n²)</td>
+      <td>O(n²)</td>
+      <td>O(1)</td>
+      <td>No</td>
+      <td>Sí</td>
+    </tr>
+  </table>
+</body>
+</html>
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Quiz I
+
+- ¿Qué cambio sería necesario para que el algoritmo ordene de forma descendente?
+
+```python
+def selection_sort(arr):
+    n = len(arr)
+    for i in range(n - 1):
+        min_index = i
+        for j in range(i + 1, n):
+            if arr[j] < arr[min_index]:
+                min_index = j
+        if min_index != i:
+            arr[i], arr[min_index] = arr[min_index], arr[i]
+    return arr
+```
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Quiz I - Solución
+
+```python
+def selection_sort(arr):
+    n = len(arr)
+    for i in range(n - 1):
+        min_index = i
+        for j in range(i + 1, n):
+            if arr[j] < arr[min_index]:
+                min_index = j
+        if min_index != i:
+            arr[i], arr[min_index] = arr[min_index], arr[i]
+    return arr
+```
+
+En lugar de:
+
+```python
+if arr[j] < arr[min_index]: 
+```
+
+Se debe cambiar a:
+
+```python
+if arr[j] > arr[min_index]: 
+```
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Quiz II
+
+- ¿Qué cambio sería necesarios para que el algoritmo reporte el número de intercambios?
+
+```python
+def selection_sort(arr):
+    n = len(arr)
+    for i in range(n - 1):
+        min_index = i
+        for j in range(i + 1, n):
+            if arr[j] < arr[min_index]:
+                min_index = j
+        if min_index != i:
+            arr[i], arr[min_index] = arr[min_index], arr[i]
+    return arr
+```
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Quiz II - Solución
+
+- ¿Qué cambio sería necesarios para que el algoritmo reporte el número de intercambios?
+
+```python
+def selection_sort(arr):
+    n = len(arr)
+    swap_count = 0  # Contador de intercambios
+    
+    for i in range(n - 1):
+        min_index = i
+        for j in range(i + 1, n):
+            if arr[j] < arr[min_index]:
+                min_index = j
+        if min_index != i:
+            arr[i], arr[min_index] = arr[min_index], arr[i]
+            swap_count += 1  # Contar el intercambio
+    return arr, swap_count
+```
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Insertion Sort
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Insertion sort (1/4)
+
+- Si el 2do es menor que el 1ro
+	- Intercambia el segundo elemento con el primero
+
+- Si el 3ro es menor que alguno de los otros
+	- Intercambia el 3er elemento con alguno de los dos anteriores
+
+- Si el n-ésimo es menor que alguno de los otros
+	- Intercambiar el n-ésimo elemento con alguno de los anteriores
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Insertion sort (2/4)
+
+- **Analogía**
+	- Ordenamiento ascendente de cartas
+		- Se inserta en el lugar que corresponde
+
+
+<img src="eda/img/insertion_cards.png" alt="" style="width: 45%; height: 45%; object-fit: fill">
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Insertion sort (3/4)
+
+<img src="eda/img/insertion_ej.png" alt="" style="width: 75%; height: 55%; object-fit: fill">
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Insertion sort (4/4)
+
+- **Características**
+	- El ordenamiento sucede de izquierda a derecha
+	- Incrementa la zona ordenada en cada iteración
+	- Inserta el elemento actual en su posición correcta 
+		- Dentro de la zona ya ordenada
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Selection sort - Implementación
+
+```python
+def insertion_sort(arr):
+    """
+    Ordena una lista en orden ascendente utilizando el algoritmo Insertion Sort.
+    
+    :param arr: Lista de elementos a ordenar.
+    :type arr: list
+    
+    :return: Lista ordenada en orden ascendente.
+    :rtype: list
+    """
+    n = len(arr)
+    for i in range(1, n):
+        key = arr[i]
+        j = i - 1
+        while j >= 0 and arr[j] > key:
+            arr[j + 1] = arr[j]
+            j -= 1
+        arr[j + 1] = key
+    return arr
+```
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Insertion sort - Caso lista vacía
+
+```python
+def insertion_sort(arr):
+    """
+    >>> insertion_sort([])  # Caso lista vacía
+    []
+    """
+    n = len(arr)
+    for i in range(1, n):
+        key = arr[i]
+        j = i - 1
+        while j >= 0 and arr[j] > key:
+            arr[j + 1] = arr[j]
+            j -= 1
+        arr[j + 1] = key
+    return arr
+```
+
+- No entra al ciclo `for` 
+	- Porque `range(1, 0)` no tiene valores
+- Se retorna la lista vacía
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Insertion sort - Caso un elemento
+
+```python
+def insertion_sort(arr):
+    """
+    >>> insertion_sort([5])  # Caso lista con un solo objeto
+    [5]
+    """
+    n = len(arr)
+    for i in range(1, n):
+        key = arr[i]
+        j = i - 1
+        while j >= 0 and arr[j] > key:
+            arr[j + 1] = arr[j]
+            j -= 1
+        arr[j + 1] = key
+    return arr
+```
+
+- El ciclo `for` no se ejecuta 
+	- Porque `range(1,1)` es una secuencia vacía
+- Se retorna la lista original
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Insertion sort - Caso lista ordenada (1/5)
+
+```python
+def insertion_sort(arr):
+    """
+    >>> insertion_sort([1, 2, 3, 4, 5])  # Caso lista ordenada
+    [1, 2, 3, 4, 5]
+    """
+    n = len(arr)
+    for i in range(1, n):
+        key = arr[i]
+        j = i - 1
+        while j >= 0 and arr[j] > key:
+            arr[j + 1] = arr[j]
+            j -= 1
+        arr[j + 1] = key
+    return arr
+```
+
+
+- **Iteración `i = 1`**: `key = 2`, `arr[j] = 1` 
+	- No hay movimientos, `2` ya está en su lugar
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Insertion sort - Caso lista ordenada (2/5)
+
+```python
+def insertion_sort(arr):
+    """
+    >>> insertion_sort([1, 2, 3, 4, 5])  # Caso lista ordenada
+    [1, 2, 3, 4, 5]
+    """
+    n = len(arr)
+    for i in range(1, n):
+        key = arr[i]
+        j = i - 1
+        while j >= 0 and arr[j] > key:
+            arr[j + 1] = arr[j]
+            j -= 1
+        arr[j + 1] = key
+    return arr
+```
+
+
+- Iteración `i = 1`: `key = 2`, `arr[j] = 1` → No hay movimientos, `2` ya está en su lugar
+- **Iteración `i = 2`**: `key = 3`, `arr[j] = 2` 
+	- No hay movimientos, `3` ya está en su lugar
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Insertion sort - Caso lista ordenada (3/5)
+
+```python
+def insertion_sort(arr):
+    """
+    >>> insertion_sort([1, 2, 3, 4, 5])  # Caso lista ordenada
+    [1, 2, 3, 4, 5]
+    """
+    n = len(arr)
+    for i in range(1, n):
+        key = arr[i]
+        j = i - 1
+        while j >= 0 and arr[j] > key:
+            arr[j + 1] = arr[j]
+            j -= 1
+        arr[j + 1] = key
+    return arr
+```
+
+
+- Iteración `i = 1`: `key = 2`, `arr[j] = 1` → No hay movimientos, `2` ya está en su lugar
+- Iteración `i = 2`: `key = 3`, `arr[j] = 2` → No hay movimientos, `3` ya está en su lugar
+- **Iteración `i = 3`**: `key = 4`, `arr[j] = 3`
+	- No hay movimientos, `4` ya está en su lugar
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Insertion sort - Caso lista ordenada (4/5)
+
+```python
+def insertion_sort(arr):
+    """
+    >>> insertion_sort([1, 2, 3, 4, 5])  # Caso lista ordenada
+    [1, 2, 3, 4, 5]
+    """
+    n = len(arr)
+    for i in range(1, n):
+        key = arr[i]
+        j = i - 1
+        while j >= 0 and arr[j] > key:
+            arr[j + 1] = arr[j]
+            j -= 1
+        arr[j + 1] = key
+    return arr
+```
+
+
+- Iteración `i = 1`: `key = 2`, `arr[j] = 1` → No hay movimientos, `2` ya está en su lugar
+- Iteración `i = 2`: `key = 3`, `arr[j] = 2` → No hay movimientos, `3` ya está en su lugar
+- Iteración `i = 3`: `key = 4`, `arr[j] = 3` → No hay movimientos, `4` ya está en su lugar
+- **Iteración `i = 4`**: `key = 5`, `arr[j] = 4`
+	- No hay movimientos, `5` ya está en su lugar
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Insertion sort - Caso lista ordenada (5/5)
+
+```python
+def insertion_sort(arr):
+    """
+    >>> insertion_sort([1, 2, 3, 4, 5])  # Caso lista ordenada
+    [1, 2, 3, 4, 5]
+    """
+    n = len(arr)
+    for i in range(1, n):
+        key = arr[i]
+        j = i - 1
+        while j >= 0 and arr[j] > key:
+            arr[j + 1] = arr[j]
+            j -= 1
+        arr[j + 1] = key
+    return arr
+```
+
+```plaintext
+Iteración 1: [1, 2, 3, 4, 5]
+Iteración 2: [1, 2, 3, 4, 5]
+Iteración 3: [1, 2, 3, 4, 5]
+Iteración 4: [1, 2, 3, 4, 5]
+```
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Insertion sort - Caso lista desordenada (1/11)
+
+```python
+def insertion_sort(arr):
+    """
+    >>> insertion_sort([3, 1, 4, 1, 5, 9, 2, 6, 5, 3, 5])  # Caso lista desordenada
+    [1, 1, 2, 3, 3, 4, 5, 5, 5, 6, 9]
+    """
+    n = len(arr)
+    for i in range(1, n):
+        key = arr[i]
+        j = i - 1
+        while j >= 0 and arr[j] > key:
+            arr[j + 1] = arr[j]
+            j -= 1
+        arr[j + 1] = key
+    return arr
+```
+
+```plaintext 
+Iteración 1: [1, 3, 4, 1, 5, 9, 2, 6, 5, 3, 5] 
+Iteración 2: [1, 3, 4, 1, 5, 9, 2, 6, 5, 3, 5] 
+Iteración 3: [1, 1, 3, 4, 5, 9, 2, 6, 5, 3, 5] 
+Iteración 4: [1, 1, 3, 4, 5, 9, 2, 6, 5, 3, 5] 
+Iteración 5: [1, 1, 3, 4, 5, 9, 2, 6, 5, 3, 5] 
+Iteración 6: [1, 1, 2, 3, 4, 5, 9, 6, 5, 3, 5] 
+Iteración 7: [1, 1, 2, 3, 4, 5, 6, 9, 5, 3, 5] 
+Iteración 8: [1, 1, 2, 3, 4, 5, 5, 6, 9, 3, 5] 
+Iteración 9: [1, 1, 2, 3, 3, 4, 5, 5, 6, 9, 5] 
+Iteración 10: [1, 1, 2, 3, 3, 4, 5, 5, 5, 6, 9]
+```
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Insertion sort - Caso lista desordenada (2/11)
+
+```python
+def insertion_sort(arr):
+    """
+    >>> insertion_sort([3, 1, 4, 1, 5, 9, 2, 6, 5, 3, 5])  # Caso lista desordenada
+    [1, 1, 2, 3, 3, 4, 5, 5, 5, 6, 9]
+    """
+    n = len(arr)
+    for i in range(1, n):
+        key = arr[i]
+        j = i - 1
+        while j >= 0 and arr[j] > key:
+            arr[j + 1] = arr[j]
+            j -= 1
+        arr[j + 1] = key
+    return arr
+```
+
+- Iteración 1: i = 1, key = 1 
+	- Comparamos 1 con 3; al ser 1 < 3
+	- Se desplaza 3 a la derecha
+		- Resultado: [1, 3, 4, 1, 5, 9, 2, 6, 5, 3, 5]
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Insertion sort - Caso lista desordenada (3/11)
+
+```python
+def insertion_sort(arr):
+    """
+    >>> insertion_sort([3, 1, 4, 1, 5, 9, 2, 6, 5, 3, 5])  # Caso lista desordenada
+    [1, 1, 2, 3, 3, 4, 5, 5, 5, 6, 9]
+    """
+    n = len(arr)
+    for i in range(1, n):
+        key = arr[i]
+        j = i - 1
+        while j >= 0 and arr[j] > key:
+            arr[j + 1] = arr[j]
+            j -= 1
+        arr[j + 1] = key
+    return arr
+```
+
+-  Iteración 2: i = 2, key = 4
+	- 4 ya se encuentra en su lugar relativo a la sublista [1, 3] ya ordenada
+		- Resultado: [1, 3, 4, 1, 5, 9, 2, 6, 5, 3, 5]
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Insertion sort - Caso lista desordenada (4/11)
+
+```python
+def insertion_sort(arr):
+    """
+    >>> insertion_sort([3, 1, 4, 1, 5, 9, 2, 6, 5, 3, 5])  # Caso lista desordenada
+    [1, 1, 2, 3, 3, 4, 5, 5, 5, 6, 9]
+    """
+    n = len(arr)
+    for i in range(1, n):
+        key = arr[i]
+        j = i - 1
+        while j >= 0 and arr[j] > key:
+            arr[j + 1] = arr[j]
+            j -= 1
+        arr[j + 1] = key
+    return arr
+```
+
+- Iteración 3: i = 3, key = 1 
+- Comparamos 1 con 4 y 3, ambos mayores que 1, 
+	- Se desplazan a la derecha 
+		- Se inserta 1 en la posición correcta 
+			- Resultado: [1, 1, 3, 4, 5, 9, 2, 6, 5, 3, 5]
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Insertion sort - Caso lista desordenada (5/11)
+
+```python
+def insertion_sort(arr):
+    """
+    >>> insertion_sort([3, 1, 4, 1, 5, 9, 2, 6, 5, 3, 5])  # Caso lista desordenada
+    [1, 1, 2, 3, 3, 4, 5, 5, 5, 6, 9]
+    """
+    n = len(arr)
+    for i in range(1, n):
+        key = arr[i]
+        j = i - 1
+        while j >= 0 and arr[j] > key:
+            arr[j + 1] = arr[j]
+            j -= 1
+        arr[j + 1] = key
+    return arr
+```
+
+- Iteración 4: i = 4, key = 5
+	- 5 se ubica luego de 4
+		- Por lo que ya está en su posición correcta
+			- Resultado: [1, 1, 3, 4, 5, 9, 2, 6, 5, 3, 5]
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Insertion sort - Caso lista desordenada (6/11)
+
+```python
+def insertion_sort(arr):
+    """
+    >>> insertion_sort([3, 1, 4, 1, 5, 9, 2, 6, 5, 3, 5])  # Caso lista desordenada
+    [1, 1, 2, 3, 3, 4, 5, 5, 5, 6, 9]
+    """
+    n = len(arr)
+    for i in range(1, n):
+        key = arr[i]
+        j = i - 1
+        while j >= 0 and arr[j] > key:
+            arr[j + 1] = arr[j]
+            j -= 1
+        arr[j + 1] = key
+    return arr
+```
+- Iteración 5: i = 5, key = 9
+	- 9 es mayor que todos los elementos de la sublista ordenada
+		- No se mueve
+			- Resultado: [1, 1, 3, 4, 5, 9, 2, 6, 5, 3, 5]
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Insertion sort - Caso lista desordenada (7/11)
+
+```python
+def insertion_sort(arr):
+    """
+    >>> insertion_sort([3, 1, 4, 1, 5, 9, 2, 6, 5, 3, 5])  # Caso lista desordenada
+    [1, 1, 2, 3, 3, 4, 5, 5, 5, 6, 9]
+    """
+    n = len(arr)
+    for i in range(1, n):
+        key = arr[i]
+        j = i - 1
+        while j >= 0 and arr[j] > key:
+            arr[j + 1] = arr[j]
+            j -= 1
+        arr[j + 1] = key
+    return arr
+```
+
+- Iteración 6: i = 6, key = 2 
+	- Se compara 2 con 9, 5, 4 y 3
+		- Se desplazan a la derecha hasta encontrar la posición correcta
+			- Resultado: [1, 1, 2, 3, 4, 5, 9, 6, 5, 3, 5]
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Insertion sort - Caso lista desordenada (8/11)
+
+```python
+def insertion_sort(arr):
+    """
+    >>> insertion_sort([3, 1, 4, 1, 5, 9, 2, 6, 5, 3, 5])  # Caso lista desordenada
+    [1, 1, 2, 3, 3, 4, 5, 5, 5, 6, 9]
+    """
+    n = len(arr)
+    for i in range(1, n):
+        key = arr[i]
+        j = i - 1
+        while j >= 0 and arr[j] > key:
+            arr[j + 1] = arr[j]
+            j -= 1
+        arr[j + 1] = key
+    return arr
+```
+
+- Iteración 7: i = 7, key = 6 
+	- 6 se inserta en la posición correcta 
+		- Desplazando solo 9
+			- Resultado: [1, 1, 2, 3, 4, 5, 6, 9, 5, 3, 5]
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Insertion sort - Caso lista desordenada (9/11)
+
+```python
+def insertion_sort(arr):
+    """
+    >>> insertion_sort([3, 1, 4, 1, 5, 9, 2, 6, 5, 3, 5])  # Caso lista desordenada
+    [1, 1, 2, 3, 3, 4, 5, 5, 5, 6, 9]
+    """
+    n = len(arr)
+    for i in range(1, n):
+        key = arr[i]
+        j = i - 1
+        while j >= 0 and arr[j] > key:
+            arr[j + 1] = arr[j]
+            j -= 1
+        arr[j + 1] = key
+    return arr
+```
+
+- Iteración 8: i = 8, key = 5
+	- Se desplaza 9 y se inserta 5 en la posición correspondiente
+		- Resultado: [1, 1, 2, 3, 4, 5, 5, 6, 9, 3, 5]
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Insertion sort - Caso lista desordenada (10/11)
+
+```python
+def insertion_sort(arr):
+    """
+    >>> insertion_sort([3, 1, 4, 1, 5, 9, 2, 6, 5, 3, 5])  # Caso lista desordenada
+    [1, 1, 2, 3, 3, 4, 5, 5, 5, 6, 9]
+    """
+    n = len(arr)
+    for i in range(1, n):
+        key = arr[i]
+        j = i - 1
+        while j >= 0 and arr[j] > key:
+            arr[j + 1] = arr[j]
+            j -= 1
+        arr[j + 1] = key
+    return arr
+```
+
+- Iteración 9: i = 9, key = 3
+	- 3 se compara con 9, 6, 5 y 5, se desplazan 
+		- Hasta ubicar 3 tras el 2
+			- Resultado: [1, 1, 2, 3, 3, 4, 5, 5, 6, 9, 5]
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Insertion sort - Caso lista desordenada (11/11)
+
+```python
+def insertion_sort(arr):
+    """
+    >>> insertion_sort([3, 1, 4, 1, 5, 9, 2, 6, 5, 3, 5])  # Caso lista desordenada
+    [1, 1, 2, 3, 3, 4, 5, 5, 5, 6, 9]
+    """
+    n = len(arr)
+    for i in range(1, n):
+        key = arr[i]
+        j = i - 1
+        while j >= 0 and arr[j] > key:
+            arr[j + 1] = arr[j]
+            j -= 1
+        arr[j + 1] = key
+    return arr
+```
+
+- Iteración 10: i = 10, key = 5 
+	- Se mueve 9, 6 y se inserta 5 en la posición adecuada
+		- Resultado: [1, 1, 2, 3, 3, 4, 5, 5, 5, 6, 9]
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Simulación  - Insertion Sort
+
+- [Insertion sort](https://www.hackerearth.com/practice/algorithms/sorting/insertion-sort/visualize/)
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Insertion sort - Complejidad temporal (1/6)
+
+- En cada iteración:
+
+	- Se toma un elemento de la parte desordenada
+	- Se compara con los elementos de la parte ordenada 
+		- Para encontrar su posición correcta
+	- Se desplazan los elementos mayores hacia la derecha 
+		- Para hacer espacio
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Insertion sort - Complejidad temporal (2/6)
+
+- El número de **comparaciones** realizadas en cada iteración es:
+
+	- 1ra iteración 
+		-  1 comparación
+	- 2da iteración
+		- 2 comparaciones
+	- 3ra iteración
+		- 3 comparaciones
+	- ...
+	- En la última iteración, hay **n-1 comparaciones**.
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Insertion sort - Complejidad temporal (3/6)
+
+- El número de comparaciones realizadas es:
+```html
+1 + 2 + 3 + ... + (n-1)
+```
+
+- Esta es una **serie aritmética**, cuya suma se calcula con la fórmula:
+```html
+S = (n(n-1)) / 2
+```
+
+- En notación asintótica:
+```html
+S = (n² - n) / 2 = O(n²)
+```
+
+- Entonces, el número de comparaciones en el peor caso es O(n²)
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Insertion sort - Complejidad temporal (4/6)
+
+- Los **desplazamientos** para insertar un elemento en su posición correcta:
+
+- Se realizan desplazamientos en la parte ordenada
+	- En el peor caso
+		- Cada elemento debe moverse hasta el inicio del arreglo
+	- Esto implica hasta `n-1` movimientos por iteración
+
+- Dado que los movimientos siguen la misma serie aritmética que las comparaciones
+	- Su complejidad es también: O(n²)
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Insertion sort - Complejidad temporal (5/6)
+
+- Si la lista ya está ordenada:
+	- Cada elemento solo se compara una vez sin realizar movimientos adicionales
+	- En este caso, el número de comparaciones es O(n)
+	- No hay intercambios significativos
+
+- Entonces, complejidad en el mejor caso es: O(n)
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Insertion sort - Complejidad temporal (6/6)
+
+- **Peor caso**: O(n²) 
+	- Lista está en orden inverso
+- **Caso promedio**: O(n²)
+	- Lista parcialmente ordenada
+		- Es menos que O(n²), pero tiende a esa complejidad
+- **Mejor caso**: O(n) 
+	- Cuando la lista ya está ordenada
+		- Solo se realizan `n` comparaciones
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Insertion sort - Complejidad espacial
+
+- Se ordena usando la misma lista
+	- Sin usar estructuras adicionales
+- Usa una cantidad fija de variables extra
+
+- ¿Complejidad espacial?
+    - &shy;<!-- .element: class="fragment" data-fragment-index="1" -->**O(1)**
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Insertion sort - estabilidad
+
+<img src="eda/img/is_estable.png" alt="" style="object-fit: scale-down">
+
+
+- **Estable**
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+###  Insertion sort - In place
+
+- Sí
+	- No necesita estructuras de datos adicionales
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Algoritmos de ordenamiento iterativos (2/3)
+
+
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f4;
+      padding: 5px;
+      display: flex;
+      justify-content: center;
+    }
+    table {
+      width: 60%;
+      border-collapse: collapse;
+      text-align: center;
+      background-color: white;
+      border-radius: 5px;
+      overflow: hidden;
+      box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
+      font-size: 16px;
+    }
+    th, td {
+      border: 1px solid black;
+      padding: 8px;
+    }
+    th {
+      background-color: #cfe2f3;
+      font-weight: bold;
+    }
+    td:first-child {
+      font-weight: bold;
+    }
+    tr:nth-child(even) {
+      background-color: #f9f9f9;
+    }
+    tr:hover {
+      background-color: #f1f1f1;
+    }
+  </style>
+</head>
+<body>
+  <table>
+    <tr>
+      <th>Algoritmo</th>
+      <th>Peor caso</th>
+      <th>Promedio</th>
+      <th>Mejor caso</th>
+      <th>Espacio extra</th>
+      <th>Estable</th>
+      <th>In place</th>
+    </tr>
+    <tr>
+      <td>Selection sort</td>
+      <td>O(n²)</td>
+      <td>O(n²)</td>
+      <td>O(n²)</td>
+      <td>O(1)</td>
+      <td>No</td>
+      <td>Sí</td>
+    </tr>
+    <tr>
+      <td>Insertion sort</td>
+      <td>O(n²)</td>
+      <td>O(n²)</td>
+      <td>O(n)</td>
+      <td>O(1)</td>
+      <td>Sí</td>
+      <td>Sí</td>
+    </tr>
+  </table>
+</body>
+</html>
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Quiz III
+
+
+- ¿Qué cambio sería necesario para que el algoritmo ordene de forma descendente?
+
+```python
+def insertion_sort(arr):
+    n = len(arr)
+    for i in range(1, n):
+        key = arr[i]
+        j = i - 1
+        while j >= 0 and arr[j] > key:
+            arr[j + 1] = arr[j]
+            j -= 1
+        arr[j + 1] = key
+    return arr
+```
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Quiz III - Solución
+
+```python
+def insertion_sort(arr):
+    n = len(arr)
+    for i in range(1, n):
+        key = arr[i]
+        j = i - 1
+        while j >= 0 and arr[j] > key:
+            arr[j + 1] = arr[j]
+            j -= 1
+        arr[j + 1] = key
+    return arr
+```
+
+
+En lugar de:
+
+```python
+while j >= 0 and arr[j] > key:
+```
+
+Se debe cambiar a:
+
+```python
+while j >= 0 and arr[j] < key:
+```
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Shell Sort
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Shell sort (1/2)
+
+- Usa la base de insertion sort con un enfoque en h-sucesores
+	- Compara e intercambia elementos separados por distancias `h`
+	- `h` disminuye progresivamente siguiendo una función generadora
+	- Cuando llega a `h = 1`
+		- Aplica Insertion sort
+	- Termina cuando `h = 0`
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Shell sort (2/2)
+
+- **Características:**
+	-  Incrementa la eficiencia del Insertion sort 
+		- Utilizando saltos
+	- El ordenamiento comienza con saltos grandes 
+		- Que disminuyen gradualmente
+	- Reduce progresivamente la distancia de comparación hasta llegar a `1`
+		 - Finalizando con un Insertion sort convencional (`h = 1`)
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Shell sort - Implementación
+
+```python
+def shell_sort(arr):
+    """
+    Ordena una lista en orden ascendente utilizando el algoritmo Shell Sort 
+    con la secuencia de Knuth.
+    """
+    n = len(arr)
+    h = 1
+    while h < n // 3:  # Genera la secuencia de Knuth
+        h = 3 * h + 1
+    
+    while h > 0:
+        for i in range(h, n):
+            key = arr[i]
+            j = i
+            while j >= h and arr[j - h] > key:
+                arr[j] = arr[j - h]
+                j -= h
+            arr[j] = key
+        h //= 3  # Reducción del intervalo según la secuencia de Knuth
+    return arr
+```
+
+- Estudiaremos una implementación que usa
+	- La **secuencia de Knuth**
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Comprendamos Shell sort con un ejemplo detallado
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Lista inicial
+
+- `N = 9`:
+
+| **10** | **4** | **5** | **3** | **7** | **8** | **6** | **9** | **2** |
+| ------ | ----- | ----- | ----- | ----- | ----- | ----- | ----- | ----- |
+| **0**  | **1** | **2** | **3** | **4** | **5** | **6** | **7** | **8** |
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### La secuencia de Knuth (1/3)
+
+
+-  `N = 9`
+
+```python
+N = len(lst)  # Longitud de la lista, aquí N = 9
+h = 1
+while h < N // 3:  # 1 < 3; 4 < 3
+    h = 3 * h + 1  # h = 4
+```
+
+
+- Al inicio
+	- `h = 4`
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Ejemplo - Shell sort - h = 4
+
+- Para N = 9, h inicia en 4
+	- **(10, 7, 2)** → Se reordena a (2, 7, 10)
+
+
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tabla de Números</title>
+    <style>
+        table {
+            border-collapse: collapse;
+            text-align: center;
+            font-size: 24px;
+        }
+        td {
+            width: 50px;
+            height: 50px;
+            border: 1px solid black;
+            font-weight: bold;
+        }
+        .highlight {
+            background-color: yellow;
+        }
+    </style>
+</head>
+
+<body>
+    <table>
+        <tr>
+            <td class="highlight">10</td>
+            <td>4</td>
+            <td>5</td>
+            <td>3</td>
+            <td class="highlight">7</td>
+            <td>8</td>
+            <td>6</td>
+            <td>9</td>
+            <td class="highlight">2</td>
+        </tr>
+        <tr>
+            <td class="highlight">0</td>
+            <td>1</td>
+            <td>2</td>
+            <td>3</td>
+            <td class="highlight">4</td>
+            <td>5</td>
+            <td>6</td>
+            <td>7</td>
+            <td class="highlight">8</td>
+        </tr>
+    </table>
+</body>
+</html>
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Comprendamos el intercambio en detalle
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+|**10**||||**7**||||**2**|
+|---|---|---|---|---|---|---|---|---|
+|**0**||||**4**||||**8**|
+
+- Elemento actual: 7 (posición 4)
+    - Se compara con 10 (posición 0)
+	    - Como 7 < 10
+		    - Se mueve 10  (posición 4)
+    - 7 se coloca en la posición 0:
+
+|**7**||||**10**||||**2**|
+|---|---|---|---|---|---|---|---|---|
+|**0**||||**4**||||**8**|
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+|**7**||||**10**||||**2**|
+|---|---|---|---|---|---|---|---|---|
+|**0**||||**4**||||**8**|
+
+- Elemento actual: 2 (posición 8)
+    - Se compara con 10 (posición 4)
+	    - Como 2 < 10
+		    - Se mueve 10 (posición 8)
+    - Se compara con 7 (posición 0)
+	    - como 2 < 7
+		    - Se mueve 7 (posición 4)
+    - 2 se coloca en la posición 0:
+
+|**2**||||**7**||||**10**|
+|---|---|---|---|---|---|---|---|---|
+|**0**||||**4**||||**8**|
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### En resumen...
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Ejemplo - Shell sort - h = 4
+
+- Para N = 9, h inicia en 4
+	- **(10, 7, 2)** → Se reordena a (2, 7, 10)
+
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tabla de Números</title>
+    <style>
+        table {
+            border-collapse: collapse;
+            text-align: center;
+            font-size: 24px;
+        }
+        td {
+            width: 50px;
+            height: 50px;
+            border: 1px solid black;
+            font-weight: bold;
+        }
+        .highlight {
+            background-color: yellow;
+        }
+    </style>
+</head>
+
+<body>
+    <table>
+        <tr>
+            <td class="highlight">10</td>
+            <td>4</td>
+            <td>5</td>
+            <td>3</td>
+            <td class="highlight">7</td>
+            <td>8</td>
+            <td>6</td>
+            <td>9</td>
+            <td class="highlight">2</td>
+        </tr>
+        <tr>
+            <td class="highlight">0</td>
+            <td>1</td>
+            <td>2</td>
+            <td>3</td>
+            <td class="highlight">4</td>
+            <td>5</td>
+            <td>6</td>
+            <td>7</td>
+            <td class="highlight">8</td>
+        </tr>
+    </table>
+</body>
+</html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tabla de Números</title>
+    <style>
+        table {
+            border-collapse: collapse;
+            text-align: center;
+            font-size: 24px;
+        }
+        td {
+            width: 50px;
+            height: 50px;
+            border: 1px solid black;
+            font-weight: bold;
+        }
+        .highlight {
+            background-color: yellow;
+        }
+    </style>
+</head>
+<body>
+    <table>
+        <tr>
+            <td class="highlight">2</td>
+            <td>4</td>
+            <td>5</td>
+            <td>3</td>
+            <td class="highlight">7</td>
+            <td>8</td>
+            <td>6</td>
+            <td>9</td>
+            <td class="highlight">10</td>
+        </tr>
+        <tr>
+            <td class="highlight">0</td>
+            <td>1</td>
+            <td>2</td>
+            <td>3</td>
+            <td class="highlight">4</td>
+            <td>5</td>
+            <td>6</td>
+            <td>7</td>
+            <td class="highlight">8</td>
+        </tr>
+    </table>
+</body>
+</html>
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Ejemplo - Shell sort - h = 4
+
+- Para N = 9, h inicia en 4
+	- **(4, 8)** → Ya está ordenado, no cambia
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tabla de Números</title>
+    <style>
+        table {
+            border-collapse: collapse;
+            text-align: center;
+            font-size: 24px;
+        }
+        td {
+            width: 50px;
+            height: 50px;
+            border: 1px solid black;
+            font-weight: bold;
+        }
+        .highlight {
+            background-color: yellow;
+        }
+    </style>
+</head>
+<body>
+    <table>
+        <tr>
+            <td>2</td>
+            <td class="highlight">4</td>
+            <td>5</td>
+            <td>3</td>
+            <td>7</td>
+            <td class="highlight">8</td>
+            <td>6</td>
+            <td>9</td>
+            <td>10</td>
+        </tr>
+        <tr>
+            <td>0</td>
+            <td class="highlight">1</td>
+            <td>2</td>
+            <td>3</td>
+            <td>4</td>
+            <td class="highlight">5</td>
+            <td>6</td>
+            <td>7</td>
+            <td>8</td>
+        </tr>
+    </table>
+</body>
+</html>
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Ejemplo - Shell sort - h = 4
+
+- Para N = 9, h inicia en 4
+	- **(5, 6)** → Ya está ordenado, no cambia
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tabla de Números</title>
+    <style>
+        table {
+            border-collapse: collapse;
+            text-align: center;
+            font-size: 24px;
+        }
+        td {
+            width: 50px;
+            height: 50px;
+            border: 1px solid black;
+            font-weight: bold;
+        }
+        .highlight {
+            background-color: yellow;
+        }
+    </style>
+</head>
+<body>
+    <table>
+        <tr>
+            <td>2</td>
+            <td>4</td>
+            <td class="highlight">5</td>
+            <td>3</td>
+            <td>7</td>
+            <td>8</td>
+            <td class="highlight">6</td>
+            <td>9</td>
+            <td>10</td>
+        </tr>
+        <tr>
+            <td>0</td>
+            <td>1</td>
+            <td class="highlight">2</td>
+            <td>3</td>
+            <td>4</td>
+            <td>5</td>
+            <td class="highlight">6</td>
+            <td>7</td>
+            <td>8</td>
+        </tr>
+    </table>
+</body>
+</html>
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Ejemplo - Shell sort - h = 4
+
+- Para N = 9, h inicia en 4
+	- **(3, 9)** → Ya está ordenado, no cambia
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tabla de Números</title>
+    <style>
+        table {
+            border-collapse: collapse;
+            text-align: center;
+            font-size: 24px;
+        }
+        td {
+            width: 50px;
+            height: 50px;
+            border: 1px solid black;
+            font-weight: bold;
+        }
+        .highlight {
+            background-color: yellow;
+        }
+    </style>
+</head>
+<body>
+    <table>
+        <tr>
+            <td>2</td>
+            <td>4</td>
+            <td>5</td>
+            <td class="highlight">3</td>
+            <td>7</td>
+            <td>8</td>
+            <td>6</td>
+            <td class="highlight">9</td>
+            <td>10</td>
+        </tr>
+        <tr>
+            <td>0</td>
+            <td>1</td>
+            <td>2</td>
+            <td class="highlight">3</td>
+            <td>4</td>
+            <td>5</td>
+            <td>6</td>
+            <td class="highlight">7</td>
+            <td>8</td>
+        </tr>
+    </table>
+</body>
+</html>
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### La secuencia de Knuth (2/3)
+
+
+- `N = 9`
+- `h = 4`
+
+```python
+def shell_sort(arr):
+    n = len(arr)
+    h = 1
+    while h < n // 3:  # Genera la secuencia de Knuth
+        h = 3 * h + 1
+    
+    while h > 0:
+        for i in range(h, n):
+            key = arr[i]
+            j = i
+            while j >= h and arr[j - h] > key:
+                arr[j] = arr[j - h]
+                j -= h
+            arr[j] = key
+        h //= 3  # h = 4 // 3 → 1
+    return arr
+```
+
+- Ahora
+	- `h = 1`
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Ejemplo - Shell sort - h = 1
+
+- Para N = 9, h = 1
+-  Se aplica Insertion Sort
+	- No hay cambios
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tabla de Números</title>
+    <style>
+        table {
+            border-collapse: collapse;
+            text-align: center;
+            font-size: 24px;
+        }
+        td {
+            width: 50px;
+            height: 50px;
+            border: 1px solid black;
+            font-weight: bold;
+        }
+        .highlight {
+            background-color: yellow;
+        }
+    </style>
+</head>
+<body>
+    <table>
+        <tr>
+            <td>2</td>
+            <td class="highlight">4</td>
+            <td>5</td>
+            <td>3</td>
+            <td>7</td>
+            <td>8</td>
+            <td>6</td>
+            <td>9</td>
+            <td>10</td>
+        </tr>
+        <tr>
+            <td>0</td>
+            <td class="highlight">1</td>
+            <td>2</td>
+            <td>3</td>
+            <td>4</td>
+            <td>5</td>
+            <td>6</td>
+            <td>7</td>
+            <td>8</td>
+        </tr>
+    </table>
+</body>
+</html>
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Ejemplo - Shell sort - h = 1
+
+- Para N = 9, h = 1
+-  Se aplica Insertion Sort
+	- No hay cambios
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tabla de Números</title>
+    <style>
+        table {
+            border-collapse: collapse;
+            text-align: center;
+            font-size: 24px;
+        }
+        td {
+            width: 50px;
+            height: 50px;
+            border: 1px solid black;
+            font-weight: bold;
+        }
+        .highlight {
+            background-color: yellow;
+        }
+    </style>
+</head>
+<body>
+    <table>
+        <tr>
+            <td>2</td>
+            <td>4</td>
+            <td class="highlight">5</td>
+            <td>3</td>
+            <td>7</td>
+            <td>8</td>
+            <td>6</td>
+            <td>9</td>
+            <td>10</td>
+        </tr>
+        <tr>
+            <td>0</td>
+            <td>1</td>
+            <td class="highlight">2</td>
+            <td>3</td>
+            <td>4</td>
+            <td>5</td>
+            <td>6</td>
+            <td>7</td>
+            <td>8</td>
+        </tr>
+    </table>
+</body>
+</html>
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Ejemplo - Shell Sort - h = 1
+
+- Para N = 9, h = 1
+- Se aplica Insertion Sort
+	- Elemento en posición 3 (3) → Se mueve antes de 4 y 5
+
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tabla de Números</title>
+    <style>
+        table {
+            border-collapse: collapse;
+            text-align: center;
+            font-size: 24px;
+        }
+        td {
+            width: 50px;
+            height: 50px;
+            border: 1px solid black;
+            font-weight: bold;
+        }
+        .highlight {
+            background-color: yellow;
+        }
+    </style>
+</head>
+<body>
+    <table>
+        <tr>
+            <td>2</td>
+            <td>4</td>
+            <td>5</td>
+            <td class="highlight">3</td>
+            <td>7</td>
+            <td>8</td>
+            <td>6</td>
+            <td>9</td>
+            <td>10</td>
+        </tr>
+        <tr>
+            <td>0</td>
+            <td>1</td>
+            <td>2</td>
+            <td class="highlight">3</td>
+            <td>4</td>
+            <td>5</td>
+            <td>6</td>
+            <td>7</td>
+            <td>8</td>
+        </tr>
+    </table>
+</body>
+</html>
+
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tabla de Números</title>
+    <style>
+        table {
+            border-collapse: collapse;
+            text-align: center;
+            font-size: 24px;
+        }
+        td {
+            width: 50px;
+            height: 50px;
+            border: 1px solid black;
+            font-weight: bold;
+        }
+        .highlight {
+            background-color: yellow;
+        }
+    </style>
+</head>
+<body>
+    <table>
+        <tr>
+            <td>2</td>
+            <td class="highlight">3</td>
+            <td class="highlight">4</td>
+            <td class="highlight">5</td>
+            <td>7</td>
+            <td>8</td>
+            <td>6</td>
+            <td>9</td>
+            <td>10</td>
+        </tr>
+        <tr>
+            <td>0</td>
+            <td class="highlight">1</td>
+            <td class="highlight">2</td>
+            <td class="highlight">3</td>
+            <td>4</td>
+            <td>5</td>
+            <td>6</td>
+            <td>7</td>
+            <td>8</td>
+        </tr>
+    </table>
+</body>
+</html>
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Ejemplo - Shell sort - h = 1
+
+- Para N = 9, h = 1
+- Se aplica Insertion Sort
+	- No hay cambios
+
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tabla de Números</title>
+    <style>
+        table {
+            border-collapse: collapse;
+            text-align: center;
+            font-size: 24px;
+        }
+        td {
+            width: 50px;
+            height: 50px;
+            border: 1px solid black;
+            font-weight: bold;
+        }
+        .highlight {
+            background-color: yellow;
+        }
+    </style>
+</head>
+<body>
+    <table>
+        <tr>
+            <td>2</td>
+            <td>3</td>
+            <td>4</td>
+            <td>5</td>
+            <td class="highlight">7</td>
+            <td>8</td>
+            <td>6</td>
+            <td>9</td>
+            <td>10</td>
+        </tr>
+        <tr>
+            <td>0</td>
+            <td>1</td>
+            <td>2</td>
+            <td>3</td>
+            <td class="highlight">4</td>
+            <td>5</td>
+            <td>6</td>
+            <td>7</td>
+            <td>8</td>
+        </tr>
+    </table>
+</body>
+</html>
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Ejemplo - Shell sort - h = 1
+
+- Para N = 9, h = 1
+	- Se aplica Insertion Sort
+- No hay cambios
+
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tabla de Números</title>
+    <style>
+        table {
+            border-collapse: collapse;
+            text-align: center;
+            font-size: 24px;
+        }
+        td {
+            width: 50px;
+            height: 50px;
+            border: 1px solid black;
+            font-weight: bold;
+        }
+        .highlight {
+            background-color: yellow;
+        }
+    </style>
+</head>
+<body>
+    <table>
+        <tr>
+            <td>2</td>
+            <td>3</td>
+            <td>4</td>
+            <td>5</td>
+            <td>7</td>
+            <td class="highlight">8</td>
+            <td>6</td>
+            <td>9</td>
+            <td>10</td>
+        </tr>
+        <tr>
+            <td>0</td>
+            <td>1</td>
+            <td>2</td>
+            <td>3</td>
+            <td>4</td>
+            <td class="highlight">5</td>
+            <td>6</td>
+            <td>7</td>
+            <td>8</td>
+        </tr>
+    </table>
+</body>
+</html>
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Ejemplo - Shell Sort - h = 1
+
+- Para N = 9, h = 1
+- Se aplica Insertion Sort
+	- Elemento en posición 6 (6) → Se mueve antes de 7 y 8
+
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tabla de Números</title>
+    <style>
+        table {
+            border-collapse: collapse;
+            text-align: center;
+            font-size: 24px;
+        }
+        td {
+            width: 50px;
+            height: 50px;
+            border: 1px solid black;
+            font-weight: bold;
+        }
+        .highlight {
+            background-color: yellow;
+        }
+    </style>
+</head>
+<body>
+    <table>
+        <tr>
+            <td>2</td>
+            <td>3</td>
+            <td>4</td>
+            <td>5</td>
+            <td>7</td>
+            <td>8</td>
+            <td class="highlight">6</td>
+            <td>9</td>
+            <td>10</td>
+        </tr>
+        <tr>
+            <td>0</td>
+            <td>1</td>
+            <td>2</td>
+            <td>3</td>
+            <td>4</td>
+            <td>5</td>
+            <td class="highlight">6</td>
+            <td>7</td>
+            <td>8</td>
+        </tr>
+    </table>
+</body>
+</html>
+
+
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tabla de Números</title>
+    <style>
+        table {
+            border-collapse: collapse;
+            text-align: center;
+            font-size: 24px;
+        }
+        td {
+            width: 50px;
+            height: 50px;
+            border: 1px solid black;
+            font-weight: bold;
+        }
+        .highlight {
+            background-color: yellow;
+        }
+    </style>
+</head>
+<body>
+    <table>
+        <tr>
+            <td>2</td>
+            <td>3</td>
+            <td>4</td>
+            <td>5</td>
+            <td class="highlight">6</td>
+            <td class="highlight">7</td>
+            <td class="highlight">8</td>
+            <td>9</td>
+            <td>10</td>
+        </tr>
+        <tr>
+            <td>0</td>
+            <td>1</td>
+            <td>2</td>
+            <td>3</td>
+            <td class="highlight">4</td>
+            <td class="highlight">5</td>
+            <td class="highlight">6</td>
+            <td>7</td>
+            <td>8</td>
+        </tr>
+    </table>
+</body>
+</html>
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Ejemplo - Shell sort - h = 1
+
+- Para N = 9, h = 1
+	- Se aplica Insertion Sort
+- No hay cambios
+
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tabla de Números</title>
+    <style>
+        table {
+            border-collapse: collapse;
+            text-align: center;
+            font-size: 24px;
+        }
+        td {
+            width: 50px;
+            height: 50px;
+            border: 1px solid black;
+            font-weight: bold;
+        }
+        .highlight {
+            background-color: yellow;
+        }
+    </style>
+</head>
+<body>
+    <table>
+        <tr>
+            <td>2</td>
+            <td>3</td>
+            <td>4</td>
+            <td>5</td>
+            <td>6</td>
+            <td>7</td>
+            <td>8</td>
+            <td class="highlight">9</td>
+            <td>10</td>
+        </tr>
+        <tr>
+            <td>0</td>
+            <td>1</td>
+            <td>2</td>
+            <td>3</td>
+            <td>4</td>
+            <td>5</td>
+            <td>6</td>
+            <td class="highlight">7</td>
+            <td>8</td>
+        </tr>
+    </table>
+</body>
+</html>
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Ejemplo - Shell sort - h = 1
+
+- Para N = 9, h = 1
+	- Se aplica Insertion Sort
+- No hay cambios
+
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tabla de Números</title>
+    <style>
+        table {
+            border-collapse: collapse;
+            text-align: center;
+            font-size: 24px;
+        }
+        td {
+            width: 50px;
+            height: 50px;
+            border: 1px solid black;
+            font-weight: bold;
+        }
+        .highlight {
+            background-color: yellow;
+        }
+    </style>
+</head>
+<body>
+    <table>
+        <tr>
+            <td>2</td>
+            <td>3</td>
+            <td>4</td>
+            <td>5</td>
+            <td>6</td>
+            <td>7</td>
+            <td>8</td>
+            <td>9</td>
+            <td class="highlight">10</td>
+        </tr>
+        <tr>
+            <td>0</td>
+            <td>1</td>
+            <td>2</td>
+            <td>3</td>
+            <td>4</td>
+            <td>5</td>
+            <td>6</td>
+            <td>7</td>
+            <td class="highlight">8</td>
+        </tr>
+    </table>
+</body>
+</html>
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### La secuencia de Knuth (2/3)
+
+
+- `N = 9`
+- `h = 1`
+
+```python
+def shell_sort(arr):
+    n = len(arr)
+    h = 1
+    while h < n // 3:  # Genera la secuencia de Knuth
+        h = 3 * h + 1
+    
+    while h > 0:
+        for i in range(h, n):
+            key = arr[i]
+            j = i
+            while j >= h and arr[j - h] > key:
+                arr[j] = arr[j - h]
+                j -= h
+            arr[j] = key
+        h //= 3  # h = 1 // 3 → 0
+    return arr
+```
+
+- Ahora
+	- `h = 0`
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Ejemplo - Shell sort - h = 0
+
+- Cuando `h = 0`
+	- Termina el algoritmo
+
+- Lista original:	
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tabla de Números</title>
+    <style>
+        table {
+            border-collapse: collapse;
+            text-align: center;
+            font-size: 24px;
+        }
+        td {
+            width: 50px;
+            height: 50px;
+            border: 1px solid black;
+        }
+        .bold {
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <table>
+        <tr>
+            <td class="bold">10</td>
+            <td class="bold">4</td>
+            <td class="bold">5</td>
+            <td class="bold">3</td>
+            <td class="bold">7</td>
+            <td class="bold">8</td>
+            <td class="bold">6</td>
+            <td class="bold">9</td>
+            <td class="bold">2</td>
+        </tr>
+        <tr>
+            <td>0</td>
+            <td>1</td>
+            <td>2</td>
+            <td>3</td>
+            <td>4</td>
+            <td>5</td>
+            <td>6</td>
+            <td>7</td>
+            <td>8</td>
+        </tr>
+    </table>
+</body>
+</html>
+
+
+- Lista ordenada:	
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tabla de Números</title>
+    <style>
+        table {
+            border-collapse: collapse;
+            text-align: center;
+            font-size: 24px;
+        }
+        td {
+            width: 50px;
+            height: 50px;
+            border: 1px solid black;
+        }
+        .bold {
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <table>
+        <tr>
+            <td class="bold">2</td>
+            <td class="bold">3</td>
+            <td class="bold">4</td>
+            <td class="bold">5</td>
+            <td class="bold">6</td>
+            <td class="bold">7</td>
+            <td class="bold">8</td>
+            <td class="bold">9</td>
+            <td class="bold">10</td>
+        </tr>
+        <tr>
+            <td>0</td>
+            <td>1</td>
+            <td>2</td>
+            <td>3</td>
+            <td>4</td>
+            <td>5</td>
+            <td>6</td>
+            <td>7</td>
+            <td>8</td>
+        </tr>
+    </table>
+</body>
+</html>
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Shell Sort - Complejidad temporal (1/4)
+
+- Si se usa la secuencia de Knuth:
+    
+    ```python
+    h = 1
+    while h < N // 3:
+        h = 3 * h + 1
+    ```
+    
+- ¿Cuál sería el la complejidad temporal?
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Shell Sort -  Complejidad temporal (2/4)
+
+- La complejidad en el **peor caso** depende de la elección de los saltos
+
+-  Si aplica una secuencia de saltos no óptima
+	- La complejidad teórica puede ser O(n²)
+- Con la **secuencia de Knuth**
+	- Se ha demostrado teóricamente que 
+		- El tiempo promedio tiende a O(`$n^{1.5}$`)
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Shell Sort -  Complejidad temporal (3/4)
+
+- Robert Sedgewick y otros investigadores
+	- Realizaron estudios experimentales sobre el rendimiento de Shell sort
+		- Para secuencias de saltos promedio
+			- Usando **Knuth** y otras variantes optimizadas
+				- El número de comparaciones tiende a O(`$n^{1.25}$`)
+- ❌ No existe una prueba matemática para el **caso promedio** exacto
+	- Estimado basado en simulaciones
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Shell Sort -  Complejidad temporal (3/4)
+
+- Cuando la lista ya está casi ordenada o
+	- Los saltos han permitido ordenar eficientemente
+		- Antes de llegar a `h = 1`
+			- La complejidad en el **mejor caso** es cercana a O(n log n)
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Shell Sort -  Complejidad temporal (4/4)
+
+- Peor caso (Knuth): O(`$n^{1.5}$`)
+	- Dependiendo de la secuencia de salto
+		- Estimación válida con la secuencia de Knuth
+			- Podría ser  O(`$n^{2}$`) con secuencias no óptimas 
+- Caso promedio: O(`$n^{1.25}$`)
+	-   Para secuencias promedio en simulaciones
+- Mejor caso (conocido): O(n log n) 
+	- Para ciertas secuencias muy óptimas de saltos
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Shell Sort -  Complejidad espacial
+
+- Opera sin estructuras adicionales
+- Usa solo una variable temporal para intercambios
+- No usa otras variables significativas en consumo de espacio
+
+- ¿Complejidad espacial?
+    - &shy;<!-- .element: class="fragment" data-fragment-index="1" -->**O(1)**
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Shell sort - Estabilidad (1/9)
+
+ - h = 3
+- Se intercambia 6 y 8:
+
+<img src="eda/img/sh_e_1.png" alt="" style="object-fit: scale-down">
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Shell sort - Estabilidad (2/9)
+
+- h = 3
+- Se intercambia 3 y 2:
+
+<img src="eda/img/sh_e_2.png" alt="" style="object-fit: scale-down">
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Shell sort - Estabilidad (3/9)
+
+- h = 3
+- No hay cambios:
+
+<img src="eda/img/sh_e_3.png" alt="" style="object-fit: scale-down">
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Shell sort - Estabilidad (4/9)
+
+- h = 1
+- Se inserta 2 al inicio:
+
+
+<img src="eda/img/sh_e_4.png" alt="" style="object-fit: scale-down">
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Shell sort - Estabilidad (5/9)
+
+- h = 1
+- No hay cambios:
+
+<img src="eda/img/sh_e_5.png" alt="" style="object-fit: scale-down">
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Shell sort - Estabilidad (6/9)
+
+- h = 1
+- No hay cambios:
+
+
+<img src="eda/img/sh_e_6.png" alt="" style="object-fit: scale-down">
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Shell sort - Estabilidad (7/9)
+
+- h = 1
+- Se inserta 3 antes de 6:
+
+<img src="eda/img/sh_e_7.png" alt="" style="object-fit: scale-down">
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Shell sort - Estabilidad (8/9)
+
+- h = 1
+- No hay cambios:
+
+<img src="eda/img/sh_e_8.png" alt="" style="object-fit: scale-down">
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Shell sort - Estabilidad (9/9)
+
+<img src="eda/img/sh_e_9.png" alt="" style="object-fit: scale-down">
+
+
+
+- Es **inestable** debido a los saltos grandes en la comparación de elementos
+	- Se pierde el mecanismo para preservar estabilidad de Insertion sort
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Shell sort - In place
+
+- Sí
+	- No necesita estructuras de datos adicionales
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Quiz IV
+
+- ¿Qué cambio sería necesario para que el algoritmo ordene de forma descendente?
+
+```python
+def shell_sort(arr):
+    n = len(arr)
+    h = 1
+    while h < n // 3:
+        h = 3 * h + 1
+    
+    while h > 0:
+        for i in range(h, n):
+            key = arr[i]
+            j = i
+            while j >= h and arr[j - h] > key:
+                arr[j] = arr[j - h]
+                j -= h
+            arr[j] = key
+        h //= 3
+    return arr
+```
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Quiz IV - Solución
+
+```python
+def shell_sort(arr):
+    n = len(arr)
+    h = 1
+    while h < n // 3:
+        h = 3 * h + 1
+    
+    while h > 0:
+        for i in range(h, n):
+            key = arr[i]
+            j = i
+            while j >= h and arr[j - h] > key:
+                arr[j] = arr[j - h]
+                j -= h
+            arr[j] = key
+        h //= 3
+    return arr
+```
+
+En lugar de:
+
+```python
+while j >= h and arr[j - h] > key:
+```
+
+Se debe cambiar a:
+
+```python
+while j >= h and arr[j - h] < key:
+```
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Algoritmos de ordenamiento iterativos (3/3)
+
+| Algoritmo      | Peor Caso | Caso Promedio | Mejor Caso | Espacio Extra | Estable | In Place |
+| -------------- | --------- | ------------- | ---------- | ------------- | ------- | -------- |
+| Selection Sort | O(n²)     | O(n²)         | O(n²)      | O(1)          | No      | Sí       |
+| Insertion Sort | O(n²)     | O(n²)         | O(n)       | O(1)          | Sí      | Sí       |
+| Shell Sort*    | O(n^1.5)  | O(n^1.25)     | O(n log n) | O(1)          | No      | Sí       |
+- \* Si `h` es siempre 1
+	- Las complejidades temporales serán iguales a las de Insertion sort
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Quiz V
+
+- ¿Cuál es una **ventaja** de Shell sort sobre Insertion sort?
+	- &shy;<!-- .element: class="fragment" data-fragment-index="1" -->Reduce el número de pasos al permitir el intercambio de elementos lejanos
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+###  Quiz VI
+
+- ¿Cuál es una **desventaja** de Shell sort con respecto a Insertion sort?
+	- &shy;<!-- .element: class="fragment" data-fragment-index="1" -->Es inestable, mientras que Insertion sort es estable
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Quiz VII
+
+- Suponga un conjunto de 1200 datos. ¿Para qué valores de `h` se ejecuta la siguiente implementación del algoritmo Shell sort?
+
+```python
+def shell_sort(arr):
+    n = len(arr)
+    h = 1
+    while h < n // 3:  # Generar la secuencia de Knuth
+        h = 3 * h + 1
+    
+    while h > 0:
+        ...
+        h //= 3  # Reducción del intervalo según la secuencia de Knuth
+```
+
+- Opciones:
+
+	- A) 400, 133, 44, 14, 4, 1
+	- B) 729, 243, 81, 27, 9, 3, 1
+	- C) 364, 121, 40, 13, 4, 1
+	- D) 1093, 364, 121, 40, 13, 4, 1
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Quiz VII - Tips
+
+- Shell sort usa una secuencia de intervalos decrecientes 
+	- Para ordenar los elementos de un arreglo de manera eficiente 
+- Una de las secuencias más utilizadas es la secuencia de Knuth, definida por:
+
+<p>h<sub>k+1</sub> = 3h<sub>k</sub> + 1</p>
+
+
+- Para determinar qué valores se ejecutan en un conjunto de datos dado
+	-  Podemos emplear la inversa de la ecuación de Knuth:
+
+<p>h = (g - 1) / 3</p>
+
+Donde `h` es el valor actual de y buscamos su predecesor en la secuencia
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Quiz VII - Solución
+
+- Aplicamos la ecuación inversa para verificar predecesores válidos:
+
+<ul>
+    <li>h = (4 - 1) / 3 = 1 → correcto</li>
+    <li>h = (13 - 1) / 3 = 4 → correcto</li>
+    <li>h = (40 - 1) / 3 = 13 → correcto</li>
+    <li>h = (121 - 1) / 3 = 40 → correcto</li>
+    <li>h = (364 - 1) / 3 = 121 → correcto</li>
+    <li>h = (1093 - 1) / 3 = 364 → correcto</li>
+</ul>
+
+<br>
+
+- La respuesta correcta es:
+	- **D) 1093, 364, 121, 40, 13, 4, 1**
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+<i class="fas fa-question-circle fa-2x fa-spin fa-4x"></i>
+
+
+
+<br>
+<br>
+
+
+[<i class="fas fa-home  fa-3x"></i>](https://eerosales24.github.io/eda_2025_20/#)
+</div></script></section></div>
+    </div>
+
+    <script src="dist/reveal.js"></script>
+
+    <script src="plugin/markdown/markdown.js"></script>
+    <script src="plugin/highlight/highlight.js"></script>
+    <script src="plugin/zoom/zoom.js"></script>
+    <script src="plugin/notes/notes.js"></script>
+    <script src="plugin/math/math.js"></script>
+	<script src="plugin/mermaid/mermaid.js"></script>
+	<script src="plugin/chart/chart.min.js"></script>
+	<script src="plugin/chart/plugin.js"></script>
+	<script src="plugin/customcontrols/plugin.js"></script>
+
+    <script>
+      function extend() {
+        var target = {};
+        for (var i = 0; i < arguments.length; i++) {
+          var source = arguments[i];
+          for (var key in source) {
+            if (source.hasOwnProperty(key)) {
+              target[key] = source[key];
+            }
+          }
+        }
+        return target;
+      }
+
+	  function isLight(color) {
+		let hex = color.replace('#', '');
+
+		// convert #fff => #ffffff
+		if(hex.length == 3){
+			hex = `${hex[0]}${hex[0]}${hex[1]}${hex[1]}${hex[2]}${hex[2]}`;
+		}
+
+		const c_r = parseInt(hex.substr(0, 2), 16);
+		const c_g = parseInt(hex.substr(2, 2), 16);
+		const c_b = parseInt(hex.substr(4, 2), 16);
+		const brightness = ((c_r * 299) + (c_g * 587) + (c_b * 114)) / 1000;
+		return brightness > 155;
+	}
+
+	var bgColor = getComputedStyle(document.documentElement).getPropertyValue('--r-background-color').trim();
+	var isLight = isLight(bgColor);
+
+	if(isLight){
+		document.body.classList.add('has-light-background');
+	} else {
+		document.body.classList.add('has-dark-background');
+	}
+
+      // default options to init reveal.js
+      var defaultOptions = {
+        controls: true,
+        progress: true,
+        history: true,
+        center: true,
+        transition: 'default', // none/fade/slide/convex/concave/zoom
+        plugins: [
+          RevealMarkdown,
+          RevealHighlight,
+          RevealZoom,
+          RevealNotes,
+          RevealMath.MathJax3,
+		  RevealMermaid,
+		  RevealChart,
+		  RevealCustomControls,
+        ],
+
+
+    	allottedTime: 120 * 1000,
+
+		mathjax3: {
+			mathjax: 'plugin/math/mathjax/tex-mml-chtml.js',
+		},
+		markdown: {
+		  gfm: true,
+		  mangle: true,
+		  pedantic: false,
+		  smartLists: false,
+		  smartypants: false,
+		},
+
+		mermaid: {
+			theme: isLight ? 'default' : 'dark',
+		},
+
+		customcontrols: {
+			controls: [
+			]
+		},
+      };
+
+      // options from URL query string
+      var queryOptions = Reveal().getQueryHash() || {};
+
+      var options = extend(defaultOptions, {"width":960,"height":700,"margin":"0.025","minScale":"0.1","maxScale":"2.0","controls":"true","controlsLayout":"bottom-right","progress":"true","slideNumber":"true","center":"false","transition":"slide","transitionSpeed":"default"}, queryOptions);
+    </script>
+
+    <script>
+      Reveal.initialize(options);
+    </script>
+  </body>
+
+  <!-- created with Advanced Slides -->
+</html>

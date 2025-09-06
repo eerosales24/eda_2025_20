@@ -1,0 +1,1780 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+
+    <title></title>
+    <link rel="stylesheet" href="dist/reveal.css" />
+    <link rel="stylesheet" href="dist/theme/iph.css" id="theme" />
+    <link rel="stylesheet" href="plugin/highlight/spyder.css" />
+	<link rel="stylesheet" href="css/layout.css" />
+	<link rel="stylesheet" href="plugin/customcontrols/style.css">
+
+
+
+    <script defer src="dist/fontawesome/all.min.js"></script>
+
+	<script type="text/javascript">
+		var forgetPop = true;
+		function onPopState(event) {
+			if(forgetPop){
+				forgetPop = false;
+			} else {
+				parent.postMessage(event.target.location.href, "app://obsidian.md");
+			}
+        }
+		window.onpopstate = onPopState;
+		window.onmessage = event => {
+			if(event.data == "reload"){
+				window.document.location.reload();
+			}
+			forgetPop = true;
+		}
+
+		function fitElements(){
+			const itemsToFit = document.getElementsByClassName('fitText');
+			for (const item in itemsToFit) {
+				if (Object.hasOwnProperty.call(itemsToFit, item)) {
+					var element = itemsToFit[item];
+					fitElement(element,1, 1000);
+					element.classList.remove('fitText');
+				}
+			}
+		}
+
+		function fitElement(element, start, end){
+
+			let size = (end + start) / 2;
+			element.style.fontSize = `${size}px`;
+
+			if(Math.abs(start - end) < 1){
+				while(element.scrollHeight > element.offsetHeight){
+					size--;
+					element.style.fontSize = `${size}px`;
+				}
+				return;
+			}
+
+			if(element.scrollHeight > element.offsetHeight){
+				fitElement(element, start, size);
+			} else {
+				fitElement(element, size, end);
+			}		
+		}
+
+
+		document.onreadystatechange = () => {
+			fitElements();
+			if (document.readyState === 'complete') {
+				if (window.location.href.indexOf("?export") != -1){
+					parent.postMessage(event.target.location.href, "app://obsidian.md");
+				}
+				if (window.location.href.indexOf("print-pdf") != -1){
+					let stateCheck = setInterval(() => {
+						clearInterval(stateCheck);
+						window.print();
+					}, 250);
+				}
+			}
+	};
+
+
+        </script>
+  </head>
+  <body>
+    <div class="reveal">
+      <div class="slides"><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Estructura de Datos y Algoritmos - EDA
+
+####  *Ordenamientos recursivos*
+
+[Eduardo Rosales](mailto:ee.rosales24@uniandes.edu.co)
+
+Departamento de Ingeniería de Sistemas y Computación
+
+Universidad de los Andes
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Complejidad espacial (repaso) (1/2)
+
+- ¿Qué mide?
+	- Memoria usada por un algoritmo en relación al tamaño de entrada
+	- Generalmente basado en el peor caso de uso de memoria
+	- Incluye la memoria utilizada por:
+		- Variables
+		- Estructuras de datos
+			- Incluida la pila de llamadas
+		- Asignaciones dinámicas
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Complejidad espacial (repaso) (2/2)
+
+- **Espacio constante (O(1))**: 
+	- Si el espacio no depende del tamaño de la entrada
+- **Espacio lineal (O(n))**: 
+	- Si el espacio crece linealmente con el tamaño de la entrada
+- **Espacio auxiliar o extra**: 
+	- Memoria adicional aparte de la entrada
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Conozcamos dos algoritmos de ordenamiento recursivos
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Quick Sort
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Quick sort
+
+- Funciona siguiendo un enfoque de _"divide y conquistar"_:
+  - **Dividir**
+    - Selecciona un 'pivote' y organiza los elementos en tres subconjuntos:
+      - Elementos menores que el pivote
+      - Elementos iguales al pivote
+      - Elementos mayores que el pivote
+  - **Conquistar**
+    - Ordena los subconjuntos de elementos menores y mayores 
+	    - De forma recursiva
+  - **Combinar**
+    - Une (concatena) los subconjuntos ordenados
+	    - Y los elementos iguales al pivote
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Pivote y partición
+
+- **Pivote**
+	- Puede ser el último, primer, mediano o un elemento aleatorio
+		- Hay otra variantes, incluido el doble pivote
+	- Al inicio, los elementos pueden estar en una posición no clara 
+		- Con respecto al pivote
+	- El proceso de partición deja al pivote en su lugar
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Quick Sort - Partición
+
+
+<img src="eda/img/qs_1.png" alt="" style="object-fit: scale-down">
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Quick sort - Recursión (1/4)
+
+
+- **Casos base:**
+  -  **Lista vacía** (`[]`) o tiene **un elemento** (`[x]`)
+	  - No es necesario ordenarla
+  - Cuando **`low >= high`**
+	  - La sublista llega a tener 0 o 1 elementos
+		  - Ya está ordenada
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Quick sort - Recursión (2/4)
+
+- **Casos recursivos:**
+	- Si **`low < high`**, se aplica el caso recursivo:
+	  1. Se **selecciona un pivote**
+		- Ej: El último elemento de la sublista (`arr[high]`)
+	  2. Se **particiona la lista** en:
+	     - Elementos menores al pivote
+	     - Elementos mayores o iguales al pivote
+	  3. Se **coloca el pivote en su posición** final
+	  4. Se **llama recursivamente** a `quick_sort()` en las dos sublistas generadas:
+	     - **Sublista izquierda**: desde `low` , hasta `pivot_index - 1`
+	     - **Sublista derecha**: desde `pivot_index + 1` , hasta `high`
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Quick sort - Recursión (3/4)
+
+<img src="eda/img/qs_2.png" alt="" style="width: 75%; height: 50%; object-fit: fill">
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Quick sort - Recursión (4/4)
+
+
+<img src="eda/img/qs_3.png" alt="" style="width: 75%; height: 50%; object-fit: fill">
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Comprendamos una implementación que elige como pivote al último elemento
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Quick sort - Implementación
+
+```python
+def quick_sort(arr, low=0, high=None):
+    """
+    Ordena una lista en orden ascendente utilizando el algoritmo 
+    Quick Sort in-place.
+    
+    :param arr: Lista de elementos a ordenar.
+    :type arr: list
+    :param low: Índice inferior de la partición actual.
+    :type low: int
+    :param high: Índice superior de la partición actual.
+    :type high: int
+    """
+    if high is None:
+        high = len(arr) - 1
+    
+    def partition(lst, low, high):
+        pivot = lst[high]  # Pivote como último elemento
+        i = low  # Índice del menor elemento
+        for j in range(low, high):
+            if lst[j] < pivot:
+                lst[i], lst[j] = lst[j], lst[i]  # Intercambio
+                i += 1
+        lst[i], lst[high] = lst[high], lst[i]  # Colocar el pivote en su lugar
+        return i
+    
+    if low < high:
+        pivot_index = partition(arr, low, high)
+        quick_sort(arr, low, pivot_index - 1)
+        quick_sort(arr, pivot_index + 1, high)
+    
+    return arr
+```
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Función anidada (En Python) (1/2)
+
+
+- Una función definida dentro de otra función
+- Permite encapsular lógica específica para que solo la función que la contiene
+	- Pueda acceder a ella
+
+```python
+def funcion_principal():
+    def funcion_anidada():
+        ...
+    ...
+    
+```
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Función anidada (En Python) (2/2)
+
+
+- En `quick_sort`, la función `partition()` 
+	- Está anidada dentro de `quick_sort()` porque se usa en su contexto
+	
+```python[1, 5]
+def quick_sort(arr, low=0, high=None):
+    if high is None:
+        high = len(arr) - 1
+    
+    def partition(lst, low, high):
+        pivot = lst[high]  # Pivote como último elemento
+        i = low  # Índice del menor elemento
+        for j in range(low, high):
+            if lst[j] < pivot:
+                lst[i], lst[j] = lst[j], lst[i]  # Intercambio
+                i += 1
+        lst[i], lst[high] = lst[high], lst[i]  # Colocar el pivote en su lugar
+        return i
+    
+    if low < high:
+        pivot_index = partition(arr, low, high)
+        quick_sort(arr, low, pivot_index - 1)
+        quick_sort(arr, pivot_index + 1, high)
+    
+    return arr
+```
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### ¿Cómo funciona `partition()` en `quick_sort()`? (1/3)
+
+1. **Objetivo:**
+   - Reorganizar los elementos de la sublista para que 
+	   - Los menores al pivote queden a la izquierda 
+		   - Y los mayores a la derecha
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### ¿Cómo funciona `partition()` en `quick_sort()`? (2/3)
+
+2. **Pasos de `partition()`**
+   - Se elige el **pivote** como el último elemento de la sublista (`arr[high]`)
+   - Se inicializa un índice `i` que indica dónde colocar 
+	   - El siguiente elemento menor al pivote
+   - Se recorre la sublista (`low` a `high-1`):
+     - Si el elemento actual es menor que el pivote 
+	     - Se intercambia con el elemento en la posición `i` 
+		     - Y se incrementa `i`
+   - Al final del recorrido, se intercambia el pivote 
+	   - Con el primer elemento mayor encontrado (`arr[i]`)
+		   - Colocándolo en su posición final
+   - Se retorna la posición final del pivote (`pivot_index`)
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### ¿Cómo funciona `partition()` en `quick_sort()`? (3/3)
+
+- En resumen:
+	- `partition()` divide la lista en dos partes
+	- `quick_sort()` llama recursivamente a sí mismo para ordenar ambas partes
+	- Este proceso se repite hasta que se alcanzan los casos base
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Parámetros opcionales (En Python)
+
+- Parámetros con un **valor por defecto** y 
+	- No es obligatorio proporcionarlos al llamar la función:
+	
+```python
+def quick_sort(arr, low=0, high=None):
+    if high is None:
+        high = len(arr) - 1
+        ...
+```
+
+<br>
+
+- En `quick_sort()`, los parámetros opcionales son:
+  - `low=0`: Indica el índice inicial de la sublista a ordenar
+	  - Si no se especifica, empieza en `0`
+  - `high=None`: Indica el índice final de la sublista a ordenar
+	  - Si no se proporciona, se asigna `None` y luego:
+		  - `len(arr) - 1`
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### ¿Cómo afectan los parámetros opcionales a `quick_sort()`?
+
+
+```python
+def quick_sort(arr, low=0, high=None):
+    if high is None:
+        high = len(arr) - 1
+        ...
+```
+
+- Caso normal: 
+	- `quick_sort(arr)`, la función ordena toda la lista 
+		- Porque `low=0` y `high` se ajusta a `len(arr) - 1`
+- Ejemplo de caso parcial: 
+	- `quick_sort(arr, 2, 5)`
+		- La función solo ordenará los elementos del índice `2` al `5`
+- Si `high=None`
+	- El código ajusta automáticamente
+		- `high = len(arr) - 1`
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Ventajas de usar parámetros opcionales
+
+- Mayor flexibilidad
+	- Permite ordenar solo partes del arreglo sin cambiar la función
+	- Evita la necesidad de verificar si `high` está definido
+		- Antes de llamar la función
+- Hace la función recursiva más reutilizable y autocontenida
+	- Sin necesidad de sobrecargarla con múltiples definiciones
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Quick sort - Caso lista vacía
+
+```python
+def quick_sort(arr, low=0, high=None):
+    """
+    >>> quick_sort([])  # Caso lista vacía
+    []
+    """
+    if high is None:
+        high = len(arr) - 1
+    
+    ...
+    
+    if low < high:
+        pivot_index = partition(arr, low, high)
+        quick_sort(arr, low, pivot_index - 1)
+        quick_sort(arr, pivot_index + 1, high)
+    
+    return arr
+
+```
+
+- Inicialización de `high`:  
+    - `high = len(arr) - 1 = -1`.
+    
+- Verificación de `if low < high:`
+    - `0 < -1`  es `False
+	    - No hay partición, ni recursión
+    
+- La función retorna `[]` sin hacer ninguna operación
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Quick sort - Caso un elemento
+
+
+```python
+    """
+    >>> quick_sort([5])  # Caso lista con un solo objeto
+    [5]
+    """
+    if high is None:
+        high = len(arr) - 1
+    
+    ...
+    
+    if low < high:
+        pivot_index = partition(arr, low, high)
+        quick_sort(arr, low, pivot_index - 1)
+        quick_sort(arr, pivot_index + 1, high)
+    
+    return arr
+```
+
+- Inicialización de `high`:  
+    - `high = len(arr) - 1 = 1 - 1 = 0`
+    
+- Verificación de `if low < high:`
+    - `0 < 0`  es `False
+		- No hay partición, ni recursión
+      
+- La función retorna `[5]` sin hacer ninguna operación
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Quick sort - Caso 3 elementos desordenados (1/10)
+
+
+```python
+def quick_sort(arr, low=0, high=None):
+    """
+    >>> quick_sort([3, 1, 2])  # Caso lista con tres elementos desordenados
+    [1, 2, 3]
+    """
+    if high is None:
+        high = len(arr) - 1
+    ...
+```
+
+- `high` = `2` 
+	- Porque `len(arr) - 1` 
+		- `3 - 1`
+- `low = 0`
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Quick sort - Caso 3 elementos desordenados (2/10)
+
+```python[9, 13]
+def quick_sort(arr, low=0, high=None):
+    """
+    >>> quick_sort([3, 1, 2])  # Caso lista con tres elementos desordenados
+    [1, 2, 3]
+    """
+    if high is None:
+        high = len(arr) - 1
+    
+    def partition(lst, low, high):
+		...
+    
+    if low < high:
+        pivot_index = partition(arr, low, high)
+        quick_sort(arr, low, pivot_index - 1)
+        quick_sort(arr, pivot_index + 1, high)
+    
+    return arr
+```
+
+- Se invoca a: `partition([3, 1, 2], low=0, high=2)`
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Quick sort - Caso 3 elementos desordenados (3/10)
+
+```python[9-11]
+def quick_sort(arr, low=0, high=None):
+    """
+    >>> quick_sort([3, 1, 2])  # Caso lista con tres elementos desordenados
+    [1, 2, 3]
+    """
+    if high is None:
+        high = len(arr) - 1
+    
+    def partition(lst, low, high):
+        pivot = lst[high]
+        i = low
+        for j in range(low, high):
+            if lst[j] < pivot:
+                lst[i], lst[j] = lst[j], lst[i]
+                i += 1
+        lst[i], lst[high] = lst[high], lst[i]
+        return i
+    
+    if low < high:
+        pivot_index = partition(arr, low, high)
+        quick_sort(arr, low, pivot_index - 1)
+        quick_sort(arr, pivot_index + 1, high)
+    
+    return arr
+```
+
+- `partition([3, 1, 2], low=0, high=2)`:
+	- **Pivote = `2`** (último elemento de la lista)
+	- `i = 0` (índice donde se colocarán los elementos menores al pivote)
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Quick sort - Caso 3 elementos desordenados (4/10)
+
+```python[12-13]
+def quick_sort(arr, low=0, high=None):
+    """
+    >>> quick_sort([3, 1, 2])  # Caso lista con tres elementos desordenados
+    [1, 2, 3]
+    """
+    if high is None:
+        high = len(arr) - 1
+    
+    def partition(lst, low, high):
+        pivot = lst[high]
+        i = low
+        for j in range(low, high):
+            if lst[j] < pivot:
+                lst[i], lst[j] = lst[j], lst[i]
+                i += 1
+        lst[i], lst[high] = lst[high], lst[i]
+        return i
+    ...
+```
+
+- Se recorre la lista con `j` de `0` a `1` (`low=0`, `high=2`):
+	- `j=0`: `lst[0] = 3` 
+		- `3`  no es menor que el pivote (`2`)
+			- No se intercambia
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Quick sort - Caso 3 elementos desordenados (5/10)
+
+```python[12-15]
+def quick_sort(arr, low=0, high=None):
+    """
+    >>> quick_sort([3, 1, 2])  # Caso lista con tres elementos desordenados
+    [1, 2, 3]
+    """
+    if high is None:
+        high = len(arr) - 1
+    
+    def partition(lst, low, high):
+        pivot = lst[high]
+        i = low
+        for j in range(low, high):
+            if lst[j] < pivot:
+                lst[i], lst[j] = lst[j], lst[i]
+                i += 1
+        lst[i], lst[high] = lst[high], lst[i]
+        return i
+    ...
+```
+
+- `j=1`: `lst[1] = 1`
+	- `1` es menor que  el pivote (`2`)
+		- Se intercambia con `lst[i]` (`3`)
+			- Lista cambiada:  `[1, 3, 2]`
+				-  `i` se incrementa (`i = 1`)
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Quick sort - Caso 3 elementos desordenados (6/10)
+
+```python[16]
+def quick_sort(arr, low=0, high=None):
+    """
+    >>> quick_sort([3, 1, 2])  # Caso lista con tres elementos desordenados
+    [1, 2, 3]
+    """
+    if high is None:
+        high = len(arr) - 1
+    
+    def partition(lst, low, high):
+        pivot = lst[high]
+        i = low
+        for j in range(low, high):
+            if lst[j] < pivot:
+                lst[i], lst[j] = lst[j], lst[i]
+                i += 1
+        lst[i], lst[high] = lst[high], lst[i]
+        return i
+    ...
+```
+
+- Se intercambia el pivote (`2`) con `arr[i]` (`3`)
+	- Lista final después de la partición:  
+		- `[1, 2, 3]`
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Quick sort - Caso 3 elementos desordenados (7/10)
+
+```python[17]
+def quick_sort(arr, low=0, high=None):
+    """
+    >>> quick_sort([3, 1, 2])  # Caso lista con tres elementos desordenados
+    [1, 2, 3]
+    """
+    if high is None:
+        high = len(arr) - 1
+    
+    def partition(lst, low, high):
+        pivot = lst[high]
+        i = low
+        for j in range(low, high):
+            if lst[j] < pivot:
+                lst[i], lst[j] = lst[j], lst[i]
+                i += 1
+        lst[i], lst[high] = lst[high], lst[i]
+        return i
+    ...
+```
+
+- La función `partition()` retorna
+	- `pivot_index = 1`
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Quick sort - Caso 3 elementos desordenados (8/10)
+
+
+```python[12]
+def quick_sort(arr, low=0, high=None):
+    """
+    >>> quick_sort([3, 1, 2])  # Caso lista con tres elementos desordenados
+    [1, 2, 3]
+    """
+    if high is None:
+        high = len(arr) - 1
+    ...
+
+    if low < high:
+        pivot_index = partition(arr, low, high)
+        quick_sort(arr, low, pivot_index - 1)
+        quick_sort(arr, pivot_index + 1, high)
+    
+    return arr
+```
+
+- Segunda invocación:
+	- `quick_sort([1, 2, 3], low=0, high=0)`
+	-  `low < high` es `False`
+		- La función retorna sin hacer nada
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Quick sort - Caso 3 elementos desordenados (9/10)
+
+
+```python[13]
+def quick_sort(arr, low=0, high=None):
+    """
+    >>> quick_sort([3, 1, 2])  # Caso lista con tres elementos desordenados
+    [1, 2, 3]
+    """
+    if high is None:
+        high = len(arr) - 1
+    ...
+
+    if low < high:
+        pivot_index = partition(arr, low, high)
+        quick_sort(arr, low, pivot_index - 1)
+        quick_sort(arr, pivot_index + 1, high)
+    
+    return arr
+```
+
+- Tercera invocación
+	- `quick_sort([1, 2, 3], low=2, high=2)`
+	-  `low < high` es `False`
+		- La función retorna sin hacer nada
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Quick sort - Caso 3 elementos desordenados (10/10)
+
+
+```python
+def quick_sort(arr, low=0, high=None):
+    """
+    >>> quick_sort([3, 1, 2])  # Caso lista con tres elementos desordenados
+    [1, 2, 3]
+    """
+    if high is None:
+        high = len(arr) - 1
+    
+    def partition(lst, low, high):
+        pivot = lst[high]
+        i = low
+        for j in range(low, high):
+            if lst[j] < pivot:
+                lst[i], lst[j] = lst[j], lst[i]
+                i += 1
+        lst[i], lst[high] = lst[high], lst[i]
+        return i
+    
+    if low < high:
+        pivot_index = partition(arr, low, high)
+        quick_sort(arr, low, pivot_index - 1)
+        quick_sort(arr, pivot_index + 1, high)
+    
+    return arr
+```
+
+- En resumen:
+	- `pivot = 2, arr = [3, 1, 2]`
+	- `pivot = 2, arr = [1, 3, 2]`
+	- `pivot = 2, arr = [1, 2, 3]`
+	- `pivot_index = 1`
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Quick sort - Caso 4 elementos desordenados (1/11)
+
+
+```python
+def quick_sort(arr, low=0, high=None):
+    """
+    >>> quick_sort([4, 1, 3, 2])  # Caso lista con cuatro elementos desordenados
+    [1, 2, 3, 4]
+    """
+    if high is None:
+        high = len(arr) - 1
+    
+    def partition(lst, low, high):
+        pivot = lst[high]
+        i = low
+        for j in range(low, high):
+            if lst[j] < pivot:
+                lst[i], lst[j] = lst[j], lst[i]
+                i += 1
+        lst[i], lst[high] = lst[high], lst[i]
+        return i
+    
+    if low < high:
+        pivot_index = partition(arr, low, high)
+        quick_sort(arr, low, pivot_index - 1)
+        quick_sort(arr, pivot_index + 1, high)
+    
+    return arr
+```
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Quick sort - Caso 4 elementos desordenados (2/11)
+
+```python
+def quick_sort(arr, low=0, high=None):
+    """
+    >>> quick_sort([4, 1, 3, 2])  # Caso lista con cuatro elementos desordenados
+    [1, 2, 3, 4]
+    """
+    if high is None:
+        high = len(arr) - 1
+```
+
+- Se llama a `quick_sort(arr=[4, 1, 3, 2], low=0, high=None)`
+    - `high` queda en `3` (porque `len(arr) - 1 = 4 - 1`)
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Quick sort - Caso 4 elementos desordenados (3/11)
+
+```python
+if low < high:
+    pivot_index = partition(arr, low, high)
+    quick_sort(arr, low, pivot_index - 1)
+    quick_sort(arr, pivot_index + 1, high)
+```
+
+- Condición: `low=0 < high=3` → `True`
+	- Se invoca a:  `partition([4, 1, 3, 2], 0, 3)`
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Quick sort - Caso 4 elementos desordenados (4/11)
+
+```python
+def partition(lst, low, high):
+    pivot = lst[high]   # pivote es el último
+    i = low             # i marca posición de intercambio
+    for j in range(low, high):
+        if lst[j] < pivot:
+            lst[i], lst[j] = lst[j], lst[i]
+            i += 1
+    lst[i], lst[high] = lst[high], lst[i]
+    return i
+```
+
+- pivote = `2` (el valor en `lst[3]`, [4, 1, 3, 2])
+-  `i = 0`
+- Se recorre con
+	- `j` de `0` a `2` (excluyendo al pivote  `2`)
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Quick sort - Caso 4 elementos desordenados (5/11)
+
+```python[4,5]
+def partition(lst, low, high):
+    pivot = lst[high]   
+    i = low             
+    for j in range(low, high):
+        if lst[j] < pivot:
+            lst[i], lst[j] = lst[j], lst[i]
+            i += 1
+    lst[i], lst[high] = lst[high], lst[i]
+    return i
+```
+
+- Primera iteración de `for`:
+    - `j = 0`: `lst[0] = 4` ([4, 1, 3, 2])
+        - `4 < 2` → `False`
+        - No se intercambia nada
+        - `i` sigue en `0`
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Quick sort - Caso 4 elementos desordenados (6/11)
+
+```python[4-7]
+def partition(lst, low, high):
+    pivot = lst[high]   
+    i = low             
+    for j in range(low, high):
+        if lst[j] < pivot:
+            lst[i], lst[j] = lst[j], lst[i]
+            i += 1
+    lst[i], lst[high] = lst[high], lst[i]
+    return i
+```
+
+- Segunda iteración de `for`:
+    - `j = 1`: `lst[1] = 1` ([4, 1, 3, 2])
+        - `1 < 2` → `True`
+        -  Se intercambia `lst[i]` con `lst[j]`:
+		    - `lst[0]` ↔ `lst[1]` ⇒ `[1, 4, 3, 2]`
+	- Se incrementa `i` (`i = 1`)
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Quick sort - Caso 4 elementos desordenados (7/11)
+
+```python[4,5]
+def partition(lst, low, high):
+    pivot = lst[high]   
+    i = low             
+    for j in range(low, high):
+        if lst[j] < pivot:
+            lst[i], lst[j] = lst[j], lst[i]
+            i += 1
+    lst[i], lst[high] = lst[high], lst[i]
+    return i
+```
+
+- Tercera iteración de `for`:
+    - `j = 2`: `lst[1] = 3` ([4, 1, 3, 2])
+        - `3 < 2` → `False`
+		  - No se intercambia nada
+        - `i` sigue en `1`
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Quick sort - Caso 4 elementos desordenados (8/11)
+
+```python[8]
+def partition(lst, low, high):
+    pivot = lst[high]   
+    i = low             
+    for j in range(low, high):
+        if lst[j] < pivot:
+            lst[i], lst[j] = lst[j], lst[i]
+            i += 1
+    lst[i], lst[high] = lst[high], lst[i]
+    return i
+```
+
+- Después del `for`, se intercambia el pivote con `lst[i]`:
+    - `i = 1`, `high = 3`, `pivot = 2`
+    - Intercambio: `lst[1]` ↔ `lst[3]`
+    - Lista resultante: `[1, 2, 3, 4]`
+	- `partition()` 
+		- retorna `pivot_index = 1`
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Quick sort - Caso 4 elementos desordenados (9/11)
+
+```python[2]
+pivot_index = partition(arr, low, high)  # = 1
+quick_sort(arr, low, pivot_index - 1)    # quick_sort(arr, 0, 0)
+quick_sort(arr, pivot_index + 1, high)   # quick_sort(arr, 2, 3)
+```
+
+- `quick_sort([1, 2, 3, 4], low=0, high=0)`
+	- `low < high` es `0 < 0` → `False`
+	- No hay recursión adicional
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Quick sort - Caso 4 elementos desordenados (10/11)
+
+```python[3]
+pivot_index = partition(arr, low, high)  # = 1
+quick_sort(arr, low, pivot_index - 1)    # quick_sort(arr, 0, 0)
+quick_sort(arr, pivot_index + 1, high)   # quick_sort(arr, 2, 3)
+```
+
+- `quick_sort([1, 2, 3, 4], low=2, high=3)`
+	- `2 < 3` → **True**
+	- Se invoca a: `partition([1, 2, 3, 4], 2, 3)`
+	    - `pivot = lst[3] = 4`
+	    - `i = 2`
+	    - Se recorre: `j` de `2` a `2` (solo `j=2`):
+	        - `lst[2] = 3` < `4` → `True`, 
+		        - Se intercambia con sí misma (sin efecto), e `i = 3`
+	    - Al final, se intercambia `lst[i]` (índice 3) con `lst[high]` (índice 3)
+	        - Sin cambio: `[1, 2, 3, 4]`
+	    - `partition()` retorna `pivot_index = 3`
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Quick sort - Caso 4 elementos desordenados (11/11)
+
+- De nuevo en `quick_sort([1, 2, 3, 4], 2, 3)`:
+
+```python    
+pivot_index = 3 
+quick_sort(arr, 2, 2)  # low=2, high=2 => no recursión 
+quick_sort(arr, 4, 3)  # low=4, high=3 => no recursión`
+```
+
+- **Resultado final**: `[1, 2, 3, 4]`
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Quick sort - Complejidad temporal (1/3)
+
+- La eficiencia depende de cómo se elige el pivote y
+	- De la distribución de los datos
+
+- Caso promedio y mejor caso:
+	- Ocurre cuando el pivote divide el arreglo en dos partes aproximadamente iguales
+		- En cada iteración
+	- En cada nivel de recursión
+		- Hay `n` comparaciones para la partición
+	- Se requieren log n niveles de recursión
+		- Complejidad: O(n log n)
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Quick sort - Complejidad temporal (2/3)
+
+-  Peor caso: 
+	- Sucede cuando el pivote es siempre el elemento más grande o más pequeño
+	- Esto ocurre cuando el arreglo ya está ordenado o casi ordenado
+	- La recursión se ejecuta n niveles
+		- Con cada nivel teniendo `n` comparaciones
+	- Complejidad: O(n²)
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Quick sort - Complejidad temporal (3/3)
+
+  - **Peor caso:** O(n²)
+    - Generalmente cuando el pivote es el menor o mayor elemento en cada partición
+  - **Caso promedio:** O(n log n)
+    - Debido a la división equitativa de la lista
+  - **Mejor caso:** O(n log n)
+    - Similar al caso promedio, dadas particiones equilibradas
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Quick sort - Complejidad espacial (1/2)
+
+- Intercambia elementos directamente dentro de la lista
+	- Sin crear nuevas estructuras
+
+- Utiliza índices para comparar y reordenar elementos
+	- No requiere espacio extra más allá de variables temporales para índices
+- Requiere de una cantidad fija y mínima de memoria adicional
+	- Que no depende del tamaño de la lista
+
+- ¿Espacio extra?
+    - &shy;<!-- .element: class="fragment" data-fragment-index="1" -->**O(1)**
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Quick sort - Complejidad espacial (2/2)
+
+- Quick Sort in-place no usa memoria extra significativa
+	- Pero, usa la pila de llamadas recursivas:
+
+<br>
+
+
+- **Peor caso**: O(n)
+	- Ocurre cuando las particiones son muy desequilibradas
+    - Profundidad de recursión de O(n) (lista ya ordenada o en orden inverso)
+- **Mejor caso**: O(log ⁡n)
+    - Ocurre cuando el pivote divide la lista en mitades balanceadas
+- **Caso promedio**: O(log⁡ n)
+    - La mayoría de las ejecuciones generan particiones (pseudo) equilibradas
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Quick sort - Estabilidad
+
+- **No estable**
+	- Mueve elementos basándose en comparaciones con el pivote
+		- Puede alterar el orden relativo de elementos iguales
+		- La selección arbitraria del pivote 
+			- No permite garantizar que los elementos iguales 
+				- Mantengan su orden original
+
+	- No implementa ningún mecanismo para preservar el orden relativo
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Quick sort - In place
+
+- **Sí**\*
+	- No necesita estructuras de datos adicionales
+
+<br>
+
+\* Hay versiones _not in place_
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Algoritmos de ordenamiento recursivos (1/2)
+
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tabla de Algoritmos</title>
+    <style>
+        table {
+            border-collapse: collapse;
+            text-align: center;
+            font-size: 20px;
+            width: 100%;
+        }
+        th, td {
+            padding: 10px;
+            border: 1px solid black;
+        }
+        th {
+            background-color: #cfe2f3;
+        }
+    </style>
+</head>
+<body>
+    <table>
+        <tr>
+            <th>Algoritmo</th>
+            <th>Peor caso</th>
+            <th>Promedio</th>
+            <th>Mejor caso</th>
+            <th>Espacio extra</th>
+            <th>Estable</th>
+            <th>In place</th>
+        </tr>
+        <tr>
+            <td>Quick Sort</td>
+            <td>O(n²)</td>
+            <td>O(n log n)</td>
+            <td>O(n log n)</td>
+            <td>O(1)*</td>
+            <td>No</td>
+            <td>Sí</td>
+        </tr>
+    </table>
+</body>
+</html>
+
+
+\* La complejidad espacial en peor caso es O(n) (espacio lineal) y en el mejor caso y promedio es O(log n), dado el uso de la pila por la recursión
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Quiz I
+
+- ¿Qué cambio sería necesario para que el algoritmo ordene de forma descendente?
+
+```python
+def quick_sort(arr, low=0, high=None):
+    """
+    >>> quick_sort([1, 2, 3, 4])  # Caso lista ordenada
+    [1, 2, 3, 4]
+    """
+    if high is None:
+        high = len(arr) - 1
+    
+    def partition(lst, low, high):
+        pivot = lst[high]
+        i = low
+        for j in range(low, high):
+            if lst[j] < pivot:
+                lst[i], lst[j] = lst[j], lst[i]
+                i += 1
+        lst[i], lst[high] = lst[high], lst[i]
+        return i
+    
+    if low < high:
+        pivot_index = partition(arr, low, high)
+        quick_sort(arr, low, pivot_index - 1)
+        quick_sort(arr, pivot_index + 1, high)
+    
+    return arr
+```
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Quiz I - Solución
+
+```python
+    def partition(lst, low, high):
+        pivot = lst[high]
+        i = low
+        for j in range(low, high):
+            if lst[j] < pivot:
+                lst[i], lst[j] = lst[j], lst[i]
+                i += 1
+        lst[i], lst[high] = lst[high], lst[i]
+        return i
+```
+
+En lugar de:
+
+```python
+if lst[j] < pivot:
+```
+
+Se debe cambiar a:
+
+```python
+if lst[j] > pivot:
+```
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Merge Sort
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Merge sort - División (1/2)
+
+```python
+    mid = len(arr) // 2
+    left_half = merge_sort(arr[:mid])
+    right_half = merge_sort(arr[mid:])
+```
+
+  - Divide la secuencia en dos mitades aproximadamente iguales
+  - Se divide hasta que cada sublista tenga un solo elemento
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Merge sort - División (2/2)
+
+
+<img src="eda/img/ms_1.png" alt="" style="width: 75%; height: 50%; object-fit: fill">
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Merge sort - Recursión (1/3)
+
+- **Caso base**:
+	- Cuando la lista tiene una longitud 1 o vacía
+	- Se retorna la lista de un elemento o vacía
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Merge sort - Recursión (2/3)
+- **Caso recursivo:**
+	- Se ordena recursivamente cada mitad
+	 - Hasta que cada sublista tiene un solo elemento o es vacía
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Merge sort - Recursión (3/3)
+
+```python
+    if len(arr) <= 1:
+        return arr
+    
+    mid = len(arr) // 2
+    left_half = merge_sort(arr[:mid])
+    right_half = merge_sort(arr[mid:])
+    
+    return merge(left_half, right_half)
+```
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Merge Sort - Mezcla (1/3)
+
+  - Combina las sublistas ordenadas
+  - Se intercala elementos de sublistas
+	  - Manteniendo el orden de los elementos
+  - Finaliza cuando todos los elementos han sido colocados en `lst` en el orden correcto
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Merge Sort - Mezcla (2/3)
+
+<img src="eda/img/ms_2.png" alt="" style="object-fit: scale-down">
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Merge Sort - Mezcla (3/3)
+
+```python
+def merge(left, right):
+    """
+    Mezcla dos listas ordenadas en una sola lista ordenada.
+    """
+    sorted_list = []
+    i = j = 0
+    
+    while i < len(left) and j < len(right):
+        if left[i] <= right[j]:
+            sorted_list.append(left[i])
+            i += 1
+        else:
+            sorted_list.append(right[j])
+            j += 1
+    
+    sorted_list.extend(left[i:])
+    sorted_list.extend(right[j:])
+    
+    return sorted_list
+```
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Merge sort - Implementación (1/2)
+
+```python
+def merge_sort(arr):
+    """
+    Ordena una lista en orden ascendente utilizando el algoritmo Merge Sort.
+
+    :param arr: Lista de elementos a ordenar.
+    :type arr: list
+    
+    :return: Lista ordenada en orden ascendente.
+    :rtype: list
+    
+    >>> merge_sort([])  # Caso lista vacía
+    []
+    
+    >>> merge_sort([5])  # Caso lista con un solo objeto
+    [5]
+    
+    >>> merge_sort([1, 2, 3, 4, 5])  # Caso lista ordenada
+    [1, 2, 3, 4, 5]
+    
+    >>> merge_sort([3, 1, 4, 1, 5, 9, 2, 6, 5, 3, 5])  # Caso lista desordenada
+    [1, 1, 2, 3, 3, 4, 5, 5, 5, 6, 9]
+    """
+    if len(arr) <= 1:
+        return arr
+    
+    mid = len(arr) // 2
+    left_half = merge_sort(arr[:mid])
+    right_half = merge_sort(arr[mid:])
+    
+    return merge(left_half, right_half)
+```
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Merge sort - Implementación (2/2)
+
+```python
+def merge(left, right):
+    """
+    Mezcla dos listas ordenadas en una sola lista ordenada.
+    """
+    sorted_list = []
+    i = j = 0
+    
+    while i < len(left) and j < len(right):
+        if left[i] <= right[j]:
+            sorted_list.append(left[i])
+            i += 1
+        else:
+            sorted_list.append(right[j])
+            j += 1
+    
+    sorted_list.extend(left[i:])
+    sorted_list.extend(right[j:])
+    
+    return sorted_list
+```
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Simulación  - Merge Sort
+
+  - [Merge sort](https://www.hackerearth.com/practice/algorithms/sorting/merge-sort/visualize/)
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Merge sort - Complejidad temporal (1/3)
+
+
+- La eficiencia de depende del número de divisiones y combinaciones
+
+- División:
+
+	- En cada paso, el algoritmo **divide** el arreglo en dos partes
+	- Se realizan `log n` divisiones
+		-  En cada nivel el tamaño de las sublistas se reduce a la mitad
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Merge sort - Complejidad temporal (2/3)
+
+- Mezcla:
+
+	- En cada nivel de la recursión
+		- Los elementos son comparados y combinados en una lista ordenada
+		- Se realizan `n` operaciones para fusionar las listas en cada nivel
+
+- Dado que hay `log n` niveles de recursión y 
+	- En cada nivel se realizan `n` comparaciones
+		- La complejidad total es: O(n log n)
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Merge sort - Complejidad temporal (3/3)
+
+  - **Peor caso:** O(n log n)
+	  - Se realizan las mismas divisiones y mezclas sin importar el desorden
+  - **Caso promedio:** O(n log n)
+	  - En general, la subdivisión y mezcla de cada mitad es inevitable
+  - **Mejor caso:** O(n log n)
+	  - Incluso con la lista ordenada, el algoritmo la divide y mezcla completamente
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Merge sort - Espacio extra
+
+- **O(n)**
+  - Necesita espacio adicional para almacenar sublistas temporales
+	  - Este espacio es proporcional al tamaño de la lista original
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Merge sort - Estabilidad
+
+- **Estable**
+  - No utiliza un pivote
+	  - Evita alteraciones en el orden relativo de elementos iguales
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Merge sort - In Place
+
+- **No**
+  - Requiere espacio adicional proporcional al tamaño de la lista
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Algoritmos de ordenamiento recursivos (2/2)
+
+
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f4;
+      padding: 5px;
+      display: flex;
+      justify-content: center;
+    }
+    table {
+      width: 60%;
+      border-collapse: collapse;
+      text-align: center;
+      background-color: white;
+      border-radius: 5px;
+      overflow: hidden;
+      box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
+      font-size: 16px;
+    }
+    th, td {
+      border: 1px solid black;
+      padding: 8px;
+    }
+    th {
+      background-color: #cfe2f3;
+      font-weight: bold;
+    }
+    td:first-child {
+      font-weight: bold;
+    }
+    tr:nth-child(even) {
+      background-color: #f9f9f9;
+    }
+    tr:hover {
+      background-color: #f1f1f1;
+    }
+  </style>
+</head>
+<body>
+  <table>
+    <tr>
+      <th>Algoritmo</th>
+      <th>Peor caso</th>
+      <th>Promedio</th>
+      <th>Mejor caso</th>
+      <th>Espacio extra</th>
+      <th>Estable</th>
+      <th>In place</th>
+    </tr>
+    <tr>
+      <td>Quick Sort</td>
+      <td>O(n²)</td>
+      <td>O(n log n)</td>
+      <td>O(n log n)</td>
+      <td>O(1)*</td>
+      <td>No</td>
+      <td>Sí</td>
+    </tr>
+    <tr>
+      <td>Merge Sort</td>
+      <td>O(n log n)</td>
+      <td>O(n log n)</td>
+      <td>O(n log n)</td>
+      <td>O(n)</td>
+      <td>Sí</td>
+      <td>No</td>
+    </tr>
+  </table>
+</body>
+</html>
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Quiz II
+
+- ¿Qué cambio sería necesario para que el algoritmo ordene de forma descendente?
+
+```python
+def merge_sort(arr):
+    if len(arr) <= 1:
+        return arr
+    
+    mid = len(arr) // 2
+    left_half = merge_sort(arr[:mid])
+    right_half = merge_sort(arr[mid:])
+    
+    return merge(left_half, right_half)
+    
+def merge(left, right):
+    sorted_list = []
+    i = j = 0
+    
+    while i < len(left) and j < len(right):
+        if left[i] <= right[j]:
+            sorted_list.append(left[i])
+            i += 1
+        else:
+            sorted_list.append(right[j])
+            j += 1
+    
+    sorted_list.extend(left[i:])
+    sorted_list.extend(right[j:])
+    
+    return sorted_list
+```
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Quiz II - Solución
+
+```python
+def merge(left, right):
+    sorted_list = []
+    i = j = 0
+    
+    while i < len(left) and j < len(right):
+        if left[i] <= right[j]:
+            sorted_list.append(left[i])
+            i += 1
+        else:
+            sorted_list.append(right[j])
+            j += 1
+    
+    sorted_list.extend(left[i:])
+    sorted_list.extend(right[j:])
+```
+
+En lugar de:
+
+```python
+if left[i] <= right[j]:
+```
+
+Se debe cambiar a:
+
+```python
+if left[i] >= right[j]:
+```
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Resumen - Algoritmos de ordenamiento
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f4;
+      padding: 5px;
+      display: flex;
+      justify-content: center;
+    }
+    table {
+      width: 80%;
+      border-collapse: collapse;
+      text-align: center;
+      background-color: white;
+      border-radius: 5px;
+      overflow: hidden;
+      box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
+      font-size: 16px;
+    }
+    th, td {
+      border: 1px solid black;
+      padding: 8px;
+    }
+    th {
+      background-color: #cfe2f3;
+      font-weight: bold;
+    }
+    td:first-child {
+      font-weight: bold;
+    }
+    tr:nth-child(even) {
+      background-color: #f9f9f9;
+    }
+    tr:hover {
+      background-color: #f1f1f1;
+    }
+  </style>
+</head>
+<body>
+  <table>
+    <tr>
+      <th>Algoritmo</th>
+      <th>Peor caso</th>
+      <th>Promedio</th>
+      <th>Mejor caso</th>
+      <th>Espacio extra</th>
+      <th>Estable</th>
+      <th>In place</th>
+    </tr>
+    <tr>
+      <td>Selection Sort</td>
+      <td>O(n²)</td>
+      <td>O(n²)</td>
+      <td>O(n²)</td>
+      <td>O(1)</td>
+      <td>No</td>
+      <td>Sí</td>
+    </tr>
+    <tr>
+      <td>Insertion Sort</td>
+      <td>O(n²)</td>
+      <td>O(n²)</td>
+      <td>O(n)</td>
+      <td>O(1)</td>
+      <td>Sí</td>
+      <td>Sí</td>
+    </tr>
+    <tr>
+      <td>Shell Sort*</td>
+      <td>O(n^1.5)</td>
+      <td>O(n^1.25)</td>
+      <td>O(n log n)</td>
+      <td>O(1)</td>
+      <td>No</td>
+      <td>Sí</td>
+    </tr>
+    <tr>
+      <td>Quick Sort</td>
+      <td>O(n²)</td>
+      <td>O(n log n)</td>
+      <td>O(n log n)</td>
+      <td>O(1)**</td>
+      <td>No</td>
+      <td>Sí</td>
+    </tr>
+    <tr>
+      <td>Merge Sort</td>
+      <td>O(n log n)</td>
+      <td>O(n log n)</td>
+      <td>O(n log n)</td>
+      <td>O(n)</td>
+      <td>Sí</td>
+      <td>No</td>
+    </tr>
+  </table>
+</body>
+</html>
+
+\* Si `h` es siempre 1
+	- Las complejidades temporales serán iguales a las de Insertion sort
+
+\*\* La complejidad espacial en peor caso es O(n) (espacio lineal) y en el mejor caso y promedio es O(log n), dado el uso de la pila por la recursión
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+<i class="fas fa-question-circle fa-2x fa-spin fa-4x"></i>
+
+
+
+<br>
+<br>
+
+
+[<i class="fas fa-home  fa-3x"></i>](https://eerosales24.github.io/eda_2025_20/#)
+</div></script></section></div>
+    </div>
+
+    <script src="dist/reveal.js"></script>
+
+    <script src="plugin/markdown/markdown.js"></script>
+    <script src="plugin/highlight/highlight.js"></script>
+    <script src="plugin/zoom/zoom.js"></script>
+    <script src="plugin/notes/notes.js"></script>
+    <script src="plugin/math/math.js"></script>
+	<script src="plugin/mermaid/mermaid.js"></script>
+	<script src="plugin/chart/chart.min.js"></script>
+	<script src="plugin/chart/plugin.js"></script>
+	<script src="plugin/customcontrols/plugin.js"></script>
+
+    <script>
+      function extend() {
+        var target = {};
+        for (var i = 0; i < arguments.length; i++) {
+          var source = arguments[i];
+          for (var key in source) {
+            if (source.hasOwnProperty(key)) {
+              target[key] = source[key];
+            }
+          }
+        }
+        return target;
+      }
+
+	  function isLight(color) {
+		let hex = color.replace('#', '');
+
+		// convert #fff => #ffffff
+		if(hex.length == 3){
+			hex = `${hex[0]}${hex[0]}${hex[1]}${hex[1]}${hex[2]}${hex[2]}`;
+		}
+
+		const c_r = parseInt(hex.substr(0, 2), 16);
+		const c_g = parseInt(hex.substr(2, 2), 16);
+		const c_b = parseInt(hex.substr(4, 2), 16);
+		const brightness = ((c_r * 299) + (c_g * 587) + (c_b * 114)) / 1000;
+		return brightness > 155;
+	}
+
+	var bgColor = getComputedStyle(document.documentElement).getPropertyValue('--r-background-color').trim();
+	var isLight = isLight(bgColor);
+
+	if(isLight){
+		document.body.classList.add('has-light-background');
+	} else {
+		document.body.classList.add('has-dark-background');
+	}
+
+      // default options to init reveal.js
+      var defaultOptions = {
+        controls: true,
+        progress: true,
+        history: true,
+        center: true,
+        transition: 'default', // none/fade/slide/convex/concave/zoom
+        plugins: [
+          RevealMarkdown,
+          RevealHighlight,
+          RevealZoom,
+          RevealNotes,
+          RevealMath.MathJax3,
+		  RevealMermaid,
+		  RevealChart,
+		  RevealCustomControls,
+        ],
+
+
+    	allottedTime: 120 * 1000,
+
+		mathjax3: {
+			mathjax: 'plugin/math/mathjax/tex-mml-chtml.js',
+		},
+		markdown: {
+		  gfm: true,
+		  mangle: true,
+		  pedantic: false,
+		  smartLists: false,
+		  smartypants: false,
+		},
+
+		mermaid: {
+			theme: isLight ? 'default' : 'dark',
+		},
+
+		customcontrols: {
+			controls: [
+			]
+		},
+      };
+
+      // options from URL query string
+      var queryOptions = Reveal().getQueryHash() || {};
+
+      var options = extend(defaultOptions, {"width":960,"height":700,"margin":"0.025","minScale":"0.1","maxScale":"2.0","controls":"true","controlsLayout":"bottom-right","progress":"true","slideNumber":"true","center":"false","transition":"slide","transitionSpeed":"default"}, queryOptions);
+    </script>
+
+    <script>
+      Reveal.initialize(options);
+    </script>
+  </body>
+
+  <!-- created with Advanced Slides -->
+</html>
