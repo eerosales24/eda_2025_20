@@ -112,12 +112,13 @@ Universidad de los Andes
 
 ### Criterios de complejidad espacial 
 
-- Espacio extra:
-	- Memoria adicional necesaria para el ordenamiento
+- Espacio extra o memoria adicional
+	- Memoria extra necesaria para el ordenamiento
 	- No incluye al espacio ocupado por la lista original
+	- No incluye en Call Stack de Python
 	- Varía entre algoritmos: 
 		- De constante o en sitio O(n) a 
-			- Proporcional al tamaño de la lista O(n)
+			- Típicamente proporcional al tamaño de la lista O(n)
 </div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
 <div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
 
@@ -155,7 +156,6 @@ Universidad de los Andes
 - **In place** (en sitio, en lugar, _in situ_): 
 	- Realiza el ordenamiento modificando la estructura original 
 		- Minimiza el uso de memoria adicional
-		- Espacio extra aproximado – O(1)
 	- Ideal para restricciones de espacio
 </div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
 <div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
@@ -166,7 +166,7 @@ Universidad de los Andes
 	- Requiere memoria adicional
 	- Crea estructuras nuevas para el resultado
 	- Mayor consumo de espacio
-		- Típicamente O(n)
+		- Típicamente hasta O(n)
 </div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
 <div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
 
