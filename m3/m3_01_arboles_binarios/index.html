@@ -1,0 +1,680 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+
+    <title></title>
+    <link rel="stylesheet" href="dist/reveal.css" />
+    <link rel="stylesheet" href="dist/theme/iph.css" id="theme" />
+    <link rel="stylesheet" href="plugin/highlight/spyder.css" />
+	<link rel="stylesheet" href="css/layout.css" />
+	<link rel="stylesheet" href="plugin/customcontrols/style.css">
+
+
+
+    <script defer src="dist/fontawesome/all.min.js"></script>
+
+	<script type="text/javascript">
+		var forgetPop = true;
+		function onPopState(event) {
+			if(forgetPop){
+				forgetPop = false;
+			} else {
+				parent.postMessage(event.target.location.href, "app://obsidian.md");
+			}
+        }
+		window.onpopstate = onPopState;
+		window.onmessage = event => {
+			if(event.data == "reload"){
+				window.document.location.reload();
+			}
+			forgetPop = true;
+		}
+
+		function fitElements(){
+			const itemsToFit = document.getElementsByClassName('fitText');
+			for (const item in itemsToFit) {
+				if (Object.hasOwnProperty.call(itemsToFit, item)) {
+					var element = itemsToFit[item];
+					fitElement(element,1, 1000);
+					element.classList.remove('fitText');
+				}
+			}
+		}
+
+		function fitElement(element, start, end){
+
+			let size = (end + start) / 2;
+			element.style.fontSize = `${size}px`;
+
+			if(Math.abs(start - end) < 1){
+				while(element.scrollHeight > element.offsetHeight){
+					size--;
+					element.style.fontSize = `${size}px`;
+				}
+				return;
+			}
+
+			if(element.scrollHeight > element.offsetHeight){
+				fitElement(element, start, size);
+			} else {
+				fitElement(element, size, end);
+			}		
+		}
+
+
+		document.onreadystatechange = () => {
+			fitElements();
+			if (document.readyState === 'complete') {
+				if (window.location.href.indexOf("?export") != -1){
+					parent.postMessage(event.target.location.href, "app://obsidian.md");
+				}
+				if (window.location.href.indexOf("print-pdf") != -1){
+					let stateCheck = setInterval(() => {
+						clearInterval(stateCheck);
+						window.print();
+					}, 250);
+				}
+			}
+	};
+
+
+        </script>
+  </head>
+  <body>
+    <div class="reveal">
+      <div class="slides"><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Estructura de Datos y Algoritmos - EDA
+
+####  *Árboles binarios*
+
+[Eduardo Rosales](mailto:ee.rosales24@uniandes.edu.co)
+
+Departamento de Ingeniería de Sistemas y Computación
+
+Universidad de los Andes
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Mapas ordenados
+
+- Una tabla de símbolos ordenada
+
+- Permite modelar colecciones de parejas llave-valor
+
+- Las llaves deben ser comparables
+	- `>, <, >=, <=, ==, !=`
+
+- Permite consultas de subconjuntos ordenados
+
+- Ej:
+
+	- Obtener todas las llaves más pequeñas/grandes
+		- Que una llave determinada
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Mapas ordenados y eficiencia (1/2)
+
+- **¿Es posible implementar una tabla de símbolos ordenada 
+usando las estructuras de datos que soportan un mapa ordenado?**
+	- &shy;<!-- .element: class="fragment" data-fragment-index="1" -->Sí, es posible, pero hay problemas de eficiencia
+
+	<br>
+
+- &shy;<!-- .element: class="fragment" data-fragment-index="2" -->**Problemas:**
+	- &shy;<!-- .element: class="fragment" data-fragment-index="3" -->Mantener el orden de las parejas llave-valor sería muy costoso
+	- &shy;<!-- .element: class="fragment" data-fragment-index="4" -->La implementación sería muy ineficiente
+		- Dada su alta complejidad temporal
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Mapas ordenados y eficiencia (2/2)
+
+- **¿Existen estructuras de datos que permitan preservar el orden de los elementos sin sacrificar la eficiencia?**
+
+	- Sí existen
+		- &shy;<!-- .element: class="fragment" data-fragment-index="1" -->Una opción muy eficiente son:
+			-  **Los árboles**
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### ¿Por qué aprender árboles?
+
+- Estructura clave en ciencias de la computación
+	* Modelan **jerarquías** de forma natural
+	- Permiten **búsquedas eficientes**
+	- Utilizados en bases de datos, compiladores, juegos, redes y más
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### ¿Qué es un árbol? (1/6)
+
+- Estructura de datos **jerárquica**
+	- **No lineal**
+
+
+<img src="Pasted image 20250329175834.png" alt="" style="width: 45%; height: 50%; object-fit: fill">
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### ¿Qué es un árbol? (2/6)
+
+- Estructura que puede estar compuesta por **nodos**
+	- Los conectores/conexiones entre nodos se llaman
+		- **Aristas** o **enlaces**
+
+	<br>
+	
+- **Nodo**: Unidad que componen un árbol
+	- Contiene un dato
+		- Ej: Pareja llave-valor
+- **Arista o enlace**: Conexión entre dos nodos
+	- No puede haber una arista que carezca de un nodo en un extremo
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### ¿Qué es un árbol? (3/6)
+
+- **Camino**:
+	- Secuencia de nodos y aristas entre dos nodos
+
+<img src="Pasted image 20250331102816.png" alt="" style="object-fit: scale-down">
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### ¿Qué es un árbol? (4/6)
+
+- Los nodos en un árbol tienen una jerarquía
+	- Con un nodo **raíz** en la cima
+
+<img src="Pasted image 20250329175928.png" alt="" style="object-fit: scale-down">
+
+
+- **Raíz**: Nodo sin padre, está en la cima del árbol
+- **Rama**: Nodo que no es la raíz  y que ademas tiene al menos un hijo
+	- También se le llama así a un camino completo
+- **Hoja**: Nodo sin hijos, está al final de una rama
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### ¿Qué es un árbol? (5/6)
+
+- Cada nodo puede tener hijos (nodos descendientes)
+	- En la jerarquía pueden haber
+		- **Padres**, **hijos**, **hermanos**
+
+<img src="Pasted image 20250329180023.png" alt="" style="object-fit: scale-down">
+
+
+- **Hijo**: Nodo conectado y descendiente de otro nodo
+- **Padre**: Nodo que tiene al menos un hijo
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### ¿Qué es un árbol? (6/6)
+
+
+- **Nodo**: Unidad básica de un árbol, contiene un dato
+- **Arista o enlace**: Conexión entre dos nodos
+- **Raíz**: Nodo sin padre, está en la cima del árbol
+- **Hijo**: Nodo conectado y descendiente de otro nodo
+- **Padre**: Nodo que tiene al menos un hijo
+- **Hermano:** Nodo que comparte a un mismo padre en común dentro de la estructura
+- **Rama**: Nodo que no es la raíz  y que ademas tiene al menos un hijo
+	- También se puede llamar así a un camino completo
+- **Hoja**: Nodo sin hijos. Final de una rama
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Árbol vacío
+
+- Arbol sin ningún nodo
+	- (Ni arista)
+- Sigue siendo un árbol
+	- En su mínima definición posible
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Nivel
+
+- Cada generación dentro del árbol
+
+	<br>
+	
+- Un árbol vacío tiene 0 niveles
+- La raíz siempre está en el nivel 0
+- Los hijos de la raíz están en el nivel 1
+- Los "nietos" de la raíz están en el nivel 2
+	- Y así sucesivamente hasta la hoja más inferior
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Nivel vs Profundidad
+
+-  Son conceptos equivalentes
+	- Ambos miden la distancia desde la raíz hasta un nodo
+- Se pueden usar como sinónimos en muchos contextos
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Altura
+
+- Número máximo de niveles de un árbol
+
+<img src="Pasted image 20250331103757.png" alt="" style="width: 45%; height: 45%; object-fit: fill">
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Peso
+
+- Número total de nodos que contiene un árbol
+	- Incluye la raíz, nodos internos y hojas
+- Es una medida del tamaño total del árbol
+
+<img src="Pasted image 20250329182849.png" alt="" style="object-fit: scale-down">
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Orden
+
+-  Número máximo de hijos que **puede tener** un nodo
+
+
+<img src="Pasted image 20250329183111.png" alt="" style="object-fit: scale-down">
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Grado
+
+-  Número máximo de hijos que **tiene** uno de los nodos del árbol
+
+<img src="Pasted image 20250329183249.png" alt="" style="object-fit: scale-down">
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Sub-Árbol
+
+- Árbol generado a partir de una sección determinada del árbol
+
+<img src="Pasted image 20250329183458.png" alt="" style="width: 45%; height: 50%; object-fit: fill">
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Resumen de terminología
+
+<img src="Pasted image 20250331104323.png" alt="" style="width: 70%; height: 55%; object-fit: fill">
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Definición recursiva de árbol (1/2)
+
+- Un árbol puede ser definido recursivamente:
+
+	<br>
+
+- **Caso base:**
+	- Un árbol vacío (sigue siendo un árbol)
+
+	<br>
+	
+- **Caso recursivo:**
+	- Cada nodo es la raíz de un subárbol
+		- Cada subárbol en un árbol
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Definición recursiva de árbol (2/2)
+
+<img src="Pasted image 20250329183458.png" alt="" style="width: 45%; height: 45%; object-fit: fill">
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+###  Árbol binario
+
+- Tipo de árbol donde cada nodo 
+	- Puede tener **como máximo 2 hijos**
+	  - Uno a la **izquierda**
+	  - Otro a la **derecha**
+
+<img src="Pasted image 20250329184454.png" alt="" style="object-fit: scale-down">
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+## Árbol n-ario
+
+- Árbol donde cada nodo puede tener como máximo *n* hijos
+	- Generaliza la idea de árboles binarios
+- *n* puede ser cualquier número entero positivo
+
+<img src="Pasted image 20250329184522.png" alt="" style="width: 45%; height: 35%; object-fit: fill">
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Árbol binario lleno
+
+- Todos los nodos tienen 0 o 2 hijos
+	- Excepto la raíz
+
+<img src="Pasted image 20250329184814.png" alt="" style="object-fit: scale-down">
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Árbol binario perfecto 
+
+- Árbol lleno en donde todos las hojas están en el mismo nivel
+
+<img src="Pasted image 20250329184918.png" alt="" style="object-fit: scale-down">
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Árbol binario completo
+
+- Árbol binario en que todos los niveles
+	- Excepto opcionalmente el último
+		- Están completamente llenos
+			- Y todos los nodos están 
+				- Tan a la izquierda como sea posible
+
+<img src="Pasted image 20250329185023.png" alt="" style="width: 45%; height: 35%; object-fit: fill">
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Árbol binario balanceado
+
+- Un árbol binario es balanceado si cumple:
+
+```plaintext
+−1 ≤ factor de equilibrio ≤ 1 para todo nodo
+```
+
+- Donde el **factor de equilibrio** se calcula como:
+
+```
+altura del subárbol derecho − altura del subárbol izquierdo
+```
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### ¿Cómo determinar si un árbol está balanceado?
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Técnica del factor de equilibrio
+
+
+```plaintext
+−1 ≤ factor de equilibrio ≤ 1 para todo nodo
+
+factor de equilibrio = 
+            altura del subárbol derecho − altura del subárbol izquierdo
+```
+
+
+<img src="Pasted image 20250329185850.png" alt="" style="width: 45%; height: 45%; object-fit: fill">
+
+
+- El análisis de solo la raíz, basta para determinar que el árbol **no está equilibrado**
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Quiz I
+
+Determine si el siguiente árbol está balanceado
+
+```plaintext
+−1 ≤ factor de equilibrio ≤ 1 para todo nodo
+
+factor de equilibrio = 
+            altura del subárbol derecho − altura del subárbol izquierdo
+```
+
+<img src="Pasted image 20250329190623.png" alt="" style="width: 45%; height: 45%; object-fit: fill">
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Quiz I - Solución (1/2)
+
+<img src="Pasted image 20250329191055.png" alt="" style="width: 45%; height: 45%; object-fit: fill">
+
+
+- El análisis de solo la raíz, **no basta** para determinar si el árbol está equilibrado
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Quiz I - Solución (2/2)
+
+<img src="Pasted image 20250329191126.png" alt="" style="object-fit: scale-down">
+
+
+- El análisis de cada nodo no hoja, indica que el árbol **está equilibrado**
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Quiz II
+
+Determine si el siguiente árbol está balanceado
+
+```plaintext
+−1 ≤ factor de equilibrio ≤ 1 para todo nodo
+
+factor de equilibrio = 
+            altura del subárbol derecho − altura del subárbol izquierdo
+```
+
+<img src="Pasted image 20250329191305.png" alt="" style="object-fit: scale-down">
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Quiz II - Solución (1/2)
+
+<img src="Pasted image 20250329191333.png" alt="" style="width: 55%; height: 45%; object-fit: fill">
+
+
+- El análisis de solo la raíz, **no basta** para determinar si el árbol está equilibrado
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Quiz II - Solución (2/2)
+
+<img src="Pasted image 20250329191402.png" alt="" style="object-fit: scale-down">
+
+
+- El análisis a nivel 1, indica que el árbol **no está equilibrado**
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Quiz III
+
+Determine si el siguiente árbol está balanceado
+
+```plaintext
+−1 ≤ factor de equilibrio ≤ 1 para todo nodo
+
+factor de equilibrio = 
+            altura del subárbol derecho − altura del subárbol izquierdo
+```
+
+<img src="Pasted image 20250329191523.png" alt="" style="width: 55%; height: 45%; object-fit: fill">
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Quiz III - Solución
+
+<img src="Pasted image 20250329191558.png" alt="" style="width: 55%; height: 45%; object-fit: fill">
+
+
+- El análisis de solo la raíz, basta para determinar que el árbol **no está equilibrado**
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Quiz IV
+
+- Determine si el siguiente árbol está balanceado
+
+```plaintext
+−1 ≤ factor de equilibrio ≤ 1 para todo nodo
+
+factor de equilibrio = 
+            altura del subárbol derecho − altura del subárbol izquierdo
+```
+
+
+<img src="Pasted image 20250329191654.png" alt="" style="width: 55%; height: 45%; object-fit: fill">
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Quiz IV - Solución
+
+<img src="Pasted image 20250329191900.png" alt="" style="width: 55%; height: 45%; object-fit: fill">
+
+
+- El análisis hasta nivel 1, indica que el árbol **está equilibrado**
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Quiz V
+
+- Determine si el siguiente árbol está balanceado
+
+```plaintext
+−1 ≤ factor de equilibrio ≤ 1 para todo nodo
+
+factor de equilibrio = 
+            altura del subárbol derecho − altura del subárbol izquierdo
+```
+
+
+<img src="Pasted image 20250329192002.png" alt="" style="width: 55%; height: 45%; object-fit: fill">
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Quiz V - Solución
+
+<img src="Pasted image 20250329192106.png" alt="" style="width: 55%; height: 45%; object-fit: fill">
+
+
+- El análisis hasta nivel 1, nos indica que el árbol **no está balanceado**
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+<i class="fas fa-question-circle fa-2x fa-spin fa-4x"></i>
+
+
+
+<br>
+<br>
+
+
+[<i class="fas fa-home  fa-3x"></i>](https://eerosales24.github.io/eda_2025_20/#)
+</div></script></section></div>
+    </div>
+
+    <script src="dist/reveal.js"></script>
+
+    <script src="plugin/markdown/markdown.js"></script>
+    <script src="plugin/highlight/highlight.js"></script>
+    <script src="plugin/zoom/zoom.js"></script>
+    <script src="plugin/notes/notes.js"></script>
+    <script src="plugin/math/math.js"></script>
+	<script src="plugin/mermaid/mermaid.js"></script>
+	<script src="plugin/chart/chart.min.js"></script>
+	<script src="plugin/chart/plugin.js"></script>
+	<script src="plugin/customcontrols/plugin.js"></script>
+
+    <script>
+      function extend() {
+        var target = {};
+        for (var i = 0; i < arguments.length; i++) {
+          var source = arguments[i];
+          for (var key in source) {
+            if (source.hasOwnProperty(key)) {
+              target[key] = source[key];
+            }
+          }
+        }
+        return target;
+      }
+
+	  function isLight(color) {
+		let hex = color.replace('#', '');
+
+		// convert #fff => #ffffff
+		if(hex.length == 3){
+			hex = `${hex[0]}${hex[0]}${hex[1]}${hex[1]}${hex[2]}${hex[2]}`;
+		}
+
+		const c_r = parseInt(hex.substr(0, 2), 16);
+		const c_g = parseInt(hex.substr(2, 2), 16);
+		const c_b = parseInt(hex.substr(4, 2), 16);
+		const brightness = ((c_r * 299) + (c_g * 587) + (c_b * 114)) / 1000;
+		return brightness > 155;
+	}
+
+	var bgColor = getComputedStyle(document.documentElement).getPropertyValue('--r-background-color').trim();
+	var isLight = isLight(bgColor);
+
+	if(isLight){
+		document.body.classList.add('has-light-background');
+	} else {
+		document.body.classList.add('has-dark-background');
+	}
+
+      // default options to init reveal.js
+      var defaultOptions = {
+        controls: true,
+        progress: true,
+        history: true,
+        center: true,
+        transition: 'default', // none/fade/slide/convex/concave/zoom
+        plugins: [
+          RevealMarkdown,
+          RevealHighlight,
+          RevealZoom,
+          RevealNotes,
+          RevealMath.MathJax3,
+		  RevealMermaid,
+		  RevealChart,
+		  RevealCustomControls,
+        ],
+
+
+    	allottedTime: 120 * 1000,
+
+		mathjax3: {
+			mathjax: 'plugin/math/mathjax/tex-mml-chtml.js',
+		},
+		markdown: {
+		  gfm: true,
+		  mangle: true,
+		  pedantic: false,
+		  smartLists: false,
+		  smartypants: false,
+		},
+
+		mermaid: {
+			theme: isLight ? 'default' : 'dark',
+		},
+
+		customcontrols: {
+			controls: [
+			]
+		},
+      };
+
+      // options from URL query string
+      var queryOptions = Reveal().getQueryHash() || {};
+
+      var options = extend(defaultOptions, {"width":960,"height":700,"margin":"0.025","minScale":"0.1","maxScale":"2.0","controls":"true","controlsLayout":"bottom-right","progress":"true","slideNumber":"true","center":"false","transition":"slide","transitionSpeed":"default"}, queryOptions);
+    </script>
+
+    <script>
+      Reveal.initialize(options);
+    </script>
+  </body>
+
+  <!-- created with Advanced Slides -->
+</html>

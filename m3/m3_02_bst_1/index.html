@@ -1,0 +1,818 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+
+    <title></title>
+    <link rel="stylesheet" href="dist/reveal.css" />
+    <link rel="stylesheet" href="dist/theme/iph.css" id="theme" />
+    <link rel="stylesheet" href="plugin/highlight/spyder.css" />
+	<link rel="stylesheet" href="css/layout.css" />
+	<link rel="stylesheet" href="plugin/customcontrols/style.css">
+
+
+
+    <script defer src="dist/fontawesome/all.min.js"></script>
+
+	<script type="text/javascript">
+		var forgetPop = true;
+		function onPopState(event) {
+			if(forgetPop){
+				forgetPop = false;
+			} else {
+				parent.postMessage(event.target.location.href, "app://obsidian.md");
+			}
+        }
+		window.onpopstate = onPopState;
+		window.onmessage = event => {
+			if(event.data == "reload"){
+				window.document.location.reload();
+			}
+			forgetPop = true;
+		}
+
+		function fitElements(){
+			const itemsToFit = document.getElementsByClassName('fitText');
+			for (const item in itemsToFit) {
+				if (Object.hasOwnProperty.call(itemsToFit, item)) {
+					var element = itemsToFit[item];
+					fitElement(element,1, 1000);
+					element.classList.remove('fitText');
+				}
+			}
+		}
+
+		function fitElement(element, start, end){
+
+			let size = (end + start) / 2;
+			element.style.fontSize = `${size}px`;
+
+			if(Math.abs(start - end) < 1){
+				while(element.scrollHeight > element.offsetHeight){
+					size--;
+					element.style.fontSize = `${size}px`;
+				}
+				return;
+			}
+
+			if(element.scrollHeight > element.offsetHeight){
+				fitElement(element, start, size);
+			} else {
+				fitElement(element, size, end);
+			}		
+		}
+
+
+		document.onreadystatechange = () => {
+			fitElements();
+			if (document.readyState === 'complete') {
+				if (window.location.href.indexOf("?export") != -1){
+					parent.postMessage(event.target.location.href, "app://obsidian.md");
+				}
+				if (window.location.href.indexOf("print-pdf") != -1){
+					let stateCheck = setInterval(() => {
+						clearInterval(stateCheck);
+						window.print();
+					}, 250);
+				}
+			}
+	};
+
+
+        </script>
+  </head>
+  <body>
+    <div class="reveal">
+      <div class="slides"><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Estructura de Datos y Algoritmos - EDA
+
+####  *BST I*
+
+[Eduardo Rosales](mailto:ee.rosales24@uniandes.edu.co)
+
+Departamento de Ingeniería de Sistemas y Computación
+
+Universidad de los Andes
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Árbol binario no ordenado (1/2)
+
+- **¿Cuál es la complejidad temporal de determinar si el elemento **86** está en el árbol?**
+
+<img src="Pasted image 20250329192617.png" alt="" style="width: 55%; height: 45%; object-fit: fill">
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Árbol binario no  ordenado (2/2)
+
+- **¿Cuál es la complejidad temporal de determinar si el elemento **86** está en el árbol?**
+	- Como el árbol no está ordenado
+		- La complejidad puede ser **O(n)** en el peor caso
+
+<img src="Pasted image 20250329192617.png" alt="" style="width: 55%; height: 40%; object-fit: fill">
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### ¿Cómo buscar de forma eficiente en un árbol binario?
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Árboles binarios de búsqueda - BST (1/3)
+
+- Árbol binario que cumple estas reglas:
+	- Cada nodo tiene una **llave única y comparable**
+	- Cada nodo puede tener un **valor asociado**
+	- Todos los nodos del **subárbol izquierdo son menores**
+	- Todos los nodos del **subárbol derecho son mayores**
+	- Cada subárbol también es un BST
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Árboles binarios de búsqueda - BST (2/3)
+
+- Todos los nodos del **subárbol izquierdo son menores**
+- Todos los nodos del **subárbol derecho son mayores**
+
+<img src="Pasted image 20250329193136.png" alt="" style="object-fit: scale-down">
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Árboles binarios de búsqueda - BST (3/3)
+
+- Un BST está optimizado para operaciones como las búsquedas:
+-  Dado un valor, se compara con la raíz 
+	- Si es menor, se busca en el subárbol izquierdo
+	- Si es mayor, en el subárbol derecho
+- Este proceso se repite recursivamente 
+	- Hasta encontrar el nodo o hasta llegar a una hoja
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### ¿Cómo buscar en un BST?
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Búsqueda (1/6)
+
+- Para el siguiente ejemplo
+	- Considere el orden lexicográfico 
+
+	<br>
+
+- **Recuerde:**
+	- Si es menor, se busca en el subárbol izquierdo
+	- Si es mayor, en el subárbol derecho
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Búsqueda (2/6)
+
+<img src="Pasted image 20250329202657.png" alt="" style="width: 50%; height: 40%; object-fit: fill">
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Búsqueda (3/6)
+
+<img src="Pasted image 20250329202735.png" alt="" style="width: 55%; height: 50%; object-fit: fill">
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Búsqueda (4/6)
+
+<img src="Pasted image 20250329202819.png" alt="" style="width: 55%; height: 50%; object-fit: fill">
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Búsqueda (5/6)
+
+<img src="Pasted image 20250329202842.png" alt="" style="width: 55%; height: 50%; object-fit: fill">
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Búsqueda (6/6)
+
+<img src="Pasted image 20250329202902.png" alt="" style="width: 55%; height: 50%; object-fit: fill">
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Ahora comprendamos una búsqueda fallida
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Búsqueda fallida (1/6)
+
+<img src="Pasted image 20250329202919.png" alt="" style="width: 55%; height: 50%; object-fit: fill">
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Búsqueda fallida (2/6)
+
+<img src="Pasted image 20250329203001.png" alt="" style="width: 55%; height: 50%; object-fit: fill">
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Búsqueda fallida (3/6)
+
+<img src="Pasted image 20250329203048.png" alt="" style="width: 55%; height: 50%; object-fit: fill">
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Búsqueda fallida (4/6)
+
+<img src="Pasted image 20250329203113.png" alt="" style="width: 55%; height: 50%; object-fit: fill">
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Búsqueda fallida (5/6)
+
+<img src="Pasted image 20250329203134.png" alt="" style="width: 55%; height: 50%; object-fit: fill">
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Búsqueda fallida (6/6)
+
+<img src="Pasted image 20250329203158.png" alt="" style="width: 55%; height: 50%; object-fit: fill">
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+###  Quiz I
+
+- ¿Cuál es la altura del siguiente árbol?
+
+<img src="Pasted image 20250329203810.png" alt="" style="width: 55%; height: 40%; object-fit: fill">
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+###  Quiz I - Solución
+
+- ¿Cuál es la altura del siguiente árbol?
+	- **4**
+
+<img src="Pasted image 20250329203810.png" alt="" style="width: 55%; height: 40%; object-fit: fill">
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+###  Quiz II
+
+- ¿Cuántas comparaciones se requieren para encontrar el elemento **22**?
+
+<img src="Pasted image 20250329203810.png" alt="" style="width: 55%; height: 40%; object-fit: fill">
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+###  Quiz II - Solución
+
+- ¿Cuántas comparaciones se requieren para encontrar el elemento **22**?
+	- Número de comparaciones ≈ `h+1` (altura del árbol + 1)
+		- Número de comparaciones ≈ **4 comparaciones**
+
+<img src="Pasted image 20250329203810.png" alt="" style="width: 50%; height: 35%; object-fit: fill">
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Balance del BST (1/5)
+
+- En un BST balanceado
+	- La altura sería proporcional a **log2(n)**
+		- `h ≈ log2​(n)`
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Balance del BST (2/5)
+
+- ¿Cuántas comparaciones se requieren para encontrar el elemento **22**?
+	- **log2(n)** comparaciones
+		- `○log2(11) ≈ 3.46 ≈`  **`4`**
+
+<img src="Pasted image 20250329203810.png" alt="" style="width: 45%; height: 30%; object-fit: fill">
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Balance del BST (3/5)
+
+- ¿Por qué es importante?
+
+	- Un árbol balanceado mantiene su altura más baja
+	- Esto garantiza operaciones eficientes:
+		- Búsqueda
+		- Inserción
+		- Eliminación
+  - La complejidad se mantiene tiende a **O(log n)**
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Balance del BST (4/5)
+
+- Si un árbol está desbalanceado:
+  - Se asemeja a **una estructura lineal**
+	  - Como una lista enlazada
+  - En ese caso, buscar, insertar o eliminar 
+	  - Puede tomar **O(n)**
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Balance del BST (5/5)
+
+
+<img src="Pasted image 20250329203626.png" alt="" style="width: 65%; height: 50%; object-fit: fill">
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Árbol binario degenerado (1/4)
+
+<img src="Pasted image 20250329204551.png" alt="" style="width: 65%; height: 50%; object-fit: fill">
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Árbol binario degenerado (2/4)
+
+<img src="Pasted image 20250329204815.png" alt="" style="width: 45%; height: 35%; object-fit: fill">
+
+
+- Cada nodo tiene como máximo un hijo
+	- En una sola línea
+		- Típicamente sin bifurcaciones
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Árbol binario degenerado (3/4)
+
+
+- ¿Cuántas comparaciones se requieren para encontrar el elemento 6?
+
+	- 6 comparaciones (altura del árbol + 1)
+
+<img src="Pasted image 20250329204815.png" alt="" style="width: 45%; height: 35%; object-fit: fill">
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Árbol binario degenerado (4/4)
+
+
+- ¿Cuál es la complejidad temporal de la búsqueda del elemento 7?
+
+
+<img src="Pasted image 20250329204815.png" alt="" style="width: 45%; height: 35%; object-fit: fill">
+
+
+- &shy;<!-- .element: class="fragment" data-fragment-index="1" -->Si el BST no está balanceado
+	- La complejidad temporal de una búsqueda tenderá a **O(n)**
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Complejidad temporal de la búsqueda
+
+- Mejor caso - **O(1)**
+	-  Si el elemento está en la raíz
+
+- Promedio - **O(log⁡n)**
+	- Árbol balanceado
+
+- Peor caso - **O(n)**
+	- Árbol desbalanceado
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### ¿Cómo insertar en un BST?
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Inserción
+
+- Dado un valor, se compara con la raíz 
+- Si es menor, se busca en el subárbol izquierdo
+- Si es mayor, en el subárbol derecho
+- Este proceso se repite recursivamente 
+	- Hasta encontrar el espacio en donde insertar el nodo
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Inserción (1/7)
+
+- Para el siguiente ejemplo
+	- Considere el orden lexicográfico 
+
+	<br>
+
+- **Recuerde:**
+	- Si es menor, se busca  el espacio en el subárbol izquierdo
+	- Si es mayor, en el subárbol derecho
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Inserción (2/7)
+
+<img src="Pasted image 20250329205446.png" alt="" style="width: 55%; height: 50%; object-fit: fill">
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Inserción (3/7)
+
+<img src="Pasted image 20250329205517.png" alt="" style="width: 55%; height: 50%; object-fit: fill">
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Inserción (4/7)
+
+<img src="Pasted image 20250329205538.png" alt="" style="width: 55%; height: 50%; object-fit: fill">
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Inserción (5/7)
+
+<img src="Pasted image 20250329205603.png" alt="" style="width: 55%; height: 50%; object-fit: fill">
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Inserción (6/7)
+
+<img src="Pasted image 20250329205628.png" alt="" style="width: 55%; height: 50%; object-fit: fill">
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Inserción (7/7)
+
+<img src="Pasted image 20250329205649.png" alt="" style="width: 55%; height: 50%; object-fit: fill">
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Complejidad temporal de la inserción (1/4)
+
+- Mejor caso
+	- Las llaves se insertan en la raíz o cercano a ella
+
+<img src="Pasted image 20250329205821.png" alt="" style="object-fit: scale-down">
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Complejidad temporal de la inserción (2/4)
+
+- Caso promedio
+	- Las llaves llegan en forma aleatorio
+
+
+<img src="Pasted image 20250329205845.png" alt="" style="object-fit: scale-down">
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Complejidad temporal de la inserción (3/4)
+
+- Peor caso
+	- Las llaves **llegan en orden**
+
+
+<img src="Pasted image 20250329205905.png" alt="" style="object-fit: scale-down">
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Complejidad temporal de la inserción (4/4)
+
+- Mejor caso - **O(1)**
+	-  Si el elemento está en la raíz
+
+- Promedio - **O(log⁡n)**
+	- Árbol balanceado
+
+- Peor caso - **O(n)**
+	- Árbol desbalanceado
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### ¿Cómo eliminar en un BST?
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Eliminación
+
+- Requiere conservar las reglas del árbol
+- Existen 3 casos posibles
+	- Según los hijos del nodo a eliminar
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Eliminación - Caso 1: Nodo sin hijos (hoja)
+
+- El nodo simplemente se elimina
+- No afecta la estructura del árbol
+- Es el caso más sencillo
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Eliminación - Caso 2: Nodo con 1 hijo
+
+- Se elimina el nodo
+- Su hijo se conecta directamente con el padre del nodo eliminado
+	- El árbol sigue cumpliendo las reglas del BST
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Eliminación - Caso 3: Nodo con 2 hijos
+
+- Hay dos formas comunes de resolver
+	- Opción 1: Marcador especial
+	- Opción 2: Reemplazo
+		- Sucesor
+		- Predecesor
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Caso 3 - Opción 1: Marcador especial
+
+- Se reemplaza el nodo por un **marcador especial** 
+	- Ej: un valor nulo o bandera
+- No es una opción muy usada en la práctica
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Caso 3 - Opción 1 - Ejemplo
+
+<img src="Pasted image 20250329210711.png" alt="" style="object-fit: scale-down">
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Caso 3 - Opción 2: Reemplazo
+
+- Se busca un nodo que pueda reemplazar el eliminado:
+
+  - **Sucesor inorden**: El nodo más pequeño en el subárbol derecho ó
+  - Predecesor inorden: El nodo más grande en el subárbol izquierdo
+
+- Ese nodo reemplaza al que se quiere eliminar
+- Luego se elimina el sucesor o predecesor
+	- Que tendrá 0 o 1 hijo
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Comprendamos la eliminación con ejemplos de cada caso
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Eliminación - Ejemplo (1/8)
+
+
+- Para el siguiente ejemplo
+	- Considere el orden lexicográfico 
+
+	<br>
+
+- **Recuerde:**
+	- Si es menor, se busca  el espacio en el subárbol izquierdo
+	- Si es mayor, en el subárbol derecho
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Eliminación - Ejemplo (2/8)
+
+
+- Dado el siguiente árbol binario ordenado
+	- Se explorará los 3 estados en los que quedaría el árbol 
+		- Al hacer los 3 casos de eliminaciones
+
+<img src="Pasted image 20250329211720.png" alt="" style="object-fit: scale-down">
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Eliminación - Ejemplo (3/8)
+
+- Eliminación del nodo **"I"**
+
+<img src="Pasted image 20250329211720.png" alt="" style="object-fit: scale-down">
+
+
+- **Tip:** Se trata del caso de la eliminación de un nodo con un solo hijo
+	- Aquí se reemplaza el nodo a borrar, con el único hijo tiene
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-auto-animate="true" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Eliminación - Ejemplo (4/8)
+
+
+<div style="display: flex; justify-content: center; align-items: center; gap: 20px;">
+
+  <a href="https://eerosales24.github.io/eda_2025_20/m3/e1.png" target="_blank">
+    <img src="https://eerosales24.github.io/eda_2025_20/m3/e1.png" alt="Imagen 1" style="width: 250px; height: auto; border-radius: 8px;" ></img>
+  </a>
+
+  <a href="https://eerosales24.github.io/eda_2025_20/m3/e20.png" target="_blank">
+    <img src="https://eerosales24.github.io/eda_2025_20/m3/e20.png" alt="Imagen 2" style="width: 250px; height: auto; border-radius: 8px;" ></img>
+  </a>
+
+</div>
+
+- En la eliminación de un nodo con un solo hijo
+	- Se reemplaza el nodo a borrar, con el único hijo tiene
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Eliminación - Ejemplo (5/8)
+
+- Eliminación del nodo **"E"**
+
+<img src="Pasted image 20250329211950.png" alt="" style="object-fit: scale-down">
+
+
+- **Tip:** Se trata del caso de la eliminación de un nodo hoja
+	- Aquí solo se borra el nodo hoja
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-auto-animate="true" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Eliminación - Ejemplo (6/8)
+
+
+
+<div style="display: flex; justify-content: center; align-items: center; gap: 20px;">
+
+  <a href="https://eerosales24.github.io/eda_2025_20/m3/e2.png" target="_blank">
+    <img src="https://eerosales24.github.io/eda_2025_20/m3/e2.png" alt="Imagen 1" style="width: 280px; height: auto; border-radius: 8px;" ></img>
+  </a>
+
+  <a href="https://eerosales24.github.io/eda_2025_20/m3/e30.png" target="_blank">
+    <img src="https://eerosales24.github.io/eda_2025_20/m3/e30.png" alt="Imagen 2" style="width: 250px; height: auto; border-radius: 8px;" ></img>
+  </a>
+
+</div>
+
+
+ - En la eliminación de un nodo hoja
+	- Solo se borra la hoja
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Eliminación - Ejemplo (7/8)
+
+- Eliminación del nodo **"S"**
+
+<img src="Pasted image 20250329212749.png" alt="" style="object-fit: scale-down">
+
+
+- **Tip:** Se trata del caso de la eliminación de un nodo con dos hijos. Aquí se debe encontrar el sucesor inmediato (el nodo más a la izquierda del subárbol derecho​). Reemplazar el nodo a eliminar con el sucesor. Re-balancear el árbol si es necesario
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-auto-animate="true" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Eliminación - Ejemplo (8/8)
+
+
+<div style="display: flex; justify-content: center; align-items: center; gap: 20px;">
+
+  <a href="https://eerosales24.github.io/eda_2025_20/m3/e3.png" target="_blank">
+    <img src="https://eerosales24.github.io/eda_2025_20/m3/e3.png" alt="Imagen 1" style="width: 250px; height: auto; border-radius: 8px;" ></img>
+  </a>
+
+  <a href="https://eerosales24.github.io/eda_2025_20/m3/e4.png" target="_blank">
+    <img src="https://eerosales24.github.io/eda_2025_20/m3/e4.png" alt="Imagen 2" style="width: 300px; height: auto; border-radius: 8px;" ></img>
+  </a>
+
+</div>
+
+
+- Eliminación del nodo **`"S"`**, después de usar el sucesor **`"U"`**:
+	- Encontrar el sucesor inmediato 
+		- **El nodo más a la izquierda del subárbol derecho​**
+			- Reemplazar el nodo a eliminar con el sucesor
+				- Re-balancear el árbol si es necesario
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Complejidad temporal de la eliminación
+
+- Mejor caso - **O(1)**
+	-  Si el elemento está en la raíz
+
+- Promedio - **O(log⁡n)**
+	- Árbol balanceado
+
+- Peor caso - **O(n)**
+	- Árbol desbalanceado
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+###  Árboles – API
+
+
+- **TODO:**
+	- Revisar la [documentación de árboles](https://isis1225devs.github.io/ISIS1225-Structure-Documentation/DataStructures.Tree.html#order-map-arboles)
+		- En particular del  [BST](https://isis1225devs.github.io/ISIS1225-Structure-Documentation/DataStructures.Tree.html#module-DataStructures.Tree.binary_search_tree)
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+<i class="fas fa-question-circle fa-2x fa-spin fa-4x"></i>
+
+
+
+<br>
+<br>
+
+
+[<i class="fas fa-home  fa-3x"></i>](https://eerosales24.github.io/eda_2025_20/#)
+</div></script></section></div>
+    </div>
+
+    <script src="dist/reveal.js"></script>
+
+    <script src="plugin/markdown/markdown.js"></script>
+    <script src="plugin/highlight/highlight.js"></script>
+    <script src="plugin/zoom/zoom.js"></script>
+    <script src="plugin/notes/notes.js"></script>
+    <script src="plugin/math/math.js"></script>
+	<script src="plugin/mermaid/mermaid.js"></script>
+	<script src="plugin/chart/chart.min.js"></script>
+	<script src="plugin/chart/plugin.js"></script>
+	<script src="plugin/customcontrols/plugin.js"></script>
+
+    <script>
+      function extend() {
+        var target = {};
+        for (var i = 0; i < arguments.length; i++) {
+          var source = arguments[i];
+          for (var key in source) {
+            if (source.hasOwnProperty(key)) {
+              target[key] = source[key];
+            }
+          }
+        }
+        return target;
+      }
+
+	  function isLight(color) {
+		let hex = color.replace('#', '');
+
+		// convert #fff => #ffffff
+		if(hex.length == 3){
+			hex = `${hex[0]}${hex[0]}${hex[1]}${hex[1]}${hex[2]}${hex[2]}`;
+		}
+
+		const c_r = parseInt(hex.substr(0, 2), 16);
+		const c_g = parseInt(hex.substr(2, 2), 16);
+		const c_b = parseInt(hex.substr(4, 2), 16);
+		const brightness = ((c_r * 299) + (c_g * 587) + (c_b * 114)) / 1000;
+		return brightness > 155;
+	}
+
+	var bgColor = getComputedStyle(document.documentElement).getPropertyValue('--r-background-color').trim();
+	var isLight = isLight(bgColor);
+
+	if(isLight){
+		document.body.classList.add('has-light-background');
+	} else {
+		document.body.classList.add('has-dark-background');
+	}
+
+      // default options to init reveal.js
+      var defaultOptions = {
+        controls: true,
+        progress: true,
+        history: true,
+        center: true,
+        transition: 'default', // none/fade/slide/convex/concave/zoom
+        plugins: [
+          RevealMarkdown,
+          RevealHighlight,
+          RevealZoom,
+          RevealNotes,
+          RevealMath.MathJax3,
+		  RevealMermaid,
+		  RevealChart,
+		  RevealCustomControls,
+        ],
+
+
+    	allottedTime: 120 * 1000,
+
+		mathjax3: {
+			mathjax: 'plugin/math/mathjax/tex-mml-chtml.js',
+		},
+		markdown: {
+		  gfm: true,
+		  mangle: true,
+		  pedantic: false,
+		  smartLists: false,
+		  smartypants: false,
+		},
+
+		mermaid: {
+			theme: isLight ? 'default' : 'dark',
+		},
+
+		customcontrols: {
+			controls: [
+			]
+		},
+      };
+
+      // options from URL query string
+      var queryOptions = Reveal().getQueryHash() || {};
+
+      var options = extend(defaultOptions, {"width":960,"height":700,"margin":"0.025","minScale":"0.1","maxScale":"2.0","controls":"true","controlsLayout":"bottom-right","progress":"true","slideNumber":"true","center":"false","transition":"slide","transitionSpeed":"default"}, queryOptions);
+    </script>
+
+    <script>
+      Reveal.initialize(options);
+    </script>
+  </body>
+
+  <!-- created with Advanced Slides -->
+</html>
