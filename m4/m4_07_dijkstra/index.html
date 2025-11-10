@@ -1,0 +1,959 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+
+    <title></title>
+    <link rel="stylesheet" href="dist/reveal.css" />
+    <link rel="stylesheet" href="dist/theme/iph.css" id="theme" />
+    <link rel="stylesheet" href="plugin/highlight/spyder.css" />
+	<link rel="stylesheet" href="css/layout.css" />
+	<link rel="stylesheet" href="plugin/customcontrols/style.css">
+
+
+
+    <script defer src="dist/fontawesome/all.min.js"></script>
+
+	<script type="text/javascript">
+		var forgetPop = true;
+		function onPopState(event) {
+			if(forgetPop){
+				forgetPop = false;
+			} else {
+				parent.postMessage(event.target.location.href, "app://obsidian.md");
+			}
+        }
+		window.onpopstate = onPopState;
+		window.onmessage = event => {
+			if(event.data == "reload"){
+				window.document.location.reload();
+			}
+			forgetPop = true;
+		}
+
+		function fitElements(){
+			const itemsToFit = document.getElementsByClassName('fitText');
+			for (const item in itemsToFit) {
+				if (Object.hasOwnProperty.call(itemsToFit, item)) {
+					var element = itemsToFit[item];
+					fitElement(element,1, 1000);
+					element.classList.remove('fitText');
+				}
+			}
+		}
+
+		function fitElement(element, start, end){
+
+			let size = (end + start) / 2;
+			element.style.fontSize = `${size}px`;
+
+			if(Math.abs(start - end) < 1){
+				while(element.scrollHeight > element.offsetHeight){
+					size--;
+					element.style.fontSize = `${size}px`;
+				}
+				return;
+			}
+
+			if(element.scrollHeight > element.offsetHeight){
+				fitElement(element, start, size);
+			} else {
+				fitElement(element, size, end);
+			}		
+		}
+
+
+		document.onreadystatechange = () => {
+			fitElements();
+			if (document.readyState === 'complete') {
+				if (window.location.href.indexOf("?export") != -1){
+					parent.postMessage(event.target.location.href, "app://obsidian.md");
+				}
+				if (window.location.href.indexOf("print-pdf") != -1){
+					let stateCheck = setInterval(() => {
+						clearInterval(stateCheck);
+						window.print();
+					}, 250);
+				}
+			}
+	};
+
+
+        </script>
+  </head>
+  <body>
+    <div class="reveal">
+      <div class="slides"><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Estructura de Datos y Algoritmos - EDA
+
+####  *Algoritmos de Ruta Mínima - Dijkstra*
+
+[Eduardo Rosales](mailto:ee.rosales24@uniandes.edu.co)
+
+Departamento de Ingeniería de Sistemas y Computación
+
+Universidad de los Andes
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Árbol de Camino más Corto - Shortest Path Tree (SPT)
+    
+- Árbol que se origina en un nodo raíz y 
+	- Cubre todos los demás nodos de un grafo conectado
+        
+- **Objetivo**
+    - Encontrar la distancia mínima 
+	    - **Desde un nodo inicial específico**
+		    - A **todos** los demás nodos
+        
+- **Aplicaciones**
+    - Problemas de ruta más corta
+    - Planificación de rutas en sistemas de navegación
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### MST vs SPT (1/2)
+
+- Objetivos distintos:
+
+	- MST busca minimizar el peso total del árbol
+	- SPT busca minimizar la distancia **desde un nodo** 
+		- A todos los demás nodos
+
+	<br>
+
+	- MST es único para un grafo dado
+		- Si todos los pesos son únicos
+	- En cambio, SPT depende del nodo inicial
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### MST vs SPT (2/2)
+
+- Algoritmos diferentes:
+
+	- MST:
+		- Prim Lazy, Prim Eager
+	- SPT:
+		- Dijkstra
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Algoritmo de Dijkstra - Conceptos básicos (1/2)
+
+- Diseñado para encontrar la **ruta más corta** 
+	- Desde un vértice inicial 
+		- Hacia todos los demás vértices de un grafo
+		
+    
+- Funciona en grafos dirigidos o no dirigidos
+	- Siempre que los pesos de las aristas 
+		- Sean positivos
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Algoritmo de Dijkstra - Conceptos básicos (2/2)
+
+- Utiliza una cola de prioridad 
+	- Para gestionar los vértices 
+		- Según sus distancias mínimas conocidas
+    
+- Los vértices se procesan en orden 
+	- De **menor distancia acumulada**
+    
+-  Cada vértice se visita una sola vez 
+	- En su mejor versión (menor distancia)
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Algoritmo de Dijkstra - Procedimiento (1/3)
+
+- Inicialización:
+    
+    - Establecer la **distancia inicial (source)** a **0**
+        
+    - Establecer la distancia a todos los demás vértices 
+	    - Como **infinito**
+        
+    - Usar un mapa (`dist_to`) 
+	    - Para guardar las distancias mínimas conocidas
+        
+    - Usar un mapa (`edge_from`) 
+	    - Para guardar la arista previa (ruta)
+        
+    - Agregar el vértice inicial a la cola de prioridad
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Algoritmo de Dijkstra - Procedimiento (2/3)
+
+- Ciclo principal:
+    - Extraer el vértice con la menor distancia de la cola de prioridad
+    - Marcar el vértice como visitado
+    - Para cada adyacente:
+        - Calcular la nueva distancia (distancia actual + peso de la arista)
+        - Si la nueva distancia es menor que la conocida:
+            - Actualizar la distancia                
+            - Registrar la arista de origen (`edge_from`)
+            - Insertar o actualizar el vértice en la cola de prioridad
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Algoritmo de Dijkstra - Procedimiento (3/3)
+
+- Finalización:
+    - El ciclo termina cuando 
+	    - Todos los vértices alcanzables han sido procesados
+    - El mapa `dist_to` 
+	    - Contiene las distancias mínimas desde el origen a cada vértice
+    - El mapa `edge_from` permite reconstruir las rutas más cortas
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Algoritmo Dijkstra - Suposiciones
+
+- **Grafo dirigido**
+    - Puede ser de una sola dirección o bidireccional
+    
+- **Pesos en las aristas**
+    - No son necesariamente distancias    
+    - Pueden representar tiempos, costos u otras variables 
+	    - No relacionadas a distancia
+    - **Deben ser positivos**
+        
+- **Ciclos**
+    - El grafo puede contener ciclos
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Ejemplo detallado de Dijkstra
+
+
+- [Ejemplo Dijkstra](https://eerosales24.github.io/eda_2025_20/m4/dijkstra.ppsx)
+
+<br>
+
+
+\* Para mejor visibilidad, por favor abrir los archivos en PowerPoint
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Optimalidad
+
+- Dijkstra garantiza encontrar el SPT
+	- En un grafo dirigido y ponderado 
+		- Siempre que todos los pesos sean positivos
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Dijkstra - Complejidad temporal 
+
+- **Caso general:**
+    
+    - La complejidad temporal de Dijkstra 
+	    - Depende del método utilizado para la cola de prioridad
+        
+- Usando una cola de prioridad basada en un  binary heap:
+    
+    - **O(E * log V)**
+        - Donde **E** es el número de aristas y **V** el número de vértices
+    - Explicación:
+        - Cada vértice se inserta en la cola al menos una vez: **O(V)**
+        - Cada arista se procesa y puede actualizarse en la cola: **O(E * log V)**
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Dijkstra - Complejidad espacial (1/2)
+
+- Espacio para las estructuras de búsqueda:
+    
+    - Mapa de distancias (`dist_to`): **O(V)**
+        
+    - Mapa de aristas (`edge_from`): **O(V)**
+        
+    - Mapa de vértices visitados (`marked`): **O(V)**
+        
+    - Cola de prioridad (heap): **O(V)**
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Dijkstra - Complejidad espacial (2/2)
+
+- Espacio total de Dijkstra: **O(V + E)**
+    
+    - Dominado por las estructuras de búsqueda y la cola de prioridad
+        
+    - En grafos dispersos (pocos arcos)
+	    - Esto es cercano a **O(V)**
+        
+    - En grafos densos (muchos arcos)
+	    - Esto es cercano a **O(E)**
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Algunos detalles de implementación de Dijkstra - Cola de prioridad basada en Binary Heap
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### `new_dijkstra_structure()` (1/6)
+
+- **Objetivo:**
+    
+    - Crear una estructura de búsqueda
+	    - Específica para el algoritmo de Dijkstra (ruta más corta)
+        
+    - Inicializar los mapas y la cola de prioridad 
+	    - Necesarios para gestionar las distancias y los vértices visitados
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### `new_dijkstra_structure()` (2/6)
+
+```python
+from DataStructures.Map import map_linear_probing as mp
+from DataStructures.Priority_queue import priority_queue as pq
+...
+
+def new_dijkstra_structure(source, g_order):
+    """
+    Crea una estructura de búsqueda para el algoritmo de Dijkstra.
+
+    :param source: Vértice de inicio del recorrido de Dijkstra.
+    :param g_order: Número total de vértices en el grafo.
+    :return: La estructura de búsqueda inicializada para Dijkstra.
+    """
+```
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### `new_dijkstra_structure()` (3/6)
+
+- Crear la estructura inicial:
+    
+	- `source`: Vértice inicial para el recorrido de Dijkstra
+    
+	- `visited`: Mapa para registrar los vértices que han sido visitados
+    
+	- `pq`: Cola de prioridad (binary heap) 
+		- Para gestionar los vértices según sus distancias mínimas
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### `new_dijkstra_structure()` (4/6)
+
+- **¿Por qué usar un mapa (`mp.new_map`)?**
+    - Permite un acceso eficiente a las llaves (vértices)
+    - Facilita el seguimiento de los vértices ya procesados
+        
+- **¿Por qué usar una cola de prioridad (`pq.new_heap`)?**
+    
+    - Ordena automáticamente los vértices 
+	    - Según sus **distancias mínimas**
+    - Permite extraer el siguiente vértice 
+	    - De **menor distancia** de manera eficiente
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### `new_dijkstra_structure()` (5/6)
+
+- Comparación con `new_prim_structure()`:
+    
+    - Ambos utilizan un mapa para gestión de vértices
+    - Ambos usan una cola de prioridad para manejo de distancias
+    - `new_dijkstra_structure()` no utiliza `edge_from` ni `dist_to` 
+	    - Ya que solo necesita rastrear vértices visitados y 
+		    - Gestionar la prioridad de distancias
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### `new_dijkstra_structure()` (6/6)
+
+```python
+from DataStructures.Map import map_linear_probing as mp
+from DataStructures.Priority_queue import priority_queue as pq
+...
+
+def new_dijkstra_structure(source, g_order):
+    """
+    Crea una estructura de búsqueda para el algoritmo de Dijkstra.
+
+    :param source: Vértice de inicio del recorrido de Dijkstra.
+    :param g_order: Número total de vértices en el grafo.
+    :return: La estructura de búsqueda inicializada para Dijkstra.
+    """
+    return {
+        "source": source,
+        "visited": mp.new_map(g_order, 0.5),
+        "pq": pq.new_heap()
+    }
+```
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### `dijkstra()` (1/8)
+
+- Objetivo:
+    
+    - Implementar el algoritmo de Dijkstra
+	    - Para encontrar las rutas más cortas desde un vértice inicial (`source`)
+		    - A todos los demás vértices en un grafo ponderado
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### `dijkstra()` (2/8)
+
+```python
+from DataStructures.Priority_queue import priority_queue as pq
+from DataStructures.Graph import digraph as dg
+from DataStructures.Map import map_linear_probing as map
+from DataStructures.Stack import stack as stack
+from DataStructures.Graph import dijsktra_structure as dijsktra_structure
+from DataStructures.Graph import edge as ed
+from DataStructures.List import array_list as lt
+...
+
+def dijkstra(my_graph, source):
+    """
+    Implementa el algoritmo de Dijkstra para encontrar las rutas más cortas 
+    desde un vértice inicial (`source`) a todos los demás vértices en un grafo.
+
+    El algoritmo utiliza una estructura de búsqueda que incluye:
+    - Un mapa de vértices visitados, donde cada vértice tiene:
+        - marked: Indica si el vértice ha sido visitado (True/False).
+        - edge_from: La arista utilizada para llegar al vértice.
+        - dist_to: La distancia mínima conocida desde el vértice inicial.
+    - Una cola de prioridad (heap) que gestiona los vértices según sus
+      distancias mínimas conocidas.
+
+    El proceso sigue estos pasos:
+    
+    1. Inicialización:
+       - Se crea la estructura de búsqueda utilizando `new_dijkstra_structure()`.
+       - Todos los vértices se inicializan como no visitados (`marked: False`).
+       - La distancia de todos los vértices se establece en infinito (`math.inf`).
+       - El vértice de inicio (`source`) se marca como visitado y su distancia
+         se establece en 0.
+       - Se agrega el vértice inicial a la cola de prioridad (heap) con distancia 0.
+
+    1. Ciclo principal:
+       - Mientras la cola de prioridad no esté vacía:
+         - Se extrae el vértice con la menor distancia (mínimo).
+         - Si no ha sido visitado, se marca como visitado.
+         - Se examinan sus vértices adyacentes:
+           - Para cada vértice adyacente no visitado:
+             - Se calcula su nueva distancia potencial.
+             - Si la nueva distancia es menor que la conocida:
+               - Se actualiza la distancia.
+               - Se registra la arista de origen (`edge_from`).
+               - Si ya está en la cola de prioridad, se actualiza su clave.
+               - Si no está en la cola, se inserta con su nueva distancia.
+
+    3. Finalización:
+       - La estructura de búsqueda contiene las distancias mínimas y las rutas
+       más cortas desde el vértice inicial hacia todos los vértices alcanzables.
+
+    :param my_graph: El grafo a examinar, representado como una lista de adyacencia.
+    :type my_graph: adj_list_graph
+    :param source: El vértice inicial del recorrido.
+    :type source: any
+    :return: Una estructura de búsqueda que contiene las distancias y rutas más cortas.
+    :rtype: dict (dijkstra_search)
+    """
+```
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### `dijkstra()` (3/8)
+
+- Inicialización de la estructura:
+
+    
+```python
+aux_structure =
+    dijkstra_structure.new_dijkstra_structure(source, dg.order(my_graph))
+```
+
+
+- Se usa `new_dijkstra_structure()` para crear la estructura inicial:
+    - `source`: Vértice inicial para el recorrido
+    - `visited`: Mapa para rastrear vértices visitados y
+	    - Sus distancias
+    - `pq`: Cola de prioridad 
+	    - Para gestionar los vértices según sus distancias mínimas
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### `dijkstra()` (4/8)
+
+- Configuración inicial de vértices:
+    
+
+```python
+vertices = dg.vertices(my_graph)
+
+for vert in vertices:
+    map.put(aux_structure["visited"], vert, 
+    {"marked": False, "edge_from": None, "dist_to": math.inf})
+
+map.put(aux_structure["visited"], source, 
+{"marked": True, "edge_from": None, "dist_to": 0})
+
+pq.insert(aux_structure["pq"], source, 0)
+```
+
+- Todos los vértices se inicializan:
+    - `dist_to`: Distancia infinita (`math.inf`)
+    - `marked`: No visitados (`False`)
+    - El vértice de inicio (`source`) tiene distancia `0` y es marcado como visitado
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### `dijkstra()` (5/8)
+
+- Ciclo principal del algoritmo:
+    
+
+```python
+while not pq.is_empty(aux_structure["pq"]):
+    v = pq.remove(aux_structure["pq"])
+```
+
+- Mientras la cola de prioridad no esté vacía:
+    - Se extrae el vértice de menor costo
+    - Se marca como visitado
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### `dijkstra()` (6/8)
+
+- Exploración de adyacentes:
+    
+
+```python
+for edge in dg.edges_vertex(my_graph, v):
+    w = ed.to(edge)
+    if vertex_w["dist_to"] > dist_v + ed.weight(edge):
+        map.put(aux_structure["visited"], w, {"dist_to": dist_v + ed.weight(edge), "edge_from": edge})
+        pq.insert(aux_structure["pq"], w, dist_v + ed.weight(edge))
+```
+
+- Se actualiza la distancia de los vértices adyacentes 
+	- Si se encuentra un camino más corto
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### `dijkstra()` (7/8)
+
+- Finalización del algoritmo:
+    
+	- El ciclo termina cuando se han procesado todos los vértices alcanzables
+    
+	- El mapa `visited` contiene:
+	    - Las distancias más cortas (`dist_to`)
+	    - El vértice desde el cual se llegó a cada nodo (`edge_from`)
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### `dijkstra()` (8/8)
+
+- Resultado:
+    
+- Se retorna `aux_structure`, con:
+    - El mapa `visited` con las rutas más cortas
+    - La cola de prioridad vacía
+        
+- Lo anterior permite reconstruir las rutas más cortas 
+	- Desde el vértice inicial a cualquier otro vértice del grafo
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### `dist_to()` (1/5)
+
+- Objetivo:
+    
+    - Obtener la distancia mínima conocida
+	    - Desde el vértice de origen hasta un vértice específico
+		    - En la estructura de búsqueda de Dijkstra
+        
+    - Proporcionar acceso rápido a la distancia calculada 
+	    - Durante la ejecución del algoritmo
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### `dist_to()` (2/5)
+
+```python
+def dist_to(key_v, aux_structure):
+    """
+    Obtiene la distancia mínima conocida desde el vértice de origen 
+    hasta un vértice específico (`key_v`) en la estructura de búsqueda 
+    de Dijkstra.
+
+    Esta función consulta la estructura de búsqueda (`aux_structure`) 
+    utilizada en el algoritmo de Dijkstra para obtener la distancia 
+    mínima conocida hacia el vértice especificado. Si el vértice no 
+    ha sido registrado en la estructura, se considera que su distancia 
+    es infinita (`math.inf`).
+
+    :param key_v: La clave del vértice para el cual se solicita la distancia.
+    :type key_v: any
+    :param aux_structure: La estructura de búsqueda de Dijkstra que contiene 
+                          la información de los vértices visitados y sus distancias.
+    :type aux_structure: dict (dijkstra_search)
+    
+    :return: La distancia mínima conocida desde el vértice de origen hasta `key_v`.
+    :rtype: float
+
+    - Si el vértice (`key_v`) está en la estructura y tiene una distancia registrada:
+      - Devuelve esa distancia (valor asociado a `"dist_to"`).
+    - Si el vértice (`key_v`) no está en la estructura:
+      - Devuelve `math.inf`, indicando que es inalcanzable.
+    """
+```
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### `dist_to()` (3/5)
+
+- Función principal:
+    
+
+```python
+def dist_to(key_v, aux_structure):
+```
+
+- La función recibe:
+    
+    - `key_v`: 
+	    - El vértice para el cual se solicita la distancia
+    - `aux_structure`: 
+	    - La estructura de búsqueda de Dijkstra que contiene las distancias
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### `dist_to()` (4/5)
+
+- Proceso de búsqueda:
+    
+    - Utiliza el mapa de vértices visitados (`visited`) 
+	    - Dentro de `aux_structure`
+        
+    - Si el vértice (`key_v`) no ha sido visitado:
+        - Retorna `math.inf` (indica que es inalcanzable)
+            
+    - Si el vértice ha sido visitado:
+        - Retorna su distancia mínima registrada (`dist_to`)
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### `dist_to()` (5/5)
+
+- Ventajas de este diseño:
+    
+    - Eficiencia:
+	    - Acceso directo a las distancias usando el mapa (`map.get`)
+        
+    - Simplicidad:
+	    - Manejo claro de casos inalcanzables (`math.inf`)
+        
+    - Flexibilidad:
+	    - Permite extenderse a otros algoritmos 
+		    - Que usen estructuras similares
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Quiz I
+
+-  Si después de ejecutar el algoritmo de Dijkstra en un grafo dirigido, conectado desde un vértice `s`, se encuentra un arco que aún puede ser relajado, ¿qué implica esto?
+
+
+	<br>
+
+	- A. Dijkstra terminó correctamente y encontró los caminos más cortos desde `s`
+	
+	- B. Dijkstra terminó correctamente y encontró el MST desde `s`
+	
+	- C. El grafo tiene ciclos
+	
+	- **D. El grafo puede tener arcos con pesos negativos**
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Quiz I - Solución
+
+-  Si después de ejecutar el algoritmo de Dijkstra en un grafo dirigido, conectado desde un vértice `s`, se encuentra un arco que aún puede ser relajado, ¿qué implica esto?
+
+	<br>
+
+	- A. Dijkstra terminó correctamente y encontró los caminos más cortos desde `s`
+	
+	- B. Dijkstra terminó correctamente y encontró el MST desde `s`
+	
+	- C. El grafo tiene ciclos
+	
+	- **D. El grafo puede tener arcos con pesos negativos**
+
+- **Explicación:**  Dijkstra no funciona correctamente con arcos de **peso negativo** debido a que fallaría la suposición de que un camino más corto a un vértice dado, no cambiaría si se exploran más y más vértices
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Quiz II
+
+- Si el algoritmo de Dijkstra indica que el costo del camino de un vértice `S` a un vértice `V` es infinito, ¿qué significa esto?
+
+	<br>
+
+	- A. No hay camino de `S` a `V`
+		
+	- B. Hay arcos con costos muy bajos
+		
+	- C. El grafo tiene ciclos
+		
+	- D. Hay un arco con un costo muy alto
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Quiz II - Solución
+
+- Si el algoritmo de Dijkstra indica que el costo del camino de un vértice `S` a un vértice `V` es infinito, ¿qué significa esto?
+
+	<br>
+
+- **A. No hay camino de `S` a `V`**
+	
+- B. Hay arcos con costos muy bajos
+	
+- C. El grafo tiene ciclos
+	
+- D. Hay un arco con un costo muy alto
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Quiz III
+
+- En un grafo dirigido donde los arcos tienen costos positivos y existe un arco X -> Y, y NO existe el arco Y -> X, ¿qué propiedad NO garantiza el algoritmo de Dijkstra?
+
+- A. Cálculo de los vértices alcanzables desde el vértice origen
+
+- B. Orden de complejidad temporal O(E log V) en el peor caso
+
+- C. Para un vértice Y alcanzable desde el vértice inicial X, permite encontrar un camino de X a Y y un camino de regreso de Y a X
+
+- D. Cálculo de caminos de costo mínimo desde el vértice origen
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Quiz III - Solución
+
+- En un grafo dirigido donde los arcos tienen costos positivos y existe un arco X -> Y, y NO existe el arco Y -> X, ¿qué propiedad NO garantiza el algoritmo de Dijkstra?
+
+- A. Cálculo de los vértices alcanzables desde el vértice origen
+
+- B. Orden de complejidad temporal O(E log V)
+
+- **C. Para un vértice Y alcanzable desde el vértice inicial X, permite encontrar un camino de X a Y y un camino de regreso de Y a X**
+
+- D. Cálculo de caminos de costo mínimo desde el vértice origen
+
+	<br>
+
+- **Explicación:**  Dijkstra solo garantiza encontrar el camino más corto de un vértice inicial a todos los demás vértices de un grafo conexo y ponderado con pesos positivos, respetando las direcciones de los arcos. No garantiza encontrar caminos de retorno
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Quiz IV
+
+- ¿Cuál condición no es necesaria para el algoritmo de Dijkstra?
+
+- A. Todas las ponderaciones de los arcos deben ser positivas
+
+ - B. Se necesita seleccionar un vértice origen
+
+- C. El grafo no debe tener ciclos
+
+- D. Ninguna de las anteriores
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Quiz IV - Solución
+
+- ¿Cuál condición no es necesaria para el algoritmo de Dijkstra?
+
+- A. Todas las ponderaciones de los arcos deben ser positivas
+
+ - B. Se necesita seleccionar un vértice origen
+
+- **C. El grafo no debe tener ciclos**
+
+- D. Ninguna de las anteriores
+
+
+<br>
+
+- **Explicación:** Dijkstra puede aplicarse a cualquier grafo dirigido con pesos no negativos, no necesariamente un DAG. Puede manejar ciclos siempre y cuando los pesos de los arcos sean no negativos
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Quiz V
+
+<img src="Pasted image 20250512134029.png" alt="" style="width: 40%; height: 45%; object-fit: fill">
+
+
+Usando el algoritmo de Dijkstra, ¿cuál de los siguientes es el peso del camino más corto entre el vértice origen 2 y el vértice 6?
+
+- A.     9
+
+- B.     8
+
+- C.    6
+
+- D.    5
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Quiz V - Solución
+
+<img src="Pasted image 20250512134029.png" alt="" style="width: 40%; height: 45%; object-fit: fill">
+
+
+Usando el algoritmo de Dijkstra, ¿cuál de los siguientes es el peso del camino más corto entre el vértice origen 2 y el vértice 6?
+
+- A.     9
+
+- B.     8
+
+- **C.**     **6 (2-7-5-6)**
+
+- D.    5
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Módulo 4: Herramienta de simulación útil para repasar
+
+
+- **DFS, BFS, MST y Dijkstra:**
+	- [https://graphonline.top/es/](https://graphonline.top/es/)  
+	- Se puede crear el grafo
+	- O cargarlo
+		- Desde por ejemplo un archivo que contenga
+			- La matriz de adyacencia (puede ser ponderada)
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+<i class="fas fa-question-circle fa-2x fa-spin fa-4x"></i>
+
+<br>
+<br>
+
+ [<i class="fas fa-home  fa-3x"></i>](https://eerosales24.github.io/eda_2025_20/#)
+</div></script></section></div>
+    </div>
+
+    <script src="dist/reveal.js"></script>
+
+    <script src="plugin/markdown/markdown.js"></script>
+    <script src="plugin/highlight/highlight.js"></script>
+    <script src="plugin/zoom/zoom.js"></script>
+    <script src="plugin/notes/notes.js"></script>
+    <script src="plugin/math/math.js"></script>
+	<script src="plugin/mermaid/mermaid.js"></script>
+	<script src="plugin/chart/chart.min.js"></script>
+	<script src="plugin/chart/plugin.js"></script>
+	<script src="plugin/customcontrols/plugin.js"></script>
+
+    <script>
+      function extend() {
+        var target = {};
+        for (var i = 0; i < arguments.length; i++) {
+          var source = arguments[i];
+          for (var key in source) {
+            if (source.hasOwnProperty(key)) {
+              target[key] = source[key];
+            }
+          }
+        }
+        return target;
+      }
+
+	  function isLight(color) {
+		let hex = color.replace('#', '');
+
+		// convert #fff => #ffffff
+		if(hex.length == 3){
+			hex = `${hex[0]}${hex[0]}${hex[1]}${hex[1]}${hex[2]}${hex[2]}`;
+		}
+
+		const c_r = parseInt(hex.substr(0, 2), 16);
+		const c_g = parseInt(hex.substr(2, 2), 16);
+		const c_b = parseInt(hex.substr(4, 2), 16);
+		const brightness = ((c_r * 299) + (c_g * 587) + (c_b * 114)) / 1000;
+		return brightness > 155;
+	}
+
+	var bgColor = getComputedStyle(document.documentElement).getPropertyValue('--r-background-color').trim();
+	var isLight = isLight(bgColor);
+
+	if(isLight){
+		document.body.classList.add('has-light-background');
+	} else {
+		document.body.classList.add('has-dark-background');
+	}
+
+      // default options to init reveal.js
+      var defaultOptions = {
+        controls: true,
+        progress: true,
+        history: true,
+        center: true,
+        transition: 'default', // none/fade/slide/convex/concave/zoom
+        plugins: [
+          RevealMarkdown,
+          RevealHighlight,
+          RevealZoom,
+          RevealNotes,
+          RevealMath.MathJax3,
+		  RevealMermaid,
+		  RevealChart,
+		  RevealCustomControls,
+        ],
+
+
+    	allottedTime: 120 * 1000,
+
+		mathjax3: {
+			mathjax: 'plugin/math/mathjax/tex-mml-chtml.js',
+		},
+		markdown: {
+		  gfm: true,
+		  mangle: true,
+		  pedantic: false,
+		  smartLists: false,
+		  smartypants: false,
+		},
+
+		mermaid: {
+			theme: isLight ? 'default' : 'dark',
+		},
+
+		customcontrols: {
+			controls: [
+			]
+		},
+      };
+
+      // options from URL query string
+      var queryOptions = Reveal().getQueryHash() || {};
+
+      var options = extend(defaultOptions, {"width":960,"height":700,"margin":"0.025","minScale":"0.1","maxScale":"2.0","controls":"true","controlsLayout":"bottom-right","progress":"true","slideNumber":"true","center":"false","transition":"slide","transitionSpeed":"default"}, queryOptions);
+    </script>
+
+    <script>
+      Reveal.initialize(options);
+    </script>
+  </body>
+
+  <!-- created with Advanced Slides -->
+</html>

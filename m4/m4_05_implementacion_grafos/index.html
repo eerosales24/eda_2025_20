@@ -1,0 +1,946 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+
+    <title></title>
+    <link rel="stylesheet" href="dist/reveal.css" />
+    <link rel="stylesheet" href="dist/theme/iph.css" id="theme" />
+    <link rel="stylesheet" href="plugin/highlight/spyder.css" />
+	<link rel="stylesheet" href="css/layout.css" />
+	<link rel="stylesheet" href="plugin/customcontrols/style.css">
+
+
+
+    <script defer src="dist/fontawesome/all.min.js"></script>
+
+	<script type="text/javascript">
+		var forgetPop = true;
+		function onPopState(event) {
+			if(forgetPop){
+				forgetPop = false;
+			} else {
+				parent.postMessage(event.target.location.href, "app://obsidian.md");
+			}
+        }
+		window.onpopstate = onPopState;
+		window.onmessage = event => {
+			if(event.data == "reload"){
+				window.document.location.reload();
+			}
+			forgetPop = true;
+		}
+
+		function fitElements(){
+			const itemsToFit = document.getElementsByClassName('fitText');
+			for (const item in itemsToFit) {
+				if (Object.hasOwnProperty.call(itemsToFit, item)) {
+					var element = itemsToFit[item];
+					fitElement(element,1, 1000);
+					element.classList.remove('fitText');
+				}
+			}
+		}
+
+		function fitElement(element, start, end){
+
+			let size = (end + start) / 2;
+			element.style.fontSize = `${size}px`;
+
+			if(Math.abs(start - end) < 1){
+				while(element.scrollHeight > element.offsetHeight){
+					size--;
+					element.style.fontSize = `${size}px`;
+				}
+				return;
+			}
+
+			if(element.scrollHeight > element.offsetHeight){
+				fitElement(element, start, size);
+			} else {
+				fitElement(element, size, end);
+			}		
+		}
+
+
+		document.onreadystatechange = () => {
+			fitElements();
+			if (document.readyState === 'complete') {
+				if (window.location.href.indexOf("?export") != -1){
+					parent.postMessage(event.target.location.href, "app://obsidian.md");
+				}
+				if (window.location.href.indexOf("print-pdf") != -1){
+					let stateCheck = setInterval(() => {
+						clearInterval(stateCheck);
+						window.print();
+					}, 250);
+				}
+			}
+	};
+
+
+        </script>
+  </head>
+  <body>
+    <div class="reveal">
+      <div class="slides"><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Estructura de Datos y Algoritmos - EDA
+
+####  *Implementación de grafos*
+
+[Eduardo Rosales](mailto:ee.rosales24@uniandes.edu.co)
+
+Departamento de Ingeniería de Sistemas y Computación
+
+Universidad de los Andes
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+###  Grafos – API
+
+
+- **TODO:**
+	- Revisar la [documentación de grafos](https://isis1225devs.github.io/ISIS1225-Structure-Documentation/DataStructures.Graph.html#implementaciones-de-grafos)
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Definición  de nodo/vértice
+
+```python
+
+from DataStructures.Map import map_linear_probing as mp
+
+def new_vertex(key, value):
+    """
+    Crea un nuevo vértice con una llave, un valor y un mapa vacío de adyacencias.
+
+    :param key: Llave identificadora del vértice.
+    :type key: any
+    :param value: Valor asociado al vértice.
+    :type value: any
+    :return: Diccionario que representa el vértice.
+    :rtype: dict
+    """
+    return {"key": key, "value": value, "adjacents": mp.new_map(0, 0.5)}
+```
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Definición de arco/arista
+
+```python
+def new_edge(v, weight=0):
+    """
+    Crea un nuevo arco dirigido hacia el vértice dado, con un peso opcional.
+
+    El arco se representa con los siguientes atributos:
+    - to: Vértice destino del arco.
+    - weight: Peso del arco.
+
+    :param v: Vértice destino del arco.
+    :type v: any
+    :param weight: Peso del arco.
+    :type weight: float
+    :return: Diccionario que representa el arco.
+    :rtype: dict
+    """
+    return {"to": v, "weight": weight}
+```
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Definición de grafo
+
+```python
+
+from DataStructures.Map import map_linear_probing as map
+
+def new_graph(order):
+    """
+    Crea un grafo vacío con capacidad inicial para un número dado de vértices.
+
+    El grafo se representa con los siguientes atributos:
+    - vertices: Mapa de vértices donde cada llave es un vértice y su valor 
+       es un diccionario con su información y adyacencias.
+    - num_edges: Número de arcos en el grafo.
+
+    :param order: Número estimado de vértices para inicializar el mapa.
+    :type order: int
+    :return: Grafo representado como un diccionario.
+    :rtype: dict
+    """
+    return {
+        "vertices": map.new_map(order, 0.5),
+        "num_edges": 0,
+    }
+```
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### ¿Cómo insertar un nodo/vértice? (1/4)
+
+- Objetivo:
+	- Insertar un vértice en un grafo representado por mapas
+    
+- Cada vértice tiene una **llave** e **información asociada**
+    
+- El grafo mantiene un mapa de vértices (`"vertices"`)
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### ¿Cómo insertar un nodo/vértice? (2/4)
+
+**Caso 1 — grafo vacío**:
+
+```python
+    new_vertex = new_vertex(new_key, new_info)
+    my_graph["vertices"] = map.put(my_graph["vertices"], new_key, new_vertex)
+```
+
+
+- `my_graph["vertices"]` es el mapa donde se almacenan los vértices
+- `map.put(...)` agrega la pareja (`new_key`, `new_vertex`) al mapa
+
+
+- Como el grafo está vacío:
+    - El mapa de vértices no contiene ninguna entrada
+    - Se inserta la nueva llave con su vértice como valor
+- Resultado:
+    - El mapa de vértices se actualiza dentro del grafo
+    - Ahora contiene un único vértice insertado
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### ¿Cómo insertar un nodo/vértice? (3/4)
+
+**Caso 2 — inserción de nueva llave**:
+
+```python
+    new_vertex = new_vertex(new_key, new_info)
+    my_graph["vertices"] = map.put(my_graph["vertices"], new_key, new_vertex)
+```
+ 
+- `my_graph["vertices"]` es el mapa donde se almacenan los vértices
+- `map.put(...)` agrega la pareja (`new_key`, `new_vertex`) al mapa
+    
+- Como la llave **no existe aún** en el grafo:
+    - No se sobrescribe ningún vértice existente
+    - El nuevo vértice se agrega como una entrada adicional
+        
+- Resultado:
+    - El mapa de vértices se actualiza con una **nueva entrada**
+    - El grafo ahora contiene un vértice más
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### ¿Cómo insertar un nodo/vértice? (4/4)
+
+**Caso 3 — la llave ya existe (actualización)**:
+
+```python
+    new_vertex = new_vertex(new_key, new_info)
+    my_graph["vertices"] = map.put(my_graph["vertices"], new_key, new_vertex)
+```
+
+- `my_graph["vertices"]` es el mapa donde se almacenan los vértices
+- `map.put(...)` reemplaza el valor asociado a la llave existente
+    
+- Como la llave **ya está presente** en el grafo:
+    - Se detecta como una colisión en el mapa
+    - Se sobrescribe el vértice anterior con el nuevo
+        
+- Resultado:
+    - Se **actualiza** la información del vértice
+    - La estructura del grafo no cambia (misma llave, nueva info)
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### `insert_vertex()`
+
+```python
+def insert_vertex(my_graph, new_key, new_info):
+    """
+    Inserta un vértice en el grafo ``my_graph``.
+
+    Si la llave ``new_key`` no existe en el grafo,
+    se agrega junto con su información. 
+    Si ya existe, se actualiza su información.
+
+    :param my_graph: Grafo sobre el que se realiza la operación.
+    :type my_graph: dict
+    :param new_key: Llave del vértice a insertar o actualizar.
+    :type new_key: any
+    :param new_info: Información asociada al vértice.
+    :type new_info: any
+    :return: El grafo con el vértice insertado o actualizado.
+    :rtype: dict
+    """
+    new_vertex = new_vertex(new_key, new_info)
+    my_graph["vertices"] = map.put(my_graph["vertices"], new_key, new_vertex)
+
+    return my_graph
+```
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Algunos detalles de implementación de DFS
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### `dfs()`(1/5)
+
+- Objetivo:
+
+	- Recorrer un grafo desde un vértice inicial 
+		- Usando **búsqueda en profundidad (DFS)**
+	- Identificar qué vértices están **conectados** al vértice de origen
+	- Registrar por dónde se llegó a cada vértice (arista anterior)
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### `dfs()`(2/5)
+
+- Crear la estructura de visita:
+
+```python
+visited_map = map.new_map(
+    num_elements=digraph.order(my_graph),
+    load_factor=0.5,
+)
+```
+
+
+- Se crea un mapa vacío `visited_map` para registrar los vértices visitados
+- Su tamaño inicial es igual al número de vértices del grafo
+- Usa un factor de carga de 0.5 para mejor desempeño
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### `dfs()`(3/5)
+
+- Crear la estructura de visita:
+
+```python
+map.put(visited_map, source, {"marked": True, "edge_from": None})
+```
+
+- Se marca el vértice de inicio (`source`) como **visitado**
+- `marked: True` indica que ya fue recorrido
+- `edge_from: None` porque no se llegó desde otro vértice (es el inicio)
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### `dfs()`(4/5)
+
+```python
+visited_map = dfs_vertex(my_graph, source, visited_map)
+```
+
+- Se llama a `dfs_vertex`
+	- Que hace el recorrido recursivo
+	- Visita todos los vértices alcanzables desde el inicial
+		- Actualiza el `visited_map` con el resultado
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### `dfs()` (5/5)
+
+```python
+def dfs(my_graph, source):
+    """
+    Realiza un recorrido DFS (búsqueda en profundidad) desde un vértice inicial
+    en el grafo.
+
+    Crea una estructura de búsqueda para marcar los vértices visitados y 
+    las aristas recorridas.
+
+    :param my_graph: Grafo sobre el que se ejecuta el recorrido.
+    :type my_graph: dict
+    :param source: Llave del vértice desde el cual inicia el recorrido.
+    :type source: any
+    :return: Mapa con la información de los vértices visitados.
+    :rtype: dict
+    """
+    visited_map = map.new_map(
+        num_elements=digraph.order(my_graph),
+        load_factor=0.5,
+    )
+    map.put(visited_map, source, {"marked": True, "edge_from": None})
+    visited_map = dfs_vertex(my_graph, source, visited_map)
+    return visited_map
+```
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Algoritmo de `dfs_vertex()` (1/2)
+
+```python
+def dfs_vertex(my_graph, vertex, visited_map):
+    """
+    Recorre recursivamente el grafo en profundidad (DFS) desde un vértice dado.
+
+    Marca los vértices alcanzables y registra el vértice anterior desde el que se llegó.
+
+    :param my_graph: Grafo a recorrer.
+    :type my_graph: dict
+    :param vertex: Llave del vértice desde el cual continúa el recorrido.
+    :type vertex: any
+    :param visited_map: Mapa de vértices visitados.
+    :type visited_map: dict
+    :return: Mapa actualizado con los vértices alcanzados.
+    :rtype: dict
+    """
+```
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Algoritmo de `dfs_vertex()` (2/2)
+
+- Para cada vecino en la lista de adyacencias del vértice actual:
+	- Si el vecino no ha sido visitado aún:
+		- Marcar el vecino como visitado
+        - Registrar que se llegó a él desde el vértice actual
+        - Hacer DFS recursivo desde el vecino
+	        - Invocando a `dfs_vertex()`
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Complejidad temporal de `dfs_vertex()`
+
+- **O(V + E)**  
+	- donde:
+
+	- **V** = Número de vértices alcanzables 
+		- Desde el vértice inicial
+    
+	- **E** = Número de aristas 
+		- Que conectan esos vértices
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Algoritmo de `has_path_to()` (1/2)
+
+```python
+def has_path_to(key_v, visited_map):
+    """
+    Indica si existe un camino desde el vértice de origen hasta ``key_v`` 
+    en el recorrido DFS.
+
+    :param key_v: Llave del vértice destino.
+    :type key_v: any
+    :param visited_map: Mapa generado por DFS con los vértices visitados.
+    :type visited_map: dict
+    :return: ``True`` si ``key_v`` fue visitado, ``False`` en caso contrario.
+    :rtype: bool
+    """
+```
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Algoritmo de `has_path_to()` (2/2)
+
+- Verificar si el vértice destino está en el mapa de visitados:
+    - Si está:
+        - Retornar `True`  
+	        - Existe un camino desde el origen
+    - Si no está:
+        - Retornar `False`  
+	        - No hay camino registrado
+
+- Tip: Hay una operación en un mapa que hace lo anterior
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Complejidad temporal de `has_path_to()`
+
+
+- ¿Cuál es la complejidad temporal de la función?
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Algoritmo de `path_to()` (1/2)
+
+```python
+def path_to(key_v, visited_map):
+    """
+    Retorna el camino desde el vértice de origen hasta ``key_v`` usando la estructura generada por DFS.
+
+    :param key_v: Llave del vértice destino.
+    :type key_v: any
+    :param visited_map: Mapa generado por DFS con los vértices visitados.
+    :type visited_map: dict
+    :return: Pila con el camino desde el origen hasta ``key_v``, o ``None`` si no hay camino.
+    :rtype: stack
+    """
+```
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Algoritmo de `path_to()` (2/2)
+
+- Crear una pila vacía para guardar el camino
+
+- Si el vértice destino no está en `visited_map`:
+    - Retornar `None`  
+	    -  No hay camino desde el origen
+
+- Asignar el vértice actual como el destino
+
+- Mientras el vértice actual no sea `None`:
+    - Apilar el vértice actual en la pila
+    - Moverse al vértice desde el que se llegó (`edge_from`)
+
+- Retornar la pila con el camino desde el origen hasta el destino
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Algunos detalles de implementación de BFS
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### `bfs()`(1/5)
+
+Objetivo:
+
+- Recorrer un grafo desde un vértice inicial
+    - Usando **búsqueda en anchura (BFS)**
+        
+- Identificar qué vértices están **conectados** al vértice de origen
+    
+- Registrar:
+    
+    - La **distancia** desde el origen a cada vértice
+        
+    - Por dónde se llegó a cada vértice (**arista anterior**)
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### `bfs()` (2/5)
+
+- Crear la estructura de visita:
+
+```python
+visited_map = map.new_map(
+    num_elements=digraph.order(my_graph),
+    load_factor=0.5,
+)
+```
+
+- Se crea un mapa vacío `visited_map` para registrar los vértices visitados
+    
+- Su tamaño inicial es igual al número de vértices del grafo
+    
+- Usa un factor de carga de 0.5 para eficiencia en inserciones
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### `bfs()` (3/5)
+
+- Marcar el vértice inicial:
+    
+```python
+map.put(visited_map, source, {"edge_from": None, "dist_to": 0})
+```
+
+Se registra el vértice de inicio (`source`)
+- `edge_from: None` porque es el punto de partida
+- `dist_to: 0` porque la distancia desde el origen a sí mismo es cero
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### `bfs()` (4/5)
+
+```python
+visited_map = bfs_vertex(my_graph, source, visited_map)
+```
+
+Se llama a `bfs_vertex`
+
+- Ejecuta el recorrido **iterativo** en anchura
+- Explora los vecinos nivel por nivel
+- Marca cada vértice alcanzado y su distancia desde el origen
+- Actualiza el `visited_map` con esta información
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### `bfs()` (5/5)
+
+```python
+def bfs(my_graph, source):
+    """
+    Realiza un recorrido BFS (búsqueda en anchura) desde un vértice inicial
+    en el grafo.
+
+    Crea una estructura para registrar las distancias desde el vértice inicial 
+    y el vértice anterior en el camino.
+
+    :param my_graph: Grafo sobre el que se ejecuta el recorrido.
+    :type my_graph: dict
+    :param source: Llave del vértice desde el cual inicia el recorrido.
+    :type source: any
+    :return: Mapa con información de los vértices visitados, distancias y 
+    origen de cada uno.
+    :rtype: dict
+    """
+    visited_map = map.new_map(num_elements=digraph.order(my_graph), load_factor=0.5)
+    map.put(visited_map, source, {"edge_from": None, "dist_to": 0})
+    visited_map = bfs_vertex(my_graph, source, visited_map)
+    return visited_map
+```
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Algunos detalles de implementación de DFO
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### `new_dfo_structure()` (1/5)
+
+
+- Objetivo:
+	- Crear una estructura para almacenar el estado del recorrido DFO
+	- Se usa en `dfo()` y `dfs_vertex()`
+	- La estructura permite:
+	    - Marcar vértices visitados
+	    - Registrar el orden de visita (pre, post, reverso)
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### `new_dfo_structure()` (2/5)
+
+```python
+def new_dfo_structure(g_order):
+    """
+    Crea una estructura de búsqueda para almacenar los resultados del recorrido DFO.
+
+    Incluye un mapa de vértices visitados (`marked`), una cola para el preorden
+    (`pre`), una cola para el postorden (`post`) y una pila para el postorden
+    inverso (`reversepost`).
+
+    :param g_order: Número de vértices del grafo.
+    :type g_order: int
+
+    :returns: Estructura de búsqueda vacía para DFO.
+    :rtype: dfo_search
+    """
+```
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### `new_dfo_structure()` (3/5)
+
+```plaintext
+dfo_structure = {
+    'marked': null,
+    'pre': new_queue(),
+    'post': new_queue(),
+    'reversepost': new_stack()
+}
+```
+
+- Nota: Esto es un solo un pseudocódigo para dar una idea de la implementación
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### `new_dfo_structure()` (4/5)
+
+```plaintext
+dfo_structure = {
+    'marked': null,
+    'pre': new_queue(),
+    'post': new_queue(),
+    'reversepost': new_stack()
+}
+```
+
+Se crea un diccionario con 4 llaves:
+
+- `marked`: inicialmente en un valor nulo
+- `pre`: cola vacía para registrar el preorden
+- `post`: cola vacía para registrar el postorden
+- `reversepost`: pila vacía para el postorden inverso
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### `new_dfo_structure()` (5/5)
+
+```plaintext
+dfo_structure["marked"] = new_map(num_elements=g_order, load_factor=0.5)
+retorno dfo_structure
+```
+
+- La estructura para manejar la marcación puede ser un mapa
+
+- Tamaño inicial es el número de vértices (g_order)
+
+- Factor de carga: `0.5` o similares, por desempeño
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### `dfo()` (1/5)
+
+- Objetivo:
+    - Recorrer todo el grafo usando **búsqueda en profundidad**
+    - Registrar el orden de visita de los vértices:
+        - Pre-orden
+        - Post-orden
+        - Post-orden inverso (orden topológico)
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### `dfo()` (1/6)
+
+```python
+def dfo(my_graph):
+    """
+    Ejecuta un recorrido Depth First Order (DFO) sobre todo el grafo.
+
+    Visita todos los vértices (incluso en componentes desconectadas) y 
+    construye una estructura con los órdenes de recorrido: 
+    preorden, postorden y postorden inverso.
+
+    :param my_graph: Grafo a recorrer.
+    :type my_graph: adj_list_graph
+
+    :returns: Estructura de búsqueda con el resultado del recorrido.
+    :rtype: :ref:`dfo_search`
+    """
+```
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### `dfo()` (2/6)
+
+```python
+from DataStructures.Graph import digraph as dg
+
+aux_structure = new_dfo_structure(dg.order(my_graph))
+```
+
+- Se inicializa la estructura `dfo_structure` con capacidad igual al número de vértices
+    
+- Como se vio antes, la estructura tiene:
+    - `marked`: Mapa para marcar vértices visitados
+    - `pre`: Cola para almacenar el preorden
+    - `post`: Cola para almacenar el postorden
+    - `reversepost`: Pila con el postorden inverso
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### `dfo()` (3/6)
+
+```python
+lista_vert = dg.vertices(my_graph)
+```
+
+- Se obtiene la lista completa de vértices del grafo
+    
+- La exploración será total: 
+	- **DFO recorre todo el grafo**
+		- Incluso si tiene componentes desconectados
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### `dfo()` (4/6)
+
+```python
+for i in range(size(lista_vert)):
+    vertex = get_element(lista_vert, i)
+    if not map.contains(aux_structure["marked"], vertex):
+        dfs_vertex(my_graph, vertex, aux_structure)
+        
+return aux_structure
+```
+
+- Para cada vértice del grafo:
+    - Si **no ha sido visitado** aún:
+        - Se inicia una DFS desde ese vértice
+            
+- Así se asegura que se recorre cada componente conectado del grafo
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### `dfo()` (5/6)
+
+- Al final, se retorna la estructura completa con:
+    - Qué vértices fueron visitados
+    - En qué orden se exploraron
+- El postorden inverso se usa para
+	- Obtener el orden topológico
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### `dfs_vertex()` (1/4)
+
+```python
+def dfs_vertex(my_graph, key_v, aux_structure):
+    """
+    Recorre recursivamente el grafo en profundidad desde un vértice dado, 
+    actualizando los órdenes de visita en la estructura DFO.
+
+    :param my_graph: Grafo a recorrer.
+    :type my_graph: adj_list_graph
+    :param key_v: Vértice desde el que inicia el recorrido.
+    :type key_v: any
+    :param aux_structure: Estructura para registrar el recorrido.
+    :type aux_structure: dfo_search
+
+    :returns: Estructura DFO actualizada tras el recorrido.
+    :rtype: dfo_search
+    """
+```
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### `dfs_vertex()` (2/4)
+
+- Se trata de una función **recursiva**
+- Es responsable de visitar los vértices desde uno dado
+	- En profundidad
+- Actualiza las 3 estructuras de orden 
+	- En la medida que visita vértice
+		- Pre, post y post inverso
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### `dfs_vertex()` (3/4)
+
+- Antes de explorar vecinos:
+    - Se agrega el vértice actual a la cola `pre`  
+        -   _Antes de visitar a los vecinos_
+    - Se marca el vértice como visitado en `marked`
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### `dfs_vertex()` (4/4)
+
+- Para cada vecino no visitado:
+    - Se llama recursivamente a `dfs_vertex()`
+        
+- Luego de explorar todos los vecinos:
+    - Se agrega el vértice a `post`  
+        - _Al terminar de procesar los vecinos_
+        
+    - También se apila en `reversepost`
+	    -  Útil para obtener el orden topológico
+		    - _Al terminar de procesar los vecinos_
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+<i class="fas fa-question-circle fa-2x fa-spin fa-4x"></i>
+
+<br>
+<br>
+
+ [<i class="fas fa-home  fa-3x"></i>](https://eerosales24.github.io/eda_2025_20/#)
+</div></script></section></div>
+    </div>
+
+    <script src="dist/reveal.js"></script>
+
+    <script src="plugin/markdown/markdown.js"></script>
+    <script src="plugin/highlight/highlight.js"></script>
+    <script src="plugin/zoom/zoom.js"></script>
+    <script src="plugin/notes/notes.js"></script>
+    <script src="plugin/math/math.js"></script>
+	<script src="plugin/mermaid/mermaid.js"></script>
+	<script src="plugin/chart/chart.min.js"></script>
+	<script src="plugin/chart/plugin.js"></script>
+	<script src="plugin/customcontrols/plugin.js"></script>
+
+    <script>
+      function extend() {
+        var target = {};
+        for (var i = 0; i < arguments.length; i++) {
+          var source = arguments[i];
+          for (var key in source) {
+            if (source.hasOwnProperty(key)) {
+              target[key] = source[key];
+            }
+          }
+        }
+        return target;
+      }
+
+	  function isLight(color) {
+		let hex = color.replace('#', '');
+
+		// convert #fff => #ffffff
+		if(hex.length == 3){
+			hex = `${hex[0]}${hex[0]}${hex[1]}${hex[1]}${hex[2]}${hex[2]}`;
+		}
+
+		const c_r = parseInt(hex.substr(0, 2), 16);
+		const c_g = parseInt(hex.substr(2, 2), 16);
+		const c_b = parseInt(hex.substr(4, 2), 16);
+		const brightness = ((c_r * 299) + (c_g * 587) + (c_b * 114)) / 1000;
+		return brightness > 155;
+	}
+
+	var bgColor = getComputedStyle(document.documentElement).getPropertyValue('--r-background-color').trim();
+	var isLight = isLight(bgColor);
+
+	if(isLight){
+		document.body.classList.add('has-light-background');
+	} else {
+		document.body.classList.add('has-dark-background');
+	}
+
+      // default options to init reveal.js
+      var defaultOptions = {
+        controls: true,
+        progress: true,
+        history: true,
+        center: true,
+        transition: 'default', // none/fade/slide/convex/concave/zoom
+        plugins: [
+          RevealMarkdown,
+          RevealHighlight,
+          RevealZoom,
+          RevealNotes,
+          RevealMath.MathJax3,
+		  RevealMermaid,
+		  RevealChart,
+		  RevealCustomControls,
+        ],
+
+
+    	allottedTime: 120 * 1000,
+
+		mathjax3: {
+			mathjax: 'plugin/math/mathjax/tex-mml-chtml.js',
+		},
+		markdown: {
+		  gfm: true,
+		  mangle: true,
+		  pedantic: false,
+		  smartLists: false,
+		  smartypants: false,
+		},
+
+		mermaid: {
+			theme: isLight ? 'default' : 'dark',
+		},
+
+		customcontrols: {
+			controls: [
+			]
+		},
+      };
+
+      // options from URL query string
+      var queryOptions = Reveal().getQueryHash() || {};
+
+      var options = extend(defaultOptions, {"width":960,"height":700,"margin":"0.025","minScale":"0.1","maxScale":"2.0","controls":"true","controlsLayout":"bottom-right","progress":"true","slideNumber":"true","center":"false","transition":"slide","transitionSpeed":"default"}, queryOptions);
+    </script>
+
+    <script>
+      Reveal.initialize(options);
+    </script>
+  </body>
+
+  <!-- created with Advanced Slides -->
+</html>

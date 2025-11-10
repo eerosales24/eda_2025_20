@@ -1,0 +1,835 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+
+    <title></title>
+    <link rel="stylesheet" href="dist/reveal.css" />
+    <link rel="stylesheet" href="dist/theme/iph.css" id="theme" />
+    <link rel="stylesheet" href="plugin/highlight/spyder.css" />
+	<link rel="stylesheet" href="css/layout.css" />
+	<link rel="stylesheet" href="plugin/customcontrols/style.css">
+
+
+
+    <script defer src="dist/fontawesome/all.min.js"></script>
+
+	<script type="text/javascript">
+		var forgetPop = true;
+		function onPopState(event) {
+			if(forgetPop){
+				forgetPop = false;
+			} else {
+				parent.postMessage(event.target.location.href, "app://obsidian.md");
+			}
+        }
+		window.onpopstate = onPopState;
+		window.onmessage = event => {
+			if(event.data == "reload"){
+				window.document.location.reload();
+			}
+			forgetPop = true;
+		}
+
+		function fitElements(){
+			const itemsToFit = document.getElementsByClassName('fitText');
+			for (const item in itemsToFit) {
+				if (Object.hasOwnProperty.call(itemsToFit, item)) {
+					var element = itemsToFit[item];
+					fitElement(element,1, 1000);
+					element.classList.remove('fitText');
+				}
+			}
+		}
+
+		function fitElement(element, start, end){
+
+			let size = (end + start) / 2;
+			element.style.fontSize = `${size}px`;
+
+			if(Math.abs(start - end) < 1){
+				while(element.scrollHeight > element.offsetHeight){
+					size--;
+					element.style.fontSize = `${size}px`;
+				}
+				return;
+			}
+
+			if(element.scrollHeight > element.offsetHeight){
+				fitElement(element, start, size);
+			} else {
+				fitElement(element, size, end);
+			}		
+		}
+
+
+		document.onreadystatechange = () => {
+			fitElements();
+			if (document.readyState === 'complete') {
+				if (window.location.href.indexOf("?export") != -1){
+					parent.postMessage(event.target.location.href, "app://obsidian.md");
+				}
+				if (window.location.href.indexOf("print-pdf") != -1){
+					let stateCheck = setInterval(() => {
+						clearInterval(stateCheck);
+						window.print();
+					}, 250);
+				}
+			}
+	};
+
+
+        </script>
+  </head>
+  <body>
+    <div class="reveal">
+      <div class="slides"><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Estructura de Datos y Algoritmos - EDA
+
+####  *Árboles de Recubrimiento*
+
+[Eduardo Rosales](mailto:ee.rosales24@uniandes.edu.co)
+
+Departamento de Ingeniería de Sistemas y Computación
+
+Universidad de los Andes
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Árbol de recubrimiento
+
+- Un sub grafo conectado y sin ciclos
+
+- Arbol que conecta todos los vértices del grafo original
+
+- Puede ser un árbol n-ario
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Grafo original
+
+<img src="Screenshot 2025-05-05 at 9.37.20 PM.png" alt="" style="object-fit: scale-down">
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Árbol de recubrimiento
+
+<img src="Screenshot 2025-05-05 at 9.37.41 PM.png" alt="" style="object-fit: scale-down">
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Árbol de Recubrimiento Mínimo - Minimum Spanning Tree (MST)
+
+- Árbol (o conjunto de árboles)
+	- Que conecta todos los vértices del grafo 
+		- Con el _menor peso total_ posible
+	- No contiene ciclos y 
+		- Utiliza solo las aristas estrictamente necesarias
+			- Para conectar todos los nodos
+	
+- Peso total
+	- Suma de los pesos de todas las aristas que forman el MST
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Aplicaciones comunes de un MST
+
+- **Optimización de redes:** 
+	- Minimiza el costo total de conexión
+		- Ej: Cableado en redes de computadores
+    
+- **Clustering:** 
+	- Calcula el MST
+		- Elimina las _k–1_ aristas más costosas y forma _k_ grupos o clusters
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### En el curso se estudian dos algoritmos para crear un MST
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Prim lazy
+
+- Inicia desde un nodo arbitrario
+    
+- En cada paso
+	- Agrega la arista de menor peso que conecta un nuevo nodo al árbol
+    
+- **No actualiza los pesos** de las aristas 
+	- Hasta que son necesarias
+		- Evaluación "perezosa"
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Prim eager
+
+- Similar al algoritmo Prim lazy, pero más eficiente
+    
+- Al agregar un nodo al árbol
+	- **Actualiza inmediatamente** 
+		- Los pesos de las aristas conectadas
+			- Evaluación "ansiosa"
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Conozcamos a Prim lazy
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Algoritmo Prim lazy (1/2)
+
+- Inicia en un vértice cualquiera y lo marca como visitado
+    
+- Inserta en una **cola de prioridad** (min_pq) 
+	- Todas las aristas hacia vértices no visitados/marcados
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Algoritmo Prim lazy (2/2)
+
+- Mientras `min_pq` no esté vacía:
+    - Extrae la arista de **menor peso**
+    - Si **ambos extremos están visitados**, la descarta
+    - Si conecta con un vértice **no visitado**:
+        - Agrega la arista al MST (`cola_mst`)
+        - Marca el nuevo vértice como visitado
+        - Inserta en `min_pq` sus aristas hacia vértices no visitados
+            
+
+- Resultado:
+	- `cola_mst` contiene las aristas del MST
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Algoritmo Prim lazy - Suposiciones
+
+- El grafo debe ser **conexo** (hay un camino entre cualquier par de vértices)
+    
+- Los **pesos pueden representar** cualquier magnitud (costos, tiempos, etc.)
+	- No necesariamente distancias
+    
+- No es necesario que todos los pesos sean distintos:
+    - Si los pesos se repiten, el MST **puede no ser único**
+	    - Pero el algoritmo sigue siendo válido y funcional
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Ejemplo detallado de Prim lazy
+
+
+- [Ejemplo Prim lazy](https://eerosales24.github.io/eda_2025_20/m4/prim_lazy.ppsx)
+
+<br>
+
+
+\* Para mejor visibilidad, por favor abrir los archivos en PowerPoint
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Prim lazy – Optimalidad
+
+- **Siempre genera un MST válido**
+	- Si el grafo es conexo y no dirijido
+    
+- El MST obtenido tiene **peso mínimo total**
+    
+- No garantiza un MST único
+    
+    - Si hay aristas con pesos iguales
+	    - Puede haber múltiples soluciones
+        
+- Es un algoritmo **voraz (greedy)**:
+    
+    - Toma decisiones locales óptimas
+	    - Esperando una solución global óptima
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Prim lazy – Complejidad temporal
+
+- **O(E log E)** en su implementación típica con cola de prioridad (heap)
+    
+    - Hasta **E** inserciones y extracciones en `min_pq`
+        
+    - Cada operación de heap cuesta **O(log E)**
+        
+- También se puede expresar como **O(E log V)**
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Prim lazy – Complejidad espacial
+
+- Espacio para marcas de vértices: **O(V)**
+    
+- Cola de prioridad (`min_pq`): hasta **O(E)** aristas
+    
+- Estructura del MST (`cola_mst`): **O(V)** aristas en un árbol
+    
+- **Espacio total**: **O(V + E)**
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Conozcamos a Prim Eager
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Algoritmo Prim eager (1/2)
+
+- Inicia desde un vértice arbitrario y lo marca como visitado
+    
+- Mantiene un **registro del menor peso** para llegar a cada vértice no visitado
+    
+- Usa una **cola de prioridad** (`min_pq`) que actualiza de tal forma que contiene 
+	- Solo la mejor ruta hacia cada vértice no visitado
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Algoritmo Prim eager (2/2)
+    
+- Mientras `min_pq` no esté vacía:
+    - Extrae el vértice con **menor costo de conexión**
+    - Agrega su arista al MST (`cola_mst`) y lo marca como visitado
+    - Para cada arista desde ese vértice:
+        - Si el vértice destino no está visitado **y**
+	        - La arista es mejor que la actual registrada
+            - **Actualiza** su peso y ruta correspondiente en `min_pq`
+- Resultado:
+	- `cola_mst` contiene las aristas del MST
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Algoritmo Prim eager - Suposiciones
+
+- El grafo debe ser **conexo** (hay un camino entre cualquier par de vértices)
+    
+- Los **pesos pueden representar** cualquier magnitud (costos, tiempos, etc.)
+	- No necesariamente distancias
+    
+- No es necesario que todos los pesos sean distintos:
+    - Si los pesos se repiten, el MST **puede no ser único**
+	    - Pero el algoritmo sigue siendo válido y funcional
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Ejemplo detallado de Prim eager
+
+
+- [Ejemplo Prim eager](https://eerosales24.github.io/eda_2025_20/m4/prim_eager.ppsx)
+
+<br>
+
+
+\* Para mejor visibilidad, por favor abrir los archivos en PowerPoint
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Prim eager – Optimalidad
+
+- Siempre genera un **MST válido** si el grafo es conexo y no dirijido
+    
+- El MST obtenido tiene **peso mínimo total**
+    
+- El MST **puede no ser único** si hay aristas con pesos iguales
+    
+- También es un algoritmo **_greedy_**
+	- Pero evita procesar aristas innecesarias
+    
+    - Mantiene y actualiza la mejor opción  para cada vértice no visitado
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Prim eager – Complejidad temporal
+
+- **O(E log V)** con una cola de prioridad eficiente (heap + arreglo de distancias)
+    
+    - Cada vértice puede ser insertado/examinado una vez
+        
+    - Cada arista puede causar una actualización en **log V**
+        
+- Más eficiente que la versión Lazy en grafos densos
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Prim eager – Complejidad espacial
+
+- Espacio para marcas de vértices: **O(V)**
+    
+- Cola de prioridad (`min_pq`): **O(V)** entradas activas
+	- Una por vértice no visitado
+    
+- Arreglo de pesos mínimos por vértice: **O(V)**
+    
+- Estructura del MST (`cola_mst`): **O(V)** aristas
+    
+- **Espacio total:** **O(V + E)**
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Prim lazy vs Prim eager
+
+<table border="1" cellpadding="8" cellspacing="0">
+  <thead>
+    <tr>
+      <th>Aspecto</th>
+      <th>Prim Lazy</th>
+      <th>Prim Eager</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>Estrategia</strong></td>
+      <td>Agrega todas las aristas disponibles</td>
+      <td>Mantiene solo la mejor arista por vértice</td>
+    </tr>
+    <tr>
+      <td><strong>Actualización de pesos</strong></td>
+      <td>No actualiza inmediatamente</td>
+      <td>Actualiza al agregar un nuevo vértice</td>
+    </tr>
+    <tr>
+      <td><strong>Cola de prioridad</strong></td>
+      <td>Puede contener muchas aristas repetidas</td>
+      <td>Contiene una entrada por vértice no visitado</td>
+    </tr>
+    <tr>
+      <td><strong>Complejidad temporal</strong></td>
+      <td>O(E log E) ≈ O(E log V)</td>
+      <td>O(E log V)</td>
+    </tr>
+    <tr>
+      <td><strong>Complejidad espacial</strong></td>
+      <td>O(V + E)</td>
+      <td>O(V + E)</td>
+    </tr>
+    <tr>
+      <td><strong>Eficiencia</strong></td>
+      <td>Menos eficiente en grafos densos</td>
+      <td>Más eficiente en grafos densos</td>
+    </tr>
+    <tr>
+      <td><strong>Implementación</strong></td>
+      <td>Más sencilla</td>
+      <td>Más compleja</td>
+    </tr>
+  </tbody>
+</table>
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Algunos detalles de implementación de PRIM
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### `new_prim_structure()` (1/5)
+
+- Objetivo:
+    
+    - Crear una **estructura de búsqueda** específica para el algoritmo de **Prim (MST)**
+        
+    - Inicializar los mapas y la cola de prioridad necesarios para el recorrido
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### `new_prim_structure()` (2/5)
+
+
+```python
+def new_prim_structure(source, g_order):
+    """
+    Crea una estructura de búsqueda para el algoritmo de Prim (MST).
+
+    Esta función inicializa y retorna una estructura de búsqueda diseñada 
+    específicamente para el algoritmo de Prim, que permite rastrear el progreso 
+    del algoritmo durante la construcción del Árbol de Expansión Mínima (MST).
+
+    La estructura creada contiene los siguientes componentes:
+
+    - source: El vértice de inicio para el MST.
+    - edge_from: Un mapa que almacena el vértice desde el cual se alcanzó 
+      cada vértice en el MST. Inicialmente, todos los valores están en ``None``.
+    - dist_to: Un mapa que almacena las distancias mínimas conocidas desde 
+      el vértice de inicio a cada vértice. Inicialmente, todos los valores están
+      en ``None``.
+    - marked: Un mapa que indica si un vértice ha sido visitado por el algoritmo. 
+      Inicialmente, todos los valores están en ``None``.
+    - pq: Una cola de prioridad indexada (index_priority_queue) que gestiona 
+      los vértices y sus distancias en orden de prioridad. Inicialmente, está vacía.
+
+    :param source: El vértice de inicio para el MST.
+    :type source: any
+    :param g_order: El número total de vértices en el grafo.
+    :type g_order: int
+
+    :return: La estructura de búsqueda inicializada para el algoritmo de Prim.
+    :rtype: dict
+    """
+```
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### `new_prim_structure()` (3/5)
+
+- Crear la estructura inicial:
+
+```python
+structure = {
+    "source": source,
+    "edge_from": map.new_map(g_order, 0.5),
+    "dist_to": map.new_map(g_order, 0.5),
+    "marked": map.new_map(g_order, 0.5),
+    "pq": pq.new_heap(),
+}
+```
+
+- `source`: Vértice inicial del MST
+    
+- `edge_from`: Mapa para registrar la arista que conecta cada vértice
+    
+- `dist_to`: Mapa para registrar las distancias mínimas conocidas
+    
+- `marked`: Mapa para indicar qué vértices han sido visitados
+    
+- `pq`: Cola de prioridad (heap) para manejar los vértices
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### `new_prim_structure()` (4/5)
+
+- ¿Por qué usar un mapa (`map.new_map`)?    
+    - Permite un acceso eficiente a las llaves (vértices)
+    - Mejora el desempeño del algoritmo al manejar muchos vértices
+        
+- ¿Por qué usar una cola de prioridad (`pq.new_heap`)?
+    - Ordena automáticamente los vértices según sus distancias
+    - Facilita encontrar el siguiente vértice de **menor costo**
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### `new_prim_structure()` (5/5)
+
+```python
+from DataStructures.Map import map_linear_probing as map
+from DataStructures.Priority_queue import priority_queue as pq
+...
+
+def new_prim_structure(source, g_order):
+    """
+    Crea una estructura de búsqueda para el algoritmo de Prim (MST).
+
+    :param source: Vértice de inicio del MST.
+    :type source: any
+    :param g_order: Número total de vértices en el grafo.
+    :type g_order: int
+    :return: La estructura de búsqueda inicializada.
+    :rtype: dict
+    """
+    structure = {
+        "source": source,
+        "edge_from": map.new_map(g_order, 0.5),
+        "dist_to": map.new_map(g_order, 0.5),
+        "marked": map.new_map(g_order, 0.5),
+        "pq": pq.new_heap(),
+    }
+    return structure
+```
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### `prim_mst()` (1/7)
+
+- Objetivo:
+
+	- Implementar el algoritmo de Prim para encontrar el 
+		- Árbol de Expansión Mínima (MST) de un **grafo no dirigido y conexo**
+	    
+	- Iniciar en un vértice inicial (`source`)
+	    
+	- Expandir el MST agregando aristas de menor peso
+		- Que conecten vértices no visitados
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### `prim_mst()` (2/7)
+
+```python
+from DataStructures.Graph import edge as ed
+from DataStructures.Graph import digraph as dg
+from DataStructures.Priority_queue import priority_queue as pq
+from DataStructures.Map import map_linear_probing as map
+...
+
+def prim_mst(my_graph, source):
+    """
+    Implementa el algoritmo de Prim para construir el Árbol de Expansión Mínima
+    (MST) de un grafo no dirigido y conexo. 
+
+    El algoritmo comienza en el vértice especificado (`source`) y expande el MST 
+    agregando aristas de menor peso que conectan vértices no visitados. Continúa 
+    hasta que todos los vértices alcanzables están en el MST.
+
+    :param my_graph: El grafo representado como una lista de adyacencia.
+    :type my_graph: adj_list_graph
+    :param source: El vértice de inicio del MST.
+    :type source: any
+    :return: Una estructura que contiene las aristas y distancias del MST.
+    :rtype: prim_search
+    """
+```
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### `prim_mst()` (3/7)
+
+- Inicialización de la estructura:
+
+```python
+aux_structure = prim_structure.new_prim_structure(
+    source, dg.order(my_graph))
+```
+
+Se crea la estructura de búsqueda (`aux_structure`) usando la función `new_prim_structure`:
+
+- Incluye mapas para:
+    
+    - `dist_to`: Distancias mínimas conocidas
+    - `marked`: Vértices visitados
+    - `edge_from`: Aristas que forman el MST
+        
+- Una cola de prioridad (pq) para manejar los vértices según sus distancias
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### `prim_mst()` (4/7)
+
+- Configuración Inicial:
+
+```python
+vertices = dg.vertices(my_graph)
+for vert in vertices:
+    map.put(aux_structure["dist_to"], vert, math.inf)
+    map.put(aux_structure["marked"], vert, False)
+
+```
+
+- Todos los vértices se configuran inicialmente:
+    
+    - Distancia infinita (`math.inf`): 
+	    - No se conoce una conexión mínima
+        
+    - No marcados (`False`): 
+	    - No han sido visitados
+        
+- Excepción: El vértice de inicio (`source`):
+    - Distancia de **0.0** (es el punto de partida)
+    - Se agrega a la cola de prioridad (`pq`)
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### `prim_mst()` (5/7)
+
+- Ciclo principal del algoritmo:
+
+
+```python
+while not pq.is_empty(aux_structure["pq"]):
+    min = pq.remove(aux_structure["pq"])
+```
+
+- Mientras la cola de prioridad no esté vacía:
+
+	- Se extrae el vértice de menor costo (mínimo)
+	- Si aún no ha sido visitado:
+	    - Se marca como visitado (`marked: True`)
+	    - Se examinan sus adyacentes
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### `prim_mst()` (6/7)
+
+- Explorando los vértices adyacentes:
+
+```python
+for edge in dg.adjacents(my_graph, min):
+    w = ed.to(edge)
+    if dist_to[w] > ed.weight(edge):
+        dist_to[w] = ed.weight(edge)
+        edge_from[w] = min
+        pq.insert(aux_structure["pq"], w, ed.weight(edge))
+```
+
+- Para cada vértice adyacente (`w`):
+	- Si su distancia conocida es mayor que la de la arista (`ed.weight(edge)`):
+	    - Se actualiza su distancia
+	    - Se registra la arista que lleva a ese vértice (`edge_from`)
+	    - Se agrega a la cola de prioridad (`pq`)
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### `prim_mst()` (7/7)
+
+- Finalización del algoritmo:
+    
+	- El ciclo termina cuando todos los vértices alcanzables están en el MST
+	    
+	- La estructura de búsqueda (`aux_structure`) contiene:
+	    - El mapa de **distancias mínimas** (`dist_to`)
+	    - El mapa de **aristas del MST** (`edge_from`)
+	    - El mapa de **vértices visitados** (`marked`)
+	        
+	- Resultado:
+	    - Un MST completo que conecta 
+		    - Todos los vértices alcanzables desde el inicial
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Quiz I
+
+<img src="Pasted image 20250512134029.png" alt="" style="width: 40%; height: 45%; object-fit: fill">
+
+
+¿Cuál de los siguientes describe un MST válido encontrado al usar el algoritmo de PRIM, iniciando desde el vértice 1 e ignorando las direcciones de los arcos?
+
+A.     [(1,7), (7,4), (7,2), (2,3), (7,5), (5,6)]
+
+B.     [(1,7), (7,2), (2,3), (7,5), (5,6), (7,4)]
+
+C.     [(1,7), (7,2), (7,3), (7,4), (7,5), (5,6)]
+
+D.    [(1,7), (7,2), (2,3), (7,4), (7,5), (5,6)]
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Quiz I - Solución
+
+<img src="Pasted image 20250512134029.png" alt="" style="width: 40%; height: 45%; object-fit: fill">
+
+
+¿Cuál de los siguientes describe un MST válido encontrado al usar el algoritmo de PRIM, iniciando desde el vértice 1 e ignorando las direcciones de los arcos?
+
+A.     [(1,7), (7,4), (7,2), (2,3), (7,5), (5,6)]
+
+B.     [(1,7), (7,2), (2,3), (7,5), (5,6), (7,4)]
+
+C.     [(1,7), (7,2), (7,3), (7,4), (7,5), (5,6)]
+
+**D.    [(1,7), (7,2), (2,3), (7,4), (7,5), (5,6)]**
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+<i class="fas fa-question-circle fa-2x fa-spin fa-4x"></i>
+
+<br>
+<br>
+
+ [<i class="fas fa-home  fa-3x"></i>](https://eerosales24.github.io/eda_2025_20/#)
+</div></script></section></div>
+    </div>
+
+    <script src="dist/reveal.js"></script>
+
+    <script src="plugin/markdown/markdown.js"></script>
+    <script src="plugin/highlight/highlight.js"></script>
+    <script src="plugin/zoom/zoom.js"></script>
+    <script src="plugin/notes/notes.js"></script>
+    <script src="plugin/math/math.js"></script>
+	<script src="plugin/mermaid/mermaid.js"></script>
+	<script src="plugin/chart/chart.min.js"></script>
+	<script src="plugin/chart/plugin.js"></script>
+	<script src="plugin/customcontrols/plugin.js"></script>
+
+    <script>
+      function extend() {
+        var target = {};
+        for (var i = 0; i < arguments.length; i++) {
+          var source = arguments[i];
+          for (var key in source) {
+            if (source.hasOwnProperty(key)) {
+              target[key] = source[key];
+            }
+          }
+        }
+        return target;
+      }
+
+	  function isLight(color) {
+		let hex = color.replace('#', '');
+
+		// convert #fff => #ffffff
+		if(hex.length == 3){
+			hex = `${hex[0]}${hex[0]}${hex[1]}${hex[1]}${hex[2]}${hex[2]}`;
+		}
+
+		const c_r = parseInt(hex.substr(0, 2), 16);
+		const c_g = parseInt(hex.substr(2, 2), 16);
+		const c_b = parseInt(hex.substr(4, 2), 16);
+		const brightness = ((c_r * 299) + (c_g * 587) + (c_b * 114)) / 1000;
+		return brightness > 155;
+	}
+
+	var bgColor = getComputedStyle(document.documentElement).getPropertyValue('--r-background-color').trim();
+	var isLight = isLight(bgColor);
+
+	if(isLight){
+		document.body.classList.add('has-light-background');
+	} else {
+		document.body.classList.add('has-dark-background');
+	}
+
+      // default options to init reveal.js
+      var defaultOptions = {
+        controls: true,
+        progress: true,
+        history: true,
+        center: true,
+        transition: 'default', // none/fade/slide/convex/concave/zoom
+        plugins: [
+          RevealMarkdown,
+          RevealHighlight,
+          RevealZoom,
+          RevealNotes,
+          RevealMath.MathJax3,
+		  RevealMermaid,
+		  RevealChart,
+		  RevealCustomControls,
+        ],
+
+
+    	allottedTime: 120 * 1000,
+
+		mathjax3: {
+			mathjax: 'plugin/math/mathjax/tex-mml-chtml.js',
+		},
+		markdown: {
+		  gfm: true,
+		  mangle: true,
+		  pedantic: false,
+		  smartLists: false,
+		  smartypants: false,
+		},
+
+		mermaid: {
+			theme: isLight ? 'default' : 'dark',
+		},
+
+		customcontrols: {
+			controls: [
+			]
+		},
+      };
+
+      // options from URL query string
+      var queryOptions = Reveal().getQueryHash() || {};
+
+      var options = extend(defaultOptions, {"width":960,"height":700,"margin":"0.025","minScale":"0.1","maxScale":"2.0","controls":"true","controlsLayout":"bottom-right","progress":"true","slideNumber":"true","center":"false","transition":"slide","transitionSpeed":"default"}, queryOptions);
+    </script>
+
+    <script>
+      Reveal.initialize(options);
+    </script>
+  </body>
+
+  <!-- created with Advanced Slides -->
+</html>
