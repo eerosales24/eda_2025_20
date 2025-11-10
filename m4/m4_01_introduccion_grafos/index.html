@@ -1,0 +1,791 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+
+    <title></title>
+    <link rel="stylesheet" href="dist/reveal.css" />
+    <link rel="stylesheet" href="dist/theme/iph.css" id="theme" />
+    <link rel="stylesheet" href="plugin/highlight/spyder.css" />
+	<link rel="stylesheet" href="css/layout.css" />
+	<link rel="stylesheet" href="plugin/customcontrols/style.css">
+
+
+
+    <script defer src="dist/fontawesome/all.min.js"></script>
+
+	<script type="text/javascript">
+		var forgetPop = true;
+		function onPopState(event) {
+			if(forgetPop){
+				forgetPop = false;
+			} else {
+				parent.postMessage(event.target.location.href, "app://obsidian.md");
+			}
+        }
+		window.onpopstate = onPopState;
+		window.onmessage = event => {
+			if(event.data == "reload"){
+				window.document.location.reload();
+			}
+			forgetPop = true;
+		}
+
+		function fitElements(){
+			const itemsToFit = document.getElementsByClassName('fitText');
+			for (const item in itemsToFit) {
+				if (Object.hasOwnProperty.call(itemsToFit, item)) {
+					var element = itemsToFit[item];
+					fitElement(element,1, 1000);
+					element.classList.remove('fitText');
+				}
+			}
+		}
+
+		function fitElement(element, start, end){
+
+			let size = (end + start) / 2;
+			element.style.fontSize = `${size}px`;
+
+			if(Math.abs(start - end) < 1){
+				while(element.scrollHeight > element.offsetHeight){
+					size--;
+					element.style.fontSize = `${size}px`;
+				}
+				return;
+			}
+
+			if(element.scrollHeight > element.offsetHeight){
+				fitElement(element, start, size);
+			} else {
+				fitElement(element, size, end);
+			}		
+		}
+
+
+		document.onreadystatechange = () => {
+			fitElements();
+			if (document.readyState === 'complete') {
+				if (window.location.href.indexOf("?export") != -1){
+					parent.postMessage(event.target.location.href, "app://obsidian.md");
+				}
+				if (window.location.href.indexOf("print-pdf") != -1){
+					let stateCheck = setInterval(() => {
+						clearInterval(stateCheck);
+						window.print();
+					}, 250);
+				}
+			}
+	};
+
+
+        </script>
+  </head>
+  <body>
+    <div class="reveal">
+      <div class="slides"><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Estructura de Datos y Algoritmos - EDA
+
+####  *Grafos*
+
+[Eduardo Rosales](mailto:ee.rosales24@uniandes.edu.co)
+
+Departamento de Ingeniería de Sistemas y Computación
+
+Universidad de los Andes
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Grafo 
+
+- Abstracción que permite representar objetos y sus relaciones
+- Estructura de datos que consiste en
+	- Nodos (**vértices**) y
+	- Arcos (**aristas**) que conectan pares de nodos
+- Opcional
+	- Cada arista puede tener un peso asociado
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Grafo - Ejemplo
+
+<img src="Pasted image 20250425121932.png" alt="" style="width: 65%; height: 55%; object-fit: fill">
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Motivación
+
+<br>
+
+- **¿Por qué estudiar grafos?**
+  
+> “If you squint the right way, you will notice that graphs are everywhere”.
+ 
+Grzegorz Czajkowski, Google - Systems Infrastructure Team
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Aplicaciones de los grafos (1/10)
+
+- Redes de transporte
+	- Ej: Permiten optimizar rutas en sistemas de tránsito
+
+<img src="Pasted image 20250425122325.png" alt="" style="width: 55%; height: 55%; object-fit: fill">
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Aplicaciones de los grafos (2/10)
+
+- Biología computacional
+	- Ej: Modelan interacciones entre especies o genes
+	
+<img src="Pasted image 20250425122425.png" alt="" style="width: 55%; height: 5o%; object-fit: fill">
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Aplicaciones de los grafos (3/10)
+
+- Redes de comunicaciones
+	- Ej: Permiten modelar conexiones entre nodos
+		- Optimizando diseños/rutas
+
+<img src="Pasted image 20250425123401.png" alt="" style="object-fit: scale-down">
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Aplicaciones de los grafos (4/10)
+
+- Redes de comunicaciones
+	- Ej: Se puede clasificar contenido en Internet
+
+
+<img src="Pasted image 20250425122451.png" alt="" style="width: 70%; height: 70%; object-fit: fill">
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Aplicaciones de los grafos (5/10)
+
+- Redes sociales
+	- Modelan conexiones entre usuarios
+
+<img src="Pasted image 20250425123009.png" alt="" style="width: 70%; height: 60%; object-fit: fill">
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Aplicaciones de los grafos (6/10)
+
+- Redes sociales
+	- Ej: Permiten generar recomendaciones de contenido
+
+<img src="Pasted image 20250425123210.png" alt="" style="width: 70%; height: 60%; object-fit: fill">
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Aplicaciones de los grafos (7/10)
+
+- Plataformas de servicios multimedia
+	- Ej: Permiten generar recomendaciones personalizadas de contenido
+
+<img src="Pasted image 20250425123604.png" alt="" style="object-fit: scale-down">
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Aplicaciones de los grafos (8/10)
+
+- Inteligencia artificial
+	- Ej: Procesamiento de lenguaje natural
+
+
+<img src="Pasted image 20250425123627.png" alt="" style="object-fit: scale-down">
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Aplicaciones de los grafos (9/10)
+
+- El número de aplicaciones crece y crece
+
+<img src="Pasted image 20250425123921.png" alt="" style="width: 65%; height: 53%; object-fit: fill">
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Aplicaciones de los grafos (10/10)
+
+- Física:
+	- Ej: Detección de partículas - CERN
+
+
+<img src="Pasted image 20250425124520.png" alt="" style="width: 65%; height: 53%; object-fit: fill">
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Comprendamos la terminología básica de grafos
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Grafo, nodo (vértice), arco (arista)
+
+- **Grafo**
+	- Conjunto de nodos/vértices y arcos/aristas
+
+- **Nodo/vértice**
+	- Elemento individual en el grafo
+
+- **Arco/arista**
+	- Enlace que conecta dos nodos/vértices
+
+
+<img src="Pasted image 20250425124816.png" alt="" style="width: 45%; height: 33%; object-fit: fill">
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Distancia entre nodos
+
+- Número mínimo de arcos/aristas 
+	- Que deben ser atravesadas para ir de un nodo/vértice a otro
+- El camino más corto entre dos nodos/vértices
+- Ej: La distancia entre 1 y 6 es: **2**
+
+<img src="Pasted image 20250425124909.png" alt="" style="width: 50%; height: 25%; object-fit: fill">
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Camino
+
+- Secuencia de arcos/aristas que conectan dos nodos/vértices
+
+- Dos nodos/vértices están conectados si hay un camino entre ellos
+- Ej: El camino de `a` hasta `h`
+
+<img src="Pasted image 20250425125010.png" alt="" style="width: 40%; height: 35%; object-fit: fill">
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Ciclo y camino simple
+
+- **Ciclo**
+	- Camino que comienza y termina en el mismo nodo/vértice
+	- Ej: En rojo y verde
+
+- **Camino simple**
+	- Camino sin ciclos
+	- Ej: En negro
+
+
+<img src="Pasted image 20250425125445.png" alt="" style="width: 35%; height: 30%; object-fit: fill">
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Dirección (1/2)
+
+- **Grafo dirigido**
+	- Los arcos/aristas no tienen dirección
+	- "digraph": 
+		- Acrónimo de *Directed Graph*
+
+
+- **Grafo no dirigido**
+	- Los arcos/aristas **no** tienen dirección
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Dirección (2/2)
+
+
+<img src="Pasted image 20250425125609.png" alt="" style="width: 50%; height: 45%; object-fit: fill">
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Ponderación (1/3)
+
+- **Grafo ponderado**
+
+	- Los arcos/aristas **tienen pesos**
+
+
+- **Grafo no ponderado**
+
+	- Los arcos/aristas **no** tienen pesos
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Ponderación (2/3)
+
+
+<img src="Pasted image 20250425125814.png" alt="" style="object-fit: scale-down">
+
+- El anterior es un grafo: 
+	- No dirigido
+	- Ponderado
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Ponderación (3/3)
+
+- Los arcos/aristas **no tienen pesos**
+
+
+<img src="Pasted image 20250425125752.png" alt="" style="object-fit: scale-down">
+
+
+
+- El anterior es un grafo: 
+	- Dirigido
+	- No ponderado
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Vértices adyacentes
+
+- Dos nodos/vértices son adyacentes
+	- Si existe un camino de longitud 1 (1 arco) 
+		- Que los conecta
+- Ej: Adyacentes a Bogotá:
+	- Yopal, Medellín, Cali y Manizales
+	
+
+<br>
+
+<img src="Pasted image 20250425125956.png" alt="" style="width: 70%; height: 40%; object-fit: fill">
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Ciclicidad 
+
+- **Grafo cíclico**
+	- Grafo que tiene ciclos
+
+- **Grafo acíclico**
+	- Grafo que **no** tiene ciclos
+
+
+<br>
+
+<img src="Pasted image 20250425130335.png" alt="" style="width: 60%; height: 30%; object-fit: fill">
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### DAG (Directed Acyclic Graph) (1/2)
+
+- Grafo acíclico dirigido
+
+	- **Un árbol**
+		- Es un ejemplo válido de DAG
+			- Hay exactamente un camino entre cada par de nodos/vértices
+
+<img src="Pasted image 20250425130512.png" alt="" style="width: 40%; height: 40%; object-fit: fill">
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### DAG (Directed Acyclic Graph) (2/2)
+
+- Hay DAGs en donde hay más de un nodo/vértice padre
+	- Son DAGs, pero **no** son árboles (ejemplo a la derecha)
+
+	<br> 
+	
+<img src="Pasted image 20250425130657.png" alt="" style="width: 80%; height: 40%; object-fit: fill">
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Grado de un nodo
+
+- Número de arcos/aristas que se conectan con un nodo/vértice
+
+<img src="Pasted image 20250425130855.png" alt="" style="width: 30%; height: 50%; object-fit: fill">
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Subgrafo
+
+- Parte de un grafo que forma un grafo en sí mismo
+- Grafo **componente** de otro grafo
+
+<img src="Pasted image 20250425130855.png" alt="" style="width: 30%; height: 50%; object-fit: fill">
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Grafo vacío (nulo)
+
+- Un grafo puede estar vacío
+	- Carece de:
+		- Nodos/vértices
+		- Arcos/aristas
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Conectividad (1/3)
+
+- **Grafo conexo**: 
+	- Todos los nodos están unidos por algún camino
+    
+- **Grafo no conexo**: 
+	- Al menos un par de nodos no tiene camino entre sí
+
+
+<img src="Pasted image 20250425131717.png" alt="" style="width: 55%; height: 35%; object-fit: fill">
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Conectividad (2/3)
+
+- **Grafo fuertemente conexo**
+	- Grafo dirigido
+		- Donde existe un camino dirigido entre cada par de nodos/vértices
+	- En el curso:
+		- Un grafo no dirigido conexo
+			- Se asume como fuertemente conexo
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Conectividad (3/3)
+
+<img src="Pasted image 20250425131846.png" alt="" style="object-fit: scale-down">
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Completitud (1/4)
+
+- **Grafo completo**
+	- Cada par de nodos/vértices 
+		- Está conectado por un arco/arista único
+	- Para cada par de nodos/vértices 
+		- Existe un solo arco/arista conectándolos
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Completitud (2/4)
+
+- Ejemplos de grafos completos:
+
+
+<img src="Pasted image 20250425132131.png" alt="" style="width: 85%; height: 55%; object-fit: fill">
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Completitud (3/4)
+
+- Un **grafo completo** 
+	- Conecta todos los pares de nodos/vértices mediante un arco/arista
+    
+- Con **n** nodos/vértices:
+    
+    - Cada nodo/vértice se conecta a **(n-1)** nodos/vértices
+        
+- El total de arcos/aristas es:
+    
+    - `n(n-1)/2`
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Completitud (4/4)
+
+- **¿Cuántos arcos/aristas tiene un grafo completo de orden 100?**
+
+<br>
+
+-  **Solución**:
+
+	- Un grafo completo de n nodos/vértices tiene este número de arcos/aristas
+
+		- 𝑛 (𝑛 −1)/ 2
+
+	- Un grafo completo de orden **100** tiene :
+
+		- 𝑛 (𝑛 −1)/ 2 = 100 (100 −1)/ 2 = 4950
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Completitud y dirección (1/2)
+
+- **Grafo completo dirigido**
+	- Cada par de nodos/vértices
+		- Está conectado por un arco/arista dirigido único
+
+- **Grafo completo no dirigido**
+	- Cada par de nodos/vértices
+		- Está conectado por un arco/arista único
+			- Pero **sin dirección**
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Completitud y dirección (2/2)
+
+<img src="Pasted image 20250425133038.png" alt="" style="width: 75%; height: 35%; object-fit: fill">
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Regularidad (1/2)
+
+- **Grafo regular**
+
+	- Todos los nodos/vértices
+		- Tienen el mismo grado
+
+	- El número de arcos/aristas 
+		- Que se conectan con un nodo/vértice
+			- Es igual para todos los nodos/vértices
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Regularidad (2/2)
+
+
+<img src="Pasted image 20250425133320.png" alt="" style="object-fit: scale-down">
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Grafo plano
+
+- Grafo que puede ser dibujado sin que ningún arco/arista se cruce
+
+
+<img src="Pasted image 20250425133401.png" alt="" style="width: 65%; height: 35%; object-fit: fill">
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Dispersión (1/2)
+
+- **Grafo disperso**
+	- El número de arcos/aristas es significativamente menor 
+		- Que el número máximo posible de arcos/aristas
+
+- **Grafo denso**
+	- El número de arcos/aristas es muy cercano (o igual) 
+		- Al número máximo posible de arcos/aristas
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Dispersión (2/2)
+
+
+<img src="Pasted image 20250426183205.png" alt="" style="width: 75%; height: 45%; object-fit: fill">
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### ¿Qué algoritmia es común con grafos?
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Existencia de caminos y camino más corto
+
+<img src="Screenshot 2025-04-25 at 1.35.48 PM.png" alt="" style="width: 85%; height: 55%; object-fit: fill">
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Existencia de ciclos y camino Hamiltoniano
+
+<img src="Pasted image 20250425133707.png" alt="" style="object-fit: scale-down">
+
+
+- En el anterior grafo
+	- El ciclo pasa una única vez por cada nodo/vértice
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Equivalencia entre grafos
+
+<img src="Pasted image 20250425133802.png" alt="" style="width: 75%; height: 50%; object-fit: fill">
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Algoritmos de grafos (1/3)
+
+1. **Estudiados en el curso:**
+
+- **DFS**    
+    - _Depth-First Search_: 
+	    - Recorrido en profundidad
+		    - Explora lo más lejos posible antes de retroceder
+        
+- **BFS**
+    - _Breadth-First Search_: 
+	    - Recorrido en anchura
+		    - Explora todos los vecinos de un nodo antes de profundizar
+        
+- **DFO**
+    - _Depth-First Ordering_: 
+	    - Orden de recorrido en profundidad
+		    - Orden de visita de nodos según un recorrido en profundidad
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Algoritmos de grafos (2/3)
+
+- **Topological Sort**
+    - Ordenación de nodos en un grafo dirigido acíclico (DAG) 
+	    - Respetando dependencias
+
+- **Prim**
+    - Algoritmo para construir un árbol de expansión mínima (MST)
+
+- **Dijkstra**
+    - Algoritmo para encontrar el camino más corto 
+	    - Desde un nodo origen a todos los demás
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Algoritmos de grafos (3/3)
+
+2. No estudiados en el curso:
+
+
+- **Bellman-Ford**
+    - Algoritmo para caminos más cortos, permite aristas con peso negativo
+        
+- **Floyd-Warshall**
+    - Algoritmo para caminos más cortos entre todos los pares de nodos
+    
+- **Kruskal**    
+    - Algoritmo para construir un árbol de expansión mínima (MST) 
+	    - Usando conjuntos disjuntos
+	    
+- **A***
+    - _A Star_: Búsqueda de caminos óptimos usando heurísticas
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### En el curso, no se estudian grafos con las siguientes anomalías
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Anomalías en grafos (1/2)
+
+- *Auto-ciclo (self-loop)**
+	- Arco/arista de un nodo a sí mismo
+		- Ej: `A -> A`
+
+
+<img src="Pasted image 20250425134742.png" alt="" style="width: 45%; height: 30%; object-fit: fill">
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Anomalías en grafos (2/2)
+
+- **Múltiples aristas entre dos nodos (parallel edges)**
+	- Ej: `A -> B, A -> B`
+
+
+<img src="Pasted image 20250425134742.png" alt="" style="width: 45%; height: 30%; object-fit: fill">
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="has-light-background drop" data-background-color="#f8f8f8" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+<i class="fas fa-question-circle fa-2x fa-spin fa-4x"></i>
+
+
+
+<br>
+<br>
+
+
+[<i class="fas fa-home  fa-3x"></i>](https://eerosales24.github.io/eda_2025_10/#)
+</div></script></section></div>
+    </div>
+
+    <script src="dist/reveal.js"></script>
+
+    <script src="plugin/markdown/markdown.js"></script>
+    <script src="plugin/highlight/highlight.js"></script>
+    <script src="plugin/zoom/zoom.js"></script>
+    <script src="plugin/notes/notes.js"></script>
+    <script src="plugin/math/math.js"></script>
+	<script src="plugin/mermaid/mermaid.js"></script>
+	<script src="plugin/chart/chart.min.js"></script>
+	<script src="plugin/chart/plugin.js"></script>
+	<script src="plugin/customcontrols/plugin.js"></script>
+
+    <script>
+      function extend() {
+        var target = {};
+        for (var i = 0; i < arguments.length; i++) {
+          var source = arguments[i];
+          for (var key in source) {
+            if (source.hasOwnProperty(key)) {
+              target[key] = source[key];
+            }
+          }
+        }
+        return target;
+      }
+
+	  function isLight(color) {
+		let hex = color.replace('#', '');
+
+		// convert #fff => #ffffff
+		if(hex.length == 3){
+			hex = `${hex[0]}${hex[0]}${hex[1]}${hex[1]}${hex[2]}${hex[2]}`;
+		}
+
+		const c_r = parseInt(hex.substr(0, 2), 16);
+		const c_g = parseInt(hex.substr(2, 2), 16);
+		const c_b = parseInt(hex.substr(4, 2), 16);
+		const brightness = ((c_r * 299) + (c_g * 587) + (c_b * 114)) / 1000;
+		return brightness > 155;
+	}
+
+	var bgColor = getComputedStyle(document.documentElement).getPropertyValue('--r-background-color').trim();
+	var isLight = isLight(bgColor);
+
+	if(isLight){
+		document.body.classList.add('has-light-background');
+	} else {
+		document.body.classList.add('has-dark-background');
+	}
+
+      // default options to init reveal.js
+      var defaultOptions = {
+        controls: true,
+        progress: true,
+        history: true,
+        center: true,
+        transition: 'default', // none/fade/slide/convex/concave/zoom
+        plugins: [
+          RevealMarkdown,
+          RevealHighlight,
+          RevealZoom,
+          RevealNotes,
+          RevealMath.MathJax3,
+		  RevealMermaid,
+		  RevealChart,
+		  RevealCustomControls,
+        ],
+
+
+    	allottedTime: 120 * 1000,
+
+		mathjax3: {
+			mathjax: 'plugin/math/mathjax/tex-mml-chtml.js',
+		},
+		markdown: {
+		  gfm: true,
+		  mangle: true,
+		  pedantic: false,
+		  smartLists: false,
+		  smartypants: false,
+		},
+
+		mermaid: {
+			theme: isLight ? 'default' : 'dark',
+		},
+
+		customcontrols: {
+			controls: [
+			]
+		},
+      };
+
+      // options from URL query string
+      var queryOptions = Reveal().getQueryHash() || {};
+
+      var options = extend(defaultOptions, {"width":960,"height":700,"margin":"0.025","minScale":"0.1","maxScale":"2.0","controls":"true","controlsLayout":"bottom-right","progress":"true","slideNumber":"true","center":"false","transition":"slide","transitionSpeed":"default"}, queryOptions);
+    </script>
+
+    <script>
+      Reveal.initialize(options);
+    </script>
+  </body>
+
+  <!-- created with Advanced Slides -->
+</html>
